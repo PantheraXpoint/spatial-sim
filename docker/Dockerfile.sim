@@ -1,0 +1,50 @@
+# =============================================================================
+# SERVER ONLY. Requires NVIDIA RTX GPU, Linux, x86_64.
+# Will not build or run on macOS / Apple Silicon. This is expected.
+# =============================================================================
+#
+# VERSION CHOICE lives here and nowhere else. See README §"Which Isaac Sim".
+#   6.0.1 -> current release. Rootless container, multi-arch, official compose.
+#   5.1.0 -> if you need the pre-6.0 sensor API surface.
+#
+ARG ISAACSIM_VERSION=6.0.1
+FROM nvcr.io/nvidia/isaac-sim:${ISAACSIM_VERSION}
+
+# Pin by digest once this builds cleanly. Tags get re-pushed upstream; digests
+# don't. Get it with:
+#   docker inspect --format='{{index .RepoDigests 0}}' nvcr.io/nvidia/isaac-sim:6.0.1
+# then replace the FROM above with the sha256 form.
+
+ARG DEBIAN_FRONTEND=noninteractive
+
+# The 6.x image runs as uid 1234, not root. apt needs root, so switch
+# explicitly and switch back. Skipping the switch back means every file the
+# container writes to the bind mount is root-owned on the host.
+USER root
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        git vim curl htop tmux \
+    && rm -rf /var/lib/apt/lists/*
+
+# ---------------------------------------------------------------------------
+# CRITICAL: install into Isaac Sim's BUNDLED python via ./python.sh, never the
+# system python. Packages installed into system python are invisible to Isaac
+# Sim, and the resulting ModuleNotFoundError points at the wrong problem.
+#
+# Verify the bundled interpreter version on first run rather than assuming:
+#   ./python.sh -c "import sys; print(sys.version)"
+# and pin requirements-dev.txt to whatever it reports.
+# ---------------------------------------------------------------------------
+WORKDIR /isaac-sim
+COPY docker/requirements-sim.txt /tmp/requirements-sim.txt
+RUN ./python.sh -m pip install --no-cache-dir -r /tmp/requirements-sim.txt
+
+# Project code is BIND-MOUNTED at runtime, never COPYd. You will edit it
+# constantly and rebuilding the image for each edit is intolerable.
+RUN mkdir -p /workspace && chown -R 1234:1234 /workspace
+
+ENV PROJECT_EXT_PATH=/workspace/ext
+ENV ACCEPT_EULA=Y PRIVACY_CONSENT=Y OMNI_KIT_ACCEPT_EULA=YES
+
+USER 1234
+WORKDIR /isaac-sim
+CMD ["/bin/bash"]

@@ -1,0 +1,12 @@
+.git
+.github
+__pycache__
+*.pyc
+.pytest_cache
+.ruff_cache
+.venv
+venv
+docker/.env
+scenes/*.usd
+*.log
+.DS_Store

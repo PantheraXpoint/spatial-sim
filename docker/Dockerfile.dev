@@ -1,0 +1,24 @@
+# =============================================================================
+# CPU only. Multi-arch: arm64 (MacBook M4) and amd64 (server).
+# This image is the whole payoff of the layer discipline: because core/ never
+# imports Isaac APIs, the MacBook is a real development machine.
+#
+# If you ever find yourself wanting to add `omni`, `pxr`, or `isaacsim` to
+# requirements-dev.txt -- STOP. Simulator-specific code has leaked into core/
+# and you have lost Habitat portability. Fix the leak, not this file.
+# =============================================================================
+FROM python:3.11-slim
+ARG DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        git build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /workspace
+COPY docker/requirements-dev.txt /tmp/requirements-dev.txt
+RUN pip install --no-cache-dir -r /tmp/requirements-dev.txt
+
+ENV PYTHONPATH=/workspace \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+CMD ["/bin/bash"]

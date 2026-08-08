@@ -1,0 +1,119 @@
+# =============================================================================
+# THE SENSOR REGISTRY -- single source of truth.
+#
+# Viewport creation, annotator attachment, the inspector panel, and all future
+# logging read from this file. Adding a sensor = adding an entry here.
+#
+# prim_path values below are PLACEHOLDERS from the plan. Confirm each one
+# against the actual stage tree before running anything. Never invent a prim
+# path -- a wrong path does not render badly, it crashes.
+# =============================================================================
+
+sensors:
+
+  # --- INFRA-01: warehouse ceiling, ~6-7 m -----------------------------------
+  # All three modalities co-located under one Xform so they share a pose.
+  - id: INFRA_01_CAM
+    modality: rgbd
+    mount: fixed
+    parent: /World/Infrastructure/INFRA_01
+    prim_path: /World/Infrastructure/INFRA_01/cam_01
+    resolution: [1280, 720]
+    annotators: [rgb, distance_to_camera, semantic_segmentation]
+    notes: "Sees the top of the avatar's head. Ceiling viewpoint."
+
+  - id: INFRA_01_LIDAR
+    modality: lidar
+    mount: fixed
+    parent: /World/Infrastructure/INFRA_01
+    prim_path: /World/Infrastructure/INFRA_01/lidar_01
+    config: Example_Rotary
+    annotators: [generic-model-output]
+    notes: "M5 money shot. Expect points ON the avatar plus an occlusion
+            shadow behind it -- the 'void' is the shadow, not the avatar."
+
+  - id: INFRA_01_RADAR
+    modality: radar
+    mount: fixed
+    parent: /World/Infrastructure/INFRA_01
+    prim_path: /World/Infrastructure/INFRA_01/radar_01
+    config: Example_Radar
+    annotators: [generic-model-output]
+    notes: "Requires Motion BVH -- raises render cost for ALL sensors.
+            Add last, toggle off when not demoing."
+
+  # --- INFRA-02: factory wall, ~3 m ------------------------------------------
+  - id: INFRA_02_CAM
+    modality: rgbd
+    mount: fixed
+    parent: /World/Infrastructure/INFRA_02
+    prim_path: /World/Infrastructure/INFRA_02/cam_02
+    resolution: [1280, 720]
+    annotators: [rgb, distance_to_camera, semantic_segmentation]
+
+  - id: INFRA_02_LIDAR
+    modality: lidar
+    mount: fixed
+    parent: /World/Infrastructure/INFRA_02
+    prim_path: /World/Infrastructure/INFRA_02/lidar_02
+    config: Example_Rotary
+    annotators: [generic-model-output]
+
+  - id: INFRA_02_RADAR
+    modality: radar
+    mount: fixed
+    parent: /World/Infrastructure/INFRA_02
+    prim_path: /World/Infrastructure/INFRA_02/radar_02
+    config: Example_Radar
+    annotators: [generic-model-output]
+
+  # --- Robot observation platforms (all static) ------------------------------
+  # RGB-D only. Modality contrast lives in the infrastructure stations; the
+  # robots contrast HEIGHT and VIEWPOINT. Ceiling sees your top, the Go2 sees
+  # your legs, the humanoid sees your face.
+  - id: BOT_01_CAM
+    modality: rgbd
+    mount: robot
+    parent: /World/Robots/BOT_01
+    prim_path: /World/Robots/BOT_01/cam
+    resolution: [640, 480]
+    annotators: [rgb, distance_to_camera]
+    notes: "TurtleBot3 Burger, ~0.2 m. Ground level."
+
+  - id: BOT_02_CAM
+    modality: rgbd
+    mount: robot
+    parent: /World/Robots/BOT_02
+    prim_path: /World/Robots/BOT_02/cam
+    resolution: [640, 480]
+    annotators: [rgb, distance_to_camera]
+    notes: "Unitree Go2, ~0.4 m. Static -- legged robots collapse on spawn
+            without a locomotion policy."
+
+  - id: BOT_03_CAM
+    modality: rgbd
+    mount: robot
+    parent: /World/Robots/BOT_03
+    prim_path: /World/Robots/BOT_03/cam
+    resolution: [640, 480]
+    annotators: [rgb, distance_to_camera]
+    notes: "Unitree H1 humanoid, ~1.7 m. Eye level."
+
+  # --- Avatar cameras --------------------------------------------------------
+  # The ONLY moving mount in the scene, and therefore the only possible source
+  # of embodied experience rather than allocentric state.
+  - id: AVATAR_CAM_FP
+    modality: rgb
+    mount: avatar
+    parent: /World/Avatar
+    prim_path: /World/Avatar/cam_first_person
+    resolution: [1280, 720]
+    annotators: [rgb]
+
+  - id: AVATAR_CAM_TP
+    modality: rgb
+    mount: avatar
+    parent: /World/Avatar
+    prim_path: /World/Avatar/cam_third_person
+    resolution: [1280, 720]
+    annotators: [rgb]

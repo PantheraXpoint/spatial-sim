@@ -1,0 +1,107 @@
+# =============================================================================
+# Run from the repo root:  docker compose -f docker/docker-compose.yml up sim
+# or just use the Makefile:  make sim
+# =============================================================================
+
+services:
+
+  # ---------------------------------------------------------------------------
+  # SIM -- server only. Needs an RTX GPU. Will not start on the MacBook.
+  # ---------------------------------------------------------------------------
+  sim:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.sim
+      args:
+        ISAACSIM_VERSION: ${ISAACSIM_VERSION:-6.0.1}
+    image: spatial-sim/sim:${ISAACSIM_VERSION:-6.0.1}
+    container_name: spatial-sim
+
+    # NOT optional and not merely "simplest". The NVIDIA streaming SDK binds
+    # its UDP media socket to a real network interface inside the container.
+    # Bridge networking with -p publishing lets SIGNALING connect and then
+    # shows you a black screen forever, which is a miserable thing to debug.
+    network_mode: host
+
+    # Run as the container's own uid so bind-mounted files stay writable from
+    # both sides. If host files come out owned by 1234, that is this line.
+    user: "1234:1234"
+
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              # GPUs 0 and 1 render. GPU 2 is deliberately withheld for the
+              # model/inference process -- rendering scales sublinearly across
+              # cards, a dedicated inference GPU does not.
+              device_ids: ["0", "1"]
+              capabilities: [gpu]
+
+    environment:
+      ACCEPT_EULA: "Y"
+      PRIVACY_CONSENT: "Y"
+      OMNI_KIT_ACCEPT_EULA: "YES"
+      # Streaming config. These env vars are the documented 6.x interface and
+      # are far less fragile than the --/exts/omni.kit.livestream/... flags
+      # that older tutorials pass on the command line.
+      ISAACSIM_HOST: ${ISAACSIM_HOST:-127.0.0.1}
+      ISAACSIM_SIGNAL_PORT: ${ISAACSIM_SIGNAL_PORT:-49100}
+      ISAACSIM_STREAM_PORT: ${ISAACSIM_STREAM_PORT:-47998}
+
+    volumes:
+      - ../:/workspace:rw
+
+      # ---------------------------------------------------------------------
+      # CACHE. Without these, EVERY restart re-downloads assets and re-warms
+      # shaders -- about ten minutes, several times a day.
+      #
+      # These paths are the 6.x ROOTLESS layout (/isaac-sim/...). Older guides
+      # and the 4.5-era examples use /root/.cache/ov and /isaac-sim/kit/cache.
+      # Those paths still "work" in the sense that Docker happily creates the
+      # volumes -- they just cache nothing, and you get the ten-minute start
+      # forever with no error to tell you why. Verify after first run:
+      #   docker volume inspect spatial-sim_isaac-cache-main
+      # should be non-empty, and the second launch should be visibly faster.
+      # ---------------------------------------------------------------------
+      - isaac-cache-main:/isaac-sim/.cache:rw
+      - isaac-cache-compute:/isaac-sim/.nv/ComputeCache:rw
+      - isaac-config:/isaac-sim/.nvidia-omniverse/config:rw
+      - isaac-logs:/isaac-sim/.nvidia-omniverse/logs:rw
+      - isaac-data:/isaac-sim/.local/share/ov/data:rw
+      - isaac-pkg:/isaac-sim/.local/share/ov/pkg:rw
+      - isaac-hub:/var/cache/hub:rw
+
+    stdin_open: true
+    tty: true
+
+    # Interactive by default. Launching streaming is a deliberate act:
+    #   make stream      (or)   ./runheadless.sh -v
+    # The -v flag shows shader-cache warm-up progress, which is the difference
+    # between "it's hung" and "it's working, wait".
+    command: /bin/bash
+
+  # ---------------------------------------------------------------------------
+  # DEV -- identical on the server and the MacBook. No GPU, no simulator.
+  # ---------------------------------------------------------------------------
+  dev:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.dev
+    image: spatial-sim/dev:latest
+    container_name: spatial-dev
+    volumes:
+      - ../:/workspace:rw
+    working_dir: /workspace
+    stdin_open: true
+    tty: true
+    command: /bin/bash
+
+volumes:
+  isaac-cache-main:
+  isaac-cache-compute:
+  isaac-config:
+  isaac-logs:
+  isaac-data:
+  isaac-pkg:
+  isaac-hub:

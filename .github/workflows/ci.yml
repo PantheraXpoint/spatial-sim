@@ -1,0 +1,20 @@
+name: ci
+on: [push, pull_request]
+
+jobs:
+  boundary-and-tests:
+    # Runs on a plain CPU runner with no GPU and no simulator. That is the
+    # point: if this job ever needs a GPU, the layer boundary has leaked.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -r docker/requirements-dev.txt
+      - name: Layer boundary
+        run: ./scripts/check_layer_boundary.sh
+      - name: Tests
+        run: PYTHONPATH=. pytest tests/ -v
+      - name: Lint
+        run: ruff check core/ tests/

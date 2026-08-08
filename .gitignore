@@ -1,0 +1,20 @@
+docker/.env
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.venv/
+venv/
+
+# Build artifacts. Scenes are authored in the GUI and saved -- decide
+# deliberately whether a given .usd is a source file or an artifact.
+scenes/*.usd
+scenes/*.usda
+!scenes/.gitkeep
+
+*.log
+.DS_Store
+.idea/
+.vscode/

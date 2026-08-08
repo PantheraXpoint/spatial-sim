@@ -1,0 +1,5 @@
+# Installed into Isaac Sim's BUNDLED python via ./python.sh -m pip.
+# Keep this list minimal -- every entry is a chance to shadow one of Isaac
+# Sim's own pinned dependencies and break the app in a way that looks like a
+# simulator bug.
+pyyaml>=6.0

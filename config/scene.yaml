@@ -1,0 +1,70 @@
+# =============================================================================
+# Scene composition. Environments are REFERENCED into a parent USD with a
+# transform offset so they sit side by side.
+#
+# Asset paths are from the plan and MUST be confirmed against the actual asset
+# library before use.
+# =============================================================================
+
+environments:
+  - name: warehouse
+    # Strongly consider starting from the pre-labelled sample stage instead:
+    #   Samples/Replicator/Stage/full_warehouse_worker_and_anim_cameras.usd
+    # It ships with a warehouse, a worker character, multiple cameras, and
+    # SEMANTIC LABELS ALREADY APPLIED -- roughly 60% of the scene. Missing
+    # semantic labels is the usual reason segmentation annotators return empty.
+    asset: Isaac/Environments/Simple_Warehouse/full_warehouse.usd
+    # Lighter variant for fast iteration:
+    #   Isaac/Environments/Simple_Warehouse/small_warehouse_digital_twin.usd
+    offset: [0.0, 0.0, 0.0]
+
+  - name: second_building
+    asset: null          # hospital or office -- decide at M8
+    offset: [60.0, 0.0, 0.0]
+
+avatar:
+  prim_path: /World/Avatar
+  # ALL FOUR of these are load-bearing. Miss any one and sensors silently do
+  # not react to you, with no error message anywhere.
+  kinematic: true            # dynamic bodies ragdoll and fall through floors
+  collision_mesh: true       # ray-based sensors need geometry to bounce off
+  semantic_class: person     # or segmentation/bbox annotators return nothing
+  height: 1.75
+  eye_height: 1.65
+  move_speed: 1.4            # m/s, roughly human walking pace
+
+robots:
+  - id: BOT_01
+    asset: Robots/Turtlebot/Turtlebot3/turtlebot3_burger.usd
+    position: [4.0, 2.0, 0.0]
+    sensor_height: 0.2
+    static: true
+  - id: BOT_02
+    asset: Robots/Unitree/Go2/go2.usd
+    position: [6.0, -1.0, 0.0]
+    sensor_height: 0.4
+    static: true
+  - id: BOT_03
+    asset: null              # Robotics Examples -> POLICY -> Humanoid (H1)
+    position: [8.0, 1.5, 0.0]
+    sensor_height: 1.7
+    static: true
+
+stations:
+  - id: INFRA_01
+    prim_path: /World/Infrastructure/INFRA_01
+    position: [5.0, 0.0, 6.5]
+    mount: ceiling
+  - id: INFRA_02
+    prim_path: /World/Infrastructure/INFRA_02
+    position: [62.0, 3.0, 3.0]
+    mount: wall
+
+renderer:
+  # Cap at 2. Corrupted/empty frames are reported with many render products
+  # across many GPUs. Validate by rendering the same scene at maxGpuCount=1
+  # and =2 and comparing -- a meaningful difference means the bug is present.
+  max_gpu_count: 2
+  # Radar needs these. They raise VRAM and render cost for EVERY sensor, so
+  # keep them false until M9 and toggle off when not demoing radar.
+  raytracing_motion: false
