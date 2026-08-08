@@ -76,9 +76,15 @@ Claude Code should not handle your NGC key.
 
 > I have already run `docker login nvcr.io`. Copy `docker/.env.example` to
 > `docker/.env` and set `ISAACSIM_HOST` to this machine's Tailscale IP (find it
-> with `tailscale ip -4`). Then run `make dev-build`, `make check`, `make test`,
-> and only if those pass, `make sim-build`. Then `make compat` and
-> `make encoder-check`. Report what each one output.
+> with `tailscale ip -4`). Then run `make dev-build` and `make verify`, and only
+> if those pass, `make sim-build`. Then `make compat` and `make encoder-check`.
+> Report what each one output.
+>
+> **Install nothing on this host.** Python dependencies belong in
+> `docker/requirements-dev.txt` (dev container) or `docker/requirements-sim.txt`
+> (installed into Isaac Sim's bundled python via `./python.sh`). The driver,
+> Docker, and the Container Toolkit from S1 are the only host-level installs in
+> this project.
 
 **Gate:** compat prints `System checking result: PASSED`, and
 `ldconfig -p | grep libnvidia-encode` returns a line. No NVENC means no

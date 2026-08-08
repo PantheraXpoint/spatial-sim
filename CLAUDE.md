@@ -46,6 +46,24 @@ research claim in miniature.
 6. **This is a visual demo, not a data pipeline.** Skip calibration export,
    warm-up frame handling, and determinism checks.
 
+7. **Never install anything on the host.** No `pip install`, no `npm install`,
+   no `apt install` outside a container — on either machine.
+   - Python packages for `core/`/`tests/` go in `docker/requirements-dev.txt`,
+     then `make dev-build`.
+   - Python packages for Isaac Sim go in `docker/requirements-sim.txt`, and are
+     installed into the **bundled** interpreter via `./python.sh -m pip`, never
+     the system python.
+   - Run everything through the Makefile: `make test`, `make check`,
+     `make verify`. These execute inside the dev container.
+   - The **only** legitimate host-level installs are infrastructure that
+     containers cannot provide for themselves: the NVIDIA driver, Docker, the
+     NVIDIA Container Toolkit, and Tailscale. Nothing else — and none of them
+     without asking first.
+
+   If you find yourself wanting to install on the host to make a test pass, the
+   dependency belongs in a requirements file and the image needs rebuilding.
+   Say so instead of installing.
+
 ---
 
 ## The API-era trap — read before writing any Isaac code
@@ -132,8 +150,10 @@ Layer 1  SCENE (USD)        sim/ + scenes/
 ## Before every commit
 
 ```bash
-./scripts/check_layer_boundary.sh
-PYTHONPATH=. pytest tests/ -q
+make verify
 ```
+
+Runs the layer-boundary check and the test suite inside the dev container.
+Nothing touches the host environment.
 
 Both must pass. If tests cannot run without a GPU, the boundary has leaked.

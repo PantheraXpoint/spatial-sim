@@ -5,16 +5,19 @@ jobs:
   boundary-and-tests:
     # Runs on a plain CPU runner with no GPU and no simulator. That is the
     # point: if this job ever needs a GPU, the layer boundary has leaked.
+    #
+    # This builds and uses the SAME dev image as `make verify`. An earlier
+    # version installed requirements directly on the runner, which meant CI and
+    # local development were two different environments -- the image could rot
+    # without CI ever noticing.
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-      - run: pip install -r docker/requirements-dev.txt
+      - name: Build dev image
+        run: make dev-build
       - name: Layer boundary
-        run: ./scripts/check_layer_boundary.sh
+        run: make check
       - name: Tests
-        run: PYTHONPATH=. pytest tests/ -v
+        run: make test
       - name: Lint
-        run: ruff check core/ tests/
+        run: make lint

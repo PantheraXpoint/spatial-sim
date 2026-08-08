@@ -19,14 +19,23 @@ dev: ## Shell into the dev container
 test: ## Run tests in the dev container
 	$(COMPOSE) run --rm dev python -m pytest tests/ -v
 
-test-local: ## Run tests on the host (needs local pyyaml + pytest)
+# ESCAPE HATCHES -- debugging only, when the container itself is suspect.
+# These run on the host and therefore need host packages, which hard rule 7
+# forbids installing. Do not use them to "get around" a broken image: fix the
+# image. Present so that a container problem is diagnosable, nothing more.
+test-local: ## [debug only] Tests on the host. Requires host deps -- see rule 7.
 	PYTHONPATH=. python3 -m pytest tests/ -v
 
-check: ## Enforce the core/ layer boundary
-	./scripts/check_layer_boundary.sh
+check: ## Enforce the core/ layer boundary (in container)
+	$(COMPOSE) run --rm dev bash scripts/check_layer_boundary.sh
+
+check-local: ## [debug only] Boundary check on the host. See note above.
+	bash scripts/check_layer_boundary.sh
 
 lint:
 	$(COMPOSE) run --rm dev ruff check core/ tests/
+
+verify: check test ## Run before every commit. Fully containerized.
 
 ci: check test lint ## Everything CI runs
 
@@ -61,5 +70,5 @@ down:
 clean-cache: ## Nuke Isaac cache volumes. Next start costs ~10 min.
 	$(COMPOSE) down -v
 
-.PHONY: help dev-build dev test test-local check lint ci verify-gpu compat \
+.PHONY: help dev-build dev test test-local check check-local lint verify ci verify-gpu compat \
         sim-build sim stream encoder-check ports down clean-cache

@@ -36,24 +36,50 @@ fi
 # A second, sharper check: core/ must actually IMPORT on a machine with no
 # simulator installed. A dependency can leak in transitively without the
 # grep above ever firing.
+#
+# This distinguishes two failure modes that look identical if you're careless:
+#   - a FORBIDDEN module is missing  -> a real leak
+#   - any other module is missing    -> a declared dependency isn't installed,
+#                                       i.e. you're outside the dev container
+# Conflating them sends people hunting for a leak that isn't there.
 echo "Checking core/ imports without a simulator present..."
 if PYTHONPATH=. python3 -c "
 import importlib, pkgutil, sys
-failed = []
+
+FORBIDDEN = {'omni', 'pxr', 'isaacsim'}
+leaks, missing_deps, other = [], [], []
+
 for m in pkgutil.walk_packages(['core'], prefix='core.'):
     try:
         importlib.import_module(m.name)
+    except ModuleNotFoundError as exc:
+        root = (exc.name or '').split('.')[0]
+        (leaks if root in FORBIDDEN else missing_deps).append((m.name, root))
     except Exception as exc:
-        failed.append((m.name, type(exc).__name__, str(exc)))
-if failed:
-    for name, kind, msg in failed:
-        print(f'    {name}: {kind}: {msg}')
-    sys.exit(1)
+        other.append((m.name, f'{type(exc).__name__}: {exc}'))
+
+if leaks:
+    print('    SIMULATOR LEAK -- core/ transitively imports a simulator module:')
+    for mod, root in leaks:
+        print(f'      {mod} requires {root!r}')
+if missing_deps:
+    print('    MISSING DEPENDENCY (not a leak) -- these are declared in')
+    print('    docker/requirements-dev.txt but absent from this environment.')
+    print('    You are probably running outside the dev container. Use:')
+    print('      make check')
+    for mod, root in missing_deps:
+        print(f'      {mod} requires {root!r}')
+if other:
+    print('    IMPORT ERROR:')
+    for mod, msg in other:
+        print(f'      {mod}: {msg}')
+
+sys.exit(1 if (leaks or missing_deps or other) else 0)
 " 2>&1; then
     echo "  OK -- core/ imports standalone."
 else
     echo ""
-    echo "FAIL: core/ could not be imported without the simulator."
+    echo "FAIL: core/ did not import cleanly. See the diagnosis above."
     STATUS=1
 fi
 

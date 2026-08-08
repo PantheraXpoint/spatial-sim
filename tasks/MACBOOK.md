@@ -32,11 +32,14 @@ screen.
 — five minutes of CPU work catches repo problems before an hour-long GPU image
 pull.
 
-> Run `make dev-build`, then `make check` and `make test`. All 14 tests and the
-> layer-boundary check should pass. Then verify the boundary check actually
-> works: create a file `core/_leak.py` containing `import omni`, confirm
-> `./scripts/check_layer_boundary.sh` fails with exit code 1, then delete it.
-> Report anything that did not behave as described.
+> Run `make dev-build`, then `make verify`. All 14 tests and the layer-boundary
+> check should pass. **Everything runs inside the dev container — do not install
+> any Python package on this host, and do not run pytest or pip directly.** If
+> something is missing, add it to `docker/requirements-dev.txt` and rebuild.
+>
+> Then verify the boundary check actually works: create a file `core/_leak.py`
+> containing `import omni`, confirm `make check` fails with a non-zero exit
+> code, then delete it. Report anything that did not behave as described.
 
 **Gate:** tests pass, and the guard demonstrably fails on a real violation. A
 guard that never fails is not a guard.
