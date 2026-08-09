@@ -19,7 +19,7 @@ from typing import Any
 
 import yaml
 
-from core.observation import Modality, MountType
+from core.observation import ANNOTATOR_DATA_KEYS, Modality, MountType
 
 # --- What counts as what -----------------------------------------------------
 # A "camera" here is anything that renders an image plane and therefore needs a
@@ -56,17 +56,14 @@ STATION_TYPE_REQUIREMENTS: dict[str, frozenset[str]] = {
 # add a name recalled from a 4.x tutorial. These four are additionally verified
 # empirically when the camera and the semantics/radar paths come up at S7/S10;
 # a name that has not been through that has not been confirmed to work.
-KNOWN_ANNOTATORS: frozenset[str] = frozenset(
-    {
-        # Replicator camera annotators.
-        "rgb",
-        "distance_to_camera",
-        "semantic_segmentation",
-        # RTX range sensors (lidar, radar). Data is read back with
-        # sensor.get_data("generic-model-output") in 6.x.
-        "generic-model-output",
-    }
-)
+#
+# The set is the key set of core.observation.ANNOTATOR_DATA_KEYS rather than a
+# second list, so adding an annotator here is impossible without saying which
+# payload key it fills. An annotator no consumer can read is the same silent
+# failure as a misspelled one, one layer up.
+#   rgb, distance_to_camera, semantic_segmentation -- Replicator camera annotators
+#   generic-model-output -- RTX range sensors; read via sensor.get_data() in 6.x
+KNOWN_ANNOTATORS: frozenset[str] = frozenset(ANNOTATOR_DATA_KEYS)
 
 
 @dataclass(frozen=True)

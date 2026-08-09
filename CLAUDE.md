@@ -147,13 +147,19 @@ Ranked by how much time they cost.
 
 ```
 Layer 4  AGENT / MODEL      core/memory/  — empty, research code goes here
-Layer 3  OBSERVATION API    core/observation.py
+Layer 3  OBSERVATION API    core/observation.py + core/mock_source.py
 Layer 2  SENSOR REGISTRY    config/sensors.yaml + core/registry.py
 Layer 1  SCENE (USD)        sim/ + scenes/
 ```
 
 `sim/` is Isaac-specific and server-only. `core/` runs anywhere. Nothing in
 `core/` may know that Isaac Sim exists.
+
+**`tests/contract.py` must import neither the mock nor the simulator.** It is
+the shared suite that `MockObservationSource` and the coming
+`sim/observation_adapter.py` both have to pass; the moment it reaches for a
+mock-only attribute it stops being a contract and becomes a second set of mock
+tests. Mock-specific behaviour goes in `tests/test_mock_source.py`.
 
 ---
 

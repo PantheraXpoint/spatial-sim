@@ -234,9 +234,36 @@ Goal: new machine → `git clone` → `docker compose up` → working.
 config/sensors.yaml   THE registry — every sensor declared once
 config/scene.yaml     environments, offsets, avatar, robot poses
 core/                 Layers 3–4. NO simulator imports. Runs anywhere.
+core/observation.py   the Observation type and the ObservationSource protocol
+core/mock_source.py   synthetic source — the whole stack, no GPU, no simulator
 sim/                  Layers 1–2. Isaac-specific. Server only.
 ext/                  the custom omni.ui inspector panel (build last)
 scenes/              saved USD (build artifacts)
 tests/               runnable on the MacBook
+tests/contract.py     source-agnostic suite; mock and simulator both run it
 scripts/             boundary enforcement
 ```
+
+### 7.1 The observation contract
+
+`tests/contract.py` is written against `ObservationSource` and imports neither
+the mock nor the simulator. Subclass it, say how to build a source, and the
+whole suite runs:
+
+```python
+class TestMockSource(ObservationSourceContract):        # MacBook, no GPU
+    def make_source(self): return MockObservationSource.from_config()
+
+class TestIsaacSource(ObservationSourceContract):       # server, needs a stage
+    def make_source(self): return IsaacObservationSource(world, registry)
+```
+
+The second one is server task S11 and does not exist yet. When it does, a
+failure there means the simulator does not satisfy the contract the research
+code was written against — which is worth finding out by running a file rather
+than by arguing about it.
+
+One test in that suite earns its keep on its own:
+`test_a_fixed_sensor_reacts_to_the_moving_avatar`. Against the live simulator it
+is the collision-mesh check — the failure that produces no error message
+anywhere and that this whole design is most likely to hit.
