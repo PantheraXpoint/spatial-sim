@@ -140,6 +140,24 @@ Ranked by how much time they cost.
            ./tailscale --socket=$HOME/.tailscaled.sock status
   Restart after reboot: see RESTART.md in that directory.
   Server has NO sudo. Host-level installs are impossible — ask the admin.
+- **`ISAACSIM_HOST` is the LAN IP `143.248.57.94`, never the tailnet IP
+  `100.96.11.37`.** This is the consequence of userspace mode above: with no
+  `tailscale0`, the kernel has no tailnet route and hands that address to the
+  default gateway, so it goes nowhere. Even this host cannot reach its own
+  tailnet address. Measured on 2026-08-09:
+
+  ```
+  ip route get 100.96.11.37   ->  via 143.248.57.1 dev enp66s0f0   (default gw)
+  connect 100.96.11.37:49100  ->  FAILED
+  connect 143.248.57.94:49100 ->  CONNECTED
+  ```
+
+  `tailscale serve` is **not** a workaround — it forwards TCP only, so
+  signaling would connect and UDP media would never arrive, producing exactly
+  the black screen described three bullets up. **Consequence: streaming works
+  only from a client that can reach the KAIST LAN.** Making the tailnet address
+  usable needs a kernel TUN device, which needs root this server does not have
+  — that is an admin request, not a task.
 
 ---
 
