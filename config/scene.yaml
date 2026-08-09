@@ -50,15 +50,26 @@ robots:
     sensor_height: 1.7
     static: true
 
+# `station_type: multimodal` is a CLAIM, and core/registry.py enforces it:
+# the station must carry all three of camera, lidar, and radar. Three modalities
+# at one pose observing one event isolates modality as the only variable; two of
+# three is a confound, not a control.
+#
+# Omit station_type for a station that is deliberately not complete -- a
+# camera+lidar ablation, or a platform carrying whatever an experiment needs.
+# Nothing is inferred from which sensors happen to be present, so adding a lidar
+# somewhere never creates a silent obligation to add a radar next to it.
 stations:
   - id: INFRA_01
     prim_path: /World/Infrastructure/INFRA_01
     position: [5.0, 0.0, 6.5]
     mount: ceiling
+    station_type: multimodal
   - id: INFRA_02
     prim_path: /World/Infrastructure/INFRA_02
     position: [62.0, 3.0, 3.0]
     mount: wall
+    station_type: multimodal
 
 renderer:
   # Cap at 2. Corrupted/empty frames are reported with many render products
