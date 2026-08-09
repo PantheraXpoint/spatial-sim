@@ -130,6 +130,16 @@ Ranked by how much time they cost.
   Multi-GPU does nothing for physics, which is largely CPU-bound.
 - Isaac Sim **cannot run on macOS**. The MacBook is a thin client plus a
   CPU-side dev machine. 6.x "multi-arch" means Linux ARM, not macOS.
+- Tailscale on the server runs in **userspace mode** from
+  `/home/quang/EmbodiedAgent/tailscale`, started with
+  `--tun=userspace-networking`. There is deliberately no `tailscale0`
+  interface, no systemd unit, and no binary on PATH — this is normal, not a
+  broken install, and it will look absent to any check that greps for those.
+  Do not install system Tailscale: there is no sudo on this host.
+  Verify:  cd /home/quang/EmbodiedAgent/tailscale
+           ./tailscale --socket=$HOME/.tailscaled.sock status
+  Restart after reboot: see RESTART.md in that directory.
+  Server has NO sudo. Host-level installs are impossible — ask the admin.
 
 ---
 
