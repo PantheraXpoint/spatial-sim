@@ -42,6 +42,40 @@ RUN ./python.sh -m pip install --no-cache-dir -r /tmp/requirements-sim.txt
 # constantly and rebuilding the image for each edit is intolerable.
 RUN mkdir -p /workspace && chown -R 1234:1234 /workspace
 
+# ---------------------------------------------------------------------------
+# CACHE MOUNT POINTS. Docker initialises a named volume from whatever is at
+# that path in the IMAGE -- including its ownership. If the directory does not
+# exist, Docker creates it root-owned, and this container runs as uid 1234.
+# The result is a cache that cannot be written and therefore caches nothing:
+#
+#   [Error] [omni.rtx] Failed to create texture cache folder
+#           /isaac-sim/.cache/ov/texturecache
+#   [Warning] [omni.rtx] Unable to create ShaderDb cache directory ...
+#
+# Isaac Sim treats those as non-fatal, so it starts anyway and you pay the full
+# ~10-minute shader warm-up on EVERY launch with nothing telling you why.
+# Creating them here, owned by 1234, is what makes the volumes in
+# docker-compose.yml actually work. These paths must stay in sync with the
+# volume list there.
+#
+# Pre-existing volumes keep their old root ownership -- this fix only applies
+# to volumes created after it. Recreate them with:  make clean-cache
+# ---------------------------------------------------------------------------
+RUN mkdir -p \
+        /isaac-sim/.cache \
+        /isaac-sim/.nv/ComputeCache \
+        /isaac-sim/.nvidia-omniverse/config \
+        /isaac-sim/.nvidia-omniverse/logs \
+        /isaac-sim/.local/share/ov/data \
+        /isaac-sim/.local/share/ov/pkg \
+        /var/cache/hub \
+    && chown -R 1234:1234 \
+        /isaac-sim/.cache \
+        /isaac-sim/.nv \
+        /isaac-sim/.nvidia-omniverse \
+        /isaac-sim/.local \
+        /var/cache/hub
+
 ENV PROJECT_EXT_PATH=/workspace/ext
 ENV ACCEPT_EULA=Y PRIVACY_CONSENT=Y OMNI_KIT_ACCEPT_EULA=YES
 
