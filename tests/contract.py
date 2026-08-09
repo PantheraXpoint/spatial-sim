@@ -29,13 +29,17 @@ a contract.
 from __future__ import annotations
 
 import math
+from pathlib import Path
 
 import numpy as np
 import pytest
+import yaml
 
 from core.observation import (
     ANNOTATOR_DATA_KEYS,
+    LENGTH_UNIT,
     MODALITY_DATA_KEYS,
+    UP_AXIS,
     Modality,
     MountType,
     Observation,
@@ -44,6 +48,7 @@ from core.observation import (
 from core.registry import CAMERA_MODALITIES, RANGE_MODALITIES, SensorRegistry
 
 REGISTRY_PATH = "config/sensors.yaml"
+SCENE_PATH = "config/scene.yaml"
 
 
 def payload_scalar(obs: Observation) -> float:
@@ -93,6 +98,16 @@ class ObservationSourceContract:
     @pytest.fixture
     def registry(self) -> SensorRegistry:
         return SensorRegistry.from_yaml(REGISTRY_PATH)
+
+    @pytest.fixture
+    def avatar_eye_height(self) -> float:
+        """
+        How high off the floor the avatar's cameras sit, in metres, as
+        declared in config/scene.yaml. Both sources build the avatar from that
+        file, so it is a fair thing for the contract to hold either of them to.
+        """
+        raw = yaml.safe_load(Path(SCENE_PATH).read_text())
+        return float(raw["avatar"]["eye_height"])
 
     @pytest.fixture
     def trace(self, source) -> list[list[Observation]]:
@@ -181,6 +196,43 @@ class ObservationSourceContract:
                     got = np.asarray(obs.data[key]).shape
                     assert got == shape, f"{obs.sensor_id}.{key}: {got} != {shape}"
 
+    def test_depth_is_a_metric_range_and_not_a_normalised_buffer(self, source):
+        """
+        `depth` is euclidean metres from the sensor origin -- see
+        DEPTH_CONVENTION in core/observation.py.
+
+        Euclidean-versus-axial is NOT decidable from the observation stream
+        without ground truth about the scene, so this test cannot check it and
+        does not pretend to: that half is pinned by the constant and enforced
+        when an adapter is reviewed. What is decidable is everything else that
+        arrives behind this key in practice -- a normalised [0, 1] buffer, an
+        inverse-depth buffer, centimetres, or a NaN where the ray missed.
+        """
+        for obs in source.step(self.STEP_DT):
+            if "depth" not in obs.data:
+                continue
+            depth = np.asarray(obs.data["depth"], dtype=np.float64)
+            assert not np.isnan(depth).any(), (
+                f"{obs.sensor_id}: NaN in the depth buffer. 'ray hit nothing' "
+                f"is inf; NaN propagates through every consumer silently."
+            )
+            finite = depth[np.isfinite(depth)]
+            assert finite.size, f"{obs.sensor_id}: every depth pixel was inf"
+            assert (finite >= 0.0).all(), (
+                f"{obs.sensor_id}: negative depth. A euclidean range cannot "
+                f"be negative -- this is a signed axial buffer."
+            )
+            assert finite.max() > 1.0, (
+                f"{obs.sensor_id}: no depth value exceeds 1.0 in a warehouse "
+                f"tens of {LENGTH_UNIT}s across. This is a normalised or "
+                f"inverse-depth buffer, not a range."
+            )
+            assert finite.max() < 1000.0, (
+                f"{obs.sensor_id}: depth reaches {finite.max():.0f}. The unit "
+                f"is the {LENGTH_UNIT} -- a stage authored in centimetres has "
+                f"to be scaled in the adapter."
+            )
+
     def test_range_payloads_are_point_clouds(self, source, registry):
         for obs in source.step(self.STEP_DT):
             spec = registry.get(obs.sensor_id)
@@ -202,6 +254,79 @@ class ObservationSourceContract:
             norm = math.sqrt(sum(v * v for v in obs.pose.orientation))
             assert norm == pytest.approx(1.0, abs=1e-6), (
                 f"{obs.sensor_id}: |q| = {norm}, not a rotation"
+            )
+
+    def test_the_avatars_height_arrives_in_the_up_axis(
+        self, source, avatar_eye_height
+    ):
+        """
+        Three separate mistakes, one assertion, because they are indis-
+        tinguishable downstream. With eye height 1.65 m, position[UP_AXIS] is:
+
+            ~1.65   correct
+            ~0.0    the source is y-up and the height went into position[1]
+            ~165    the stage is in centimetres and nobody scaled it
+
+        None of the three raises anywhere. All three render.
+        """
+        low = 0.5 * avatar_eye_height
+        # Generous at the top: a third-person camera legitimately floats above
+        # the head. Still nowhere near a factor of a hundred.
+        high = avatar_eye_height + 1.0
+
+        seen = 0
+        for obs in source.step(self.STEP_DT):
+            assert all(math.isfinite(v) for v in obs.pose.position), (
+                f"{obs.sensor_id}: non-finite position {obs.pose.position}"
+            )
+            if obs.mount is not MountType.AVATAR:
+                continue
+            seen += 1
+            up = obs.pose.position[UP_AXIS]
+            assert low <= up <= high, (
+                f"{obs.sensor_id} is carried by an avatar {avatar_eye_height} "
+                f"{LENGTH_UNIT}s tall, but position[{UP_AXIS}] is {up}. "
+                f"Expected {low}..{high}. See UP_AXIS and LENGTH_UNIT in "
+                f"core/observation.py -- an adapter converts, it does not "
+                f"relabel."
+            )
+        assert seen, (
+            "no avatar-mounted sensor reported. The avatar is the only moving "
+            "entity in this design; without one there is nothing to observe."
+        )
+
+    def test_the_moving_mount_travels_in_the_plane_perpendicular_to_up(
+        self, trace
+    ):
+        """
+        The other half of z-up, and the half a single frame cannot show: the
+        avatar walks on a floor. Its height barely varies while it covers
+        metres of ground.
+
+        A source that swapped two axes passes the height check above on the
+        first frame and fails here on the fortieth, because the walking plane
+        would then contain the up-axis.
+        """
+        tracks: dict[str, list[tuple[float, float, float]]] = {}
+        for tick in trace:
+            for obs in tick:
+                if obs.mount is MountType.AVATAR:
+                    tracks.setdefault(obs.sensor_id, []).append(obs.pose.position)
+
+        assert tracks, "no avatar-mounted sensor reported"
+        for sensor_id, positions in tracks.items():
+            spread = [max(axis) - min(axis) for axis in zip(*positions)]
+            up = spread[UP_AXIS]
+            ground = max(s for i, s in enumerate(spread) if i != UP_AXIS)
+            assert ground > 1.0, (
+                f"{sensor_id} covered {ground:.2f} {LENGTH_UNIT}s of ground "
+                f"over {len(positions)} ticks -- too little to say which axis "
+                f"is up. Give the motion tests more time."
+            )
+            assert up < 0.25 * ground, (
+                f"{sensor_id} moved {up:.2f} along axis {UP_AXIS} while "
+                f"covering {ground:.2f} across the floor. Either the avatar "
+                f"is climbing, or the up-axis is not {UP_AXIS} in this source."
             )
 
     def test_the_avatar_is_the_only_thing_that_moves(self, trace):

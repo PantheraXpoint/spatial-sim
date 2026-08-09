@@ -735,8 +735,10 @@ class MockObservationSource:
             if rgb is not None:
                 rgb[mask] = _label_colour(obj.semantic_id)
             if depth is not None:
-                # 'distance_to_camera' is euclidean, not axial. The annotator
-                # name is the contract; matching it matters.
+                # Euclidean range from the sensor origin, per DEPTH_CONVENTION
+                # in core/observation.py -- `distance` and not the axial
+                # `axial` computed above. One value per object rather than per
+                # pixel: coarse, but coarse in the direction of the convention.
                 depth[mask] = np.float32(distance)
             if semantic is not None:
                 semantic[mask] = np.uint8(obj.semantic_id)
@@ -780,7 +782,10 @@ class MockObservationSource:
             rgb = np.repeat(
                 np.repeat(grey, rig.width, axis=1)[:, :, None], 3, axis=2
             )
-            # How far the far wall sits behind the aim point.
+            # How far the far wall sits behind the aim point. One constant
+            # across the frame, which under euclidean depth is a dome around
+            # the camera rather than a flat wall -- correct for the
+            # convention, and not worth more geometry than that.
             standoff = float(np.linalg.norm(
                 np.array([_PATH_CENTRE[0], _PATH_CENTRE[1], 0.9]) - rig.position
             )) + 6.0

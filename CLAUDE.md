@@ -146,7 +146,7 @@ Ranked by how much time they cost.
 ## Layers
 
 ```
-Layer 4  AGENT / MODEL      core/memory/  — empty, research code goes here
+Layer 4  AGENT / MODEL      core/memory/  — the closed loop; research goes here
 Layer 3  OBSERVATION API    core/observation.py + core/mock_source.py
 Layer 2  SENSOR REGISTRY    config/sensors.yaml + core/registry.py
 Layer 1  SCENE (USD)        sim/ + scenes/

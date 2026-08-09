@@ -13,7 +13,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Protocol, runtime_checkable
+from typing import Any, Final, Protocol, runtime_checkable
 
 
 class Modality(str, Enum):
@@ -42,6 +42,50 @@ class MountType(str, Enum):
     AVATAR = "avatar"
 
 
+# --- Frames, units, conventions ----------------------------------------------
+# THE CHECKLIST FOR ANYONE WRITING AN ADAPTER, and the reason it is three
+# constants and not three sentences buried in a docstring.
+#
+# Each of these is a conversion the adapter performs on the way IN, never a
+# preference a consumer accommodates on the way out. A source that puts a
+# differently-defined quantity behind a correctly-spelled key does not fail --
+# it produces numbers that are wrong by an axis or a factor of a hundred,
+# silently, for as long as the project lasts.
+
+#: Index of the world up-axis in `Pose.position`. Isaac/USD is z-up, so 2.
+#:
+#: Habitat is y-up. An adapter must SWIZZLE the components and rotate the
+#: quaternion to match. Relabelling which slot is called "up" is not a
+#: conversion -- done alone it mirrors the world, and a mirrored warehouse
+#: renders and simulates perfectly.
+UP_AXIS: Final[int] = 2
+
+#: The unit of every distance that crosses this boundary: positions, `depth`,
+#: `points`, `ranges`. Metres.
+#:
+#: A USD stage can be authored in centimetres (metersPerUnit = 0.01), and
+#: Isaac will then report 650.0 for a station 6.5 m up without complaining
+#: about anything. Read UsdGeom.GetStageMetersPerUnit() and scale in `sim/`.
+#: Nothing downstream rescales, because nothing downstream can tell.
+LENGTH_UNIT: Final[str] = "metre"
+
+#: What the `depth` payload key holds: the EUCLIDEAN distance from the sensor
+#: origin to the surface, in metres. The length of the ray -- not its
+#: component along the optical axis.
+#:
+#: Isaac's `distance_to_camera` annotator is euclidean and `core/mock_source`
+#: fills it euclidean, so the two sources we have agree today. Habitat's depth
+#: sensor is axial z by default: identical at the principal point and smaller
+#: towards the corners, which is the worst possible shape for a mismatch --
+#: invisible wherever you would first look. For a pinhole camera with focal
+#: length f and principal point (cx, cy) the adapter converts with
+#:
+#:     euclidean(u, v) = axial(u, v) * sqrt(1 + ((u-cx)/f)^2 + ((v-cy)/f)^2)
+#:
+#: `inf` is the legal value for "this ray hit nothing". NaN never is.
+DEPTH_CONVENTION: Final[str] = "euclidean_range_from_sensor_origin"
+
+
 # --- What is inside `data` ---------------------------------------------------
 # The payload types stay loose -- an array library is an implementation detail
 # of whoever produced them -- but the *keys* cannot, or no consumer can be
@@ -65,6 +109,21 @@ ANNOTATOR_DATA_KEYS: dict[str, str] = {
     "generic-model-output": "points",
 }
 
+# STILL NOT PINNED DOWN -- found while building core/memory/ (M5) against
+# these keys, and left here because this is where the next adapter author
+# looks. Renaming an Isaac annotator to a portable key buys portability and
+# spends the definition that used to live in the name; these are what is left
+# to say out loud. Units, up-axis and depth semantics were the rest of this
+# list and are now fixed above.
+#
+#   points     Sensor-local or world frame? The mock says sensor-local in a
+#              comment. Anything comparing two clouds -- a residual, say -- is
+#              assuming they agree, and for a FIXED sensor the two conventions
+#              are indistinguishable, so nothing will notice until an
+#              avatar-mounted range sensor exists. Pin it then, with a test
+#              that can actually fail; pinning it now would be a claim no
+#              suite could check.
+
 #: Modality -> payload keys any source MUST provide, whatever its annotators.
 #: A source may always add more; it may never provide less.
 MODALITY_DATA_KEYS: dict[Modality, frozenset[str]] = {
@@ -79,7 +138,13 @@ MODALITY_DATA_KEYS: dict[Modality, frozenset[str]] = {
 
 @dataclass(frozen=True)
 class Pose:
-    """World-frame pose. Quaternion is (w, x, y, z) -- Isaac Sim's convention."""
+    """
+    World-frame pose. Metres, z-up (`UP_AXIS`), quaternion (w, x, y, z).
+
+    All three of those are Isaac Sim's conventions and all three are things a
+    Habitat or ROS adapter has to convert to rather than report in. See the
+    conventions block above -- it is the whole checklist.
+    """
 
     position: tuple[float, float, float]
     orientation: tuple[float, float, float, float]
