@@ -45,6 +45,15 @@ RUN mkdir -p /workspace && chown -R 1234:1234 /workspace
 ENV PROJECT_EXT_PATH=/workspace/ext
 ENV ACCEPT_EULA=Y PRIVACY_CONSENT=Y OMNI_KIT_ACCEPT_EULA=YES
 
+# The base image sets ENTRYPOINT ["/isaac-sim/runheadless.sh"]. Inherited, it
+# makes every command we pass an ARGUMENT to the streaming launcher rather than
+# the thing we asked to run: `run --rm sim bash -c "ldconfig -p | ..."` becomes
+# `runheadless.sh bash -c "..."`, which starts Isaac Sim and hangs forever
+# instead of printing anything. Same for the compatibility check and `make sim`.
+# Clearing it makes CMD below meaningful and every Makefile target explicit --
+# `make stream` already names ./runheadless.sh itself.
+ENTRYPOINT []
+
 USER 1234
 WORKDIR /isaac-sim
 CMD ["/bin/bash"]
