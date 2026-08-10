@@ -32,10 +32,29 @@ services:
         reservations:
           devices:
             - driver: nvidia
-              # GPUs 0 and 1 render. GPU 2 is deliberately withheld for the
+              # GPUs 0 and 3 render. GPU 2 is deliberately withheld for the
               # model/inference process -- rendering scales sublinearly across
               # cards, a dedicated inference GPU does not.
-              device_ids: ["0", "1"]
+              #
+              # WHY 3 AND NOT 1: NVENC needs /dev/nvidia0 -- the node with
+              # device MINOR 0 -- present in the container. Without it,
+              # nvEncOpenEncodeSessionEx returns NV_ENC_ERR_UNSUPPORTED_DEVICE
+              # for EVERY exposed GPU, including ones that encode fine on the
+              # host. Livestreaming then dies at
+              #   NVST_DISCONN_SERVER_VIDEO_ENCODER_INIT_CUDA_ENCODE_OPEN_FAILED
+              # with signaling still connected: a permanently black client.
+              # Driver-side bug, present in 570.x/580.x:
+              #   github.com/NVIDIA/nvidia-container-toolkit/issues/1249
+              # The only upstream workaround is downgrading to 550.x, which
+              # needs root this server does not have -- so instead we make sure
+              # minor 0 is one of the cards we ask for.
+              #
+              # nvidia-smi index != device minor. On this host, index 3
+              # (0000:c1:00.0) is minor 0. Re-derive after any driver update or
+              # hardware change -- do NOT assume this mapping holds:
+              #   grep -H 'Device Minor' /proc/driver/nvidia/gpus/*/information
+              # Verify with:  make encoder-check
+              device_ids: ["0", "3"]
               capabilities: [gpu]
 
     environment:

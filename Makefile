@@ -57,8 +57,12 @@ sim: ## Interactive shell in the sim container
 stream: ## Launch headless streaming. -v shows shader warm-up progress.
 	$(COMPOSE) run --rm --service-ports sim ./runheadless.sh -v
 
-encoder-check: ## Confirm NVENC is visible inside the container
-	$(COMPOSE) run --rm sim bash -c "ldconfig -p | grep libnvidia-encode"
+encoder-check: ## Confirm NVENC can actually OPEN A SESSION. Run before make stream.
+	@# Not `ldconfig -p | grep libnvidia-encode` -- that passes whenever the
+	@# library is mounted, which is always, and it reported healthy through a
+	@# complete livestream outage. Only opening a session tells the truth.
+	$(COMPOSE) run --rm sim /isaac-sim/kit/python/bin/python3 \
+		/workspace/scripts/nvenc_probe.py
 
 ports: ## Show whether the streaming ports are listening
 	@echo "TCP 49100 (signaling):"; ss -ltnp 2>/dev/null | grep 49100 || echo "  NOT LISTENING"
