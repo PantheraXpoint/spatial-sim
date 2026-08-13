@@ -1,0 +1,400 @@
+2026-08-12T17:17:22Z [316,960ms] [Error] [omni.rtx] Out of GPU memory allocating resource 'MemoryManager-allocate' [size: unknown]
+2026-08-12T17:17:22Z [316,961ms] [Error] [omni.rtx] Failure injector rule to repro:
+2026-08-12T17:17:22Z [316,965ms] [Error] [omni.rtx] VkResult: ERROR_OUT_OF_DEVICE_MEMORY
+2026-08-12T17:17:22Z [316,968ms] [Error] [omni.rtx] vkAllocateMemory failed for flags: 2.
+2026-08-12T17:17:22Z [316,968ms] [Error] [omni.rtx] Unable to allocate buffer
+2026-08-12T17:17:22Z [316,968ms] [Error] [omni.rtx] Buffer creation failed for the device: 0.
+2026-08-12T17:17:22Z [316,969ms] [Error] [omni.rtx] Failed to update params for RenderOp 30
+2026-08-12T17:17:22Z [316,969ms] [Error] [omni.rtx] Failed to update params for RenderOp RtxSensor openTrace. Will not execute this or subsequent RenderGraph operations. Aborting RenderGraph execution
+2026-08-12T17:17:22Z [316,970ms] [Error] [carb.scenerenderer-rtx.plugin] Failed to execute RenderGraph on device 0. Error Code: 7
+2026-08-12T17:17:22Z [316,971ms] [Error] [omni.usd.multitick.render] multiTickRateRender() returned null (partition 1/2); skipping partition and closing frame
+2026-08-12T17:17:22Z [316,983ms] [Error] [omni.rtx] Out of GPU memory allocating resource 'MemoryManager-allocate' [size: unknown]
+2026-08-12T17:17:22Z [316,983ms] [Error] [omni.rtx] Failure injector rule to repro:
+2026-08-12T17:17:22Z [316,986ms] [Error] [omni.rtx] VkResult: ERROR_OUT_OF_DEVICE_MEMORY
+2026-08-12T17:17:22Z [316,986ms] [Error] [omni.rtx] vkAllocateMemory failed for flags: 2.
+2026-08-12T17:17:22Z [316,986ms] [Error] [omni.rtx] Unable to allocate buffer
+2026-08-12T17:17:22Z [316,987ms] [Error] [omni.rtx] Buffer creation failed for the device: 0.
+2026-08-12T17:17:22Z [316,987ms] [Error] [omni.usd.multitick.render] multiTickRateRender() returned null (partition 2/2); skipping partition and closing frame
+2026-08-12T17:17:22Z [317,019ms] [Error] [omni.rtx] Out of GPU memory allocating resource 'MemoryManager-allocate' [size: unknown]
+2026-08-12T17:17:22Z [317,019ms] [Error] [omni.rtx] Failure injector rule to repro:
+2026-08-12T17:17:22Z [317,022ms] [Error] [omni.rtx] VkResult: ERROR_OUT_OF_DEVICE_MEMORY
+2026-08-12T17:17:22Z [317,022ms] [Error] [omni.rtx] vkAllocateMemory failed for flags: 2.
+2026-08-12T17:17:22Z [317,022ms] [Error] [omni.rtx] Unable to allocate buffer
+2026-08-12T17:17:22Z [317,023ms] [Error] [omni.rtx] Buffer creation failed for the device: 0.
+2026-08-12T17:17:22Z [317,024ms] [Error] [omni.usd.multitick.render] multiTickRateRender() returned null (partition 1/2); skipping partition and closing frame
+2026-08-12T17:17:22Z [317,034ms] [Error] [omni.rtx] Out of GPU memory allocating resource 'MemoryManager-allocate' [size: unknown]
+2026-08-12T17:17:22Z [317,035ms] [Error] [omni.rtx] Failure injector rule to repro:
+2026-08-12T17:17:22Z [317,037ms] [Error] [omni.rtx] VkResult: ERROR_OUT_OF_DEVICE_MEMORY
+2026-08-12T17:17:22Z [317,037ms] [Error] [omni.rtx] vkAllocateMemory failed for flags: 2.
+2026-08-12T17:17:22Z [317,038ms] [Error] [omni.rtx] Unable to allocate buffer
+2026-08-12T17:17:22Z [317,038ms] [Error] [omni.rtx] Buffer creation failed for the device: 0.
+2026-08-12T17:17:22Z [317,039ms] [Error] [omni.usd.multitick.render] multiTickRateRender() returned null (partition 2/2); skipping partition and closing frame
+2026-08-12T17:17:22Z [317,084ms] [Error] [omni.rtx] Out of GPU memory allocating resource 'MemoryManager-allocate' [size: unknown]
+2026-08-12T17:17:22Z [317,085ms] [Error] [omni.rtx] Failure injector rule to repro:
+2026-08-12T17:17:22Z [317,087ms] [Error] [omni.rtx] VkResult: ERROR_OUT_OF_DEVICE_MEMORY
+2026-08-12T17:17:22Z [317,087ms] [Error] [omni.rtx] vkAllocateMemory failed for flags: 2.
+2026-08-12T17:17:22Z [317,088ms] [Error] [omni.rtx] Unable to allocate buffer
+2026-08-12T17:17:22Z [317,088ms] [Error] [omni.rtx] Buffer creation failed for the device: 0.
+2026-08-12T17:17:22Z [317,089ms] [Error] [omni.usd.multitick.render] multiTickRateRender() returned null (partition 1/2); skipping partition and closing frame
+2026-08-12T17:17:22Z [317,106ms] [Error] [omni.rtx] Out of GPU memory allocating resource 'MemoryManager-allocate' [size: unknown]
+2026-08-12T17:17:22Z [317,106ms] [Error] [omni.rtx] Failure injector rule to repro:
+2026-08-12T17:17:22Z [317,108ms] [Error] [omni.rtx] VkResult: ERROR_OUT_OF_DEVICE_MEMORY
+2026-08-12T17:17:22Z [317,109ms] [Error] [omni.rtx] vkAllocateMemory failed for flags: 2.
+2026-08-12T17:17:22Z [317,109ms] [Error] [omni.rtx] Unable to allocate buffer
+2026-08-12T17:17:22Z [317,109ms] [Error] [omni.rtx] Buffer creation failed for the device: 0.
+2026-08-12T17:17:22Z [317,110ms] [Error] [omni.usd.multitick.render] multiTickRateRender() returned null (partition 2/2); skipping partition and closing frame
+2026-08-12T17:17:23Z [317,128ms] [Error] [omni.rtx] Out of GPU memory allocating resource 'MemoryManager-allocate' [size: unknown]
+2026-08-12T17:17:23Z [317,129ms] [Error] [omni.rtx] Failure injector rule to repro:
+2026-08-12T17:17:23Z [317,131ms] [Error] [omni.rtx] VkResult: ERROR_OUT_OF_DEVICE_MEMORY
+2026-08-12T17:17:23Z [317,132ms] [Error] [omni.rtx] vkAllocateMemory failed for flags: 2.
+2026-08-12T17:17:23Z [317,132ms] [Error] [omni.rtx] Unable to allocate buffer
+2026-08-12T17:17:23Z [317,132ms] [Error] [omni.rtx] Buffer creation failed for the device: 0.
+2026-08-12T17:17:23Z [317,133ms] [Error] [omni.usd.multitick.render] multiTickRateRender() returned null (partition 1/2); skipping partition and closing frame
+2026-08-12T17:17:23Z [317,159ms] [Error] [omni.rtx] Out of GPU memory allocating resource 'MemoryManager-allocate' [size: unknown]
+2026-08-12T17:17:23Z [317,160ms] [Error] [omni.rtx] Failure injector rule to repro:
+2026-08-12T17:17:23Z [317,162ms] [Error] [omni.rtx] VkResult: ERROR_OUT_OF_DEVICE_MEMORY
+2026-08-12T17:17:23Z [317,162ms] [Error] [omni.rtx] vkAllocateMemory failed for flags: 2.
+2026-08-12T17:17:23Z [317,163ms] [Error] [omni.rtx] Unable to allocate buffer
+2026-08-12T17:17:23Z [317,163ms] [Error] [omni.rtx] Buffer creation failed for the device: 0.
+2026-08-12T17:17:23Z [317,164ms] [Error] [omni.usd.multitick.render] multiTickRateRender() returned null (partition 2/2); skipping partition and closing frame
+2026-08-12T17:17:23Z [317,185ms] [Error] [omni.rtx] Out of GPU memory allocating resource 'MemoryManager-allocate' [size: unknown]
+2026-08-12T17:17:23Z [317,185ms] [Error] [omni.rtx] Failure injector rule to repro:
+2026-08-12T17:17:23Z [317,188ms] [Error] [omni.rtx] VkResult: ERROR_OUT_OF_DEVICE_MEMORY
+2026-08-12T17:17:23Z [317,188ms] [Error] [omni.rtx] vkAllocateMemory failed for flags: 2.
+2026-08-12T17:17:23Z [317,188ms] [Error] [omni.rtx] Unable to allocate buffer
+2026-08-12T17:17:23Z [317,189ms] [Error] [omni.rtx] Buffer creation failed for the device: 0.
+2026-08-12T17:17:23Z [317,190ms] [Error] [omni.usd.multitick.render] multiTickRateRender() returned null (partition 1/2); skipping partition and closing frame
+2026-08-12T17:17:23Z [317,200ms] [Error] [omni.rtx] Out of GPU memory allocating resource 'MemoryManager-allocate' [size: unknown]
+2026-08-12T17:17:23Z [317,201ms] [Error] [omni.rtx] Failure injector rule to repro:
+2026-08-12T17:17:23Z [317,203ms] [Error] [omni.rtx] VkResult: ERROR_OUT_OF_DEVICE_MEMORY
+2026-08-12T17:17:23Z [317,204ms] [Error] [omni.rtx] vkAllocateMemory failed for flags: 2.
+2026-08-12T17:17:23Z [317,204ms] [Error] [omni.rtx] Unable to allocate buffer
+2026-08-12T17:17:23Z [317,204ms] [Error] [omni.rtx] Buffer creation failed for the device: 0.
+2026-08-12T17:17:23Z [317,205ms] [Error] [omni.usd.multitick.render] multiTickRateRender() returned null (partition 2/2); skipping partition and closing frame
+2026-08-12T17:17:23Z [317,224ms] [Error] [omni.rtx] Out of GPU memory allocating resource 'MemoryManager-allocate' [size: unknown]
+2026-08-12T17:17:23Z [317,224ms] [Error] [omni.rtx] Failure injector rule to repro:
+2026-08-12T17:17:23Z [317,227ms] [Error] [omni.rtx] VkResult: ERROR_OUT_OF_DEVICE_MEMORY
+2026-08-12T17:17:23Z [317,227ms] [Error] [omni.rtx] vkAllocateMemory failed for flags: 2.
+2026-08-12T17:17:23Z [317,228ms] [Error] [omni.rtx] Unable to allocate buffer
+2026-08-12T17:17:23Z [317,228ms] [Error] [omni.rtx] Buffer creation failed for the device: 0.
+2026-08-12T17:17:23Z [317,229ms] [Error] [omni.usd.multitick.render] multiTickRateRender() returned null (partition 1/2); skipping partition and closing frame
+2026-08-12T17:17:23Z [317,240ms] [Error] [omni.rtx] Out of GPU memory allocating resource 'MemoryManager-allocate' [size: unknown]
+2026-08-12T17:17:23Z [317,240ms] [Error] [omni.rtx] Failure injector rule to repro:
+2026-08-12T17:17:23Z [317,243ms] [Error] [omni.rtx] VkResult: ERROR_OUT_OF_DEVICE_MEMORY
+2026-08-12T17:17:23Z [317,243ms] [Error] [omni.rtx] vkAllocateMemory failed for flags: 2.
+2026-08-12T17:17:23Z [317,243ms] [Error] [omni.rtx] Unable to allocate buffer
+2026-08-12T17:17:23Z [317,244ms] [Error] [omni.rtx] Buffer creation failed for the device: 0.
+2026-08-12T17:17:23Z [317,244ms] [Error] [omni.usd.multitick.render] multiTickRateRender() returned null (partition 2/2); skipping partition and closing frame
+2026-08-12T17:17:23Z [317,263ms] [Error] [omni.rtx] Out of GPU memory allocating resource 'MemoryManager-allocate' [size: unknown]
+2026-08-12T17:17:23Z [317,264ms] [Error] [omni.rtx] Failure injector rule to repro:
+2026-08-12T17:17:23Z [317,266ms] [Error] [omni.rtx] VkResult: ERROR_OUT_OF_DEVICE_MEMORY
+2026-08-12T17:17:23Z [317,267ms] [Error] [omni.rtx] vkAllocateMemory failed for flags: 2.
+2026-08-12T17:17:23Z [317,267ms] [Error] [omni.rtx] Unable to allocate buffer
+2026-08-12T17:17:23Z [317,267ms] [Error] [omni.rtx] Buffer creation failed for the device: 0.
+2026-08-12T17:17:23Z [317,269ms] [Error] [omni.usd.multitick.render] multiTickRateRender() returned null (partition 1/2); skipping partition and closing frame
+2026-08-12T17:17:23Z [317,279ms] [Error] [omni.rtx] Out of GPU memory allocating resource 'MemoryManager-allocate' [size: unknown]
+2026-08-12T17:17:23Z [317,279ms] [Error] [omni.rtx] Failure injector rule to repro:
+2026-08-12T17:17:23Z [317,281ms] [Error] [omni.rtx] VkResult: ERROR_OUT_OF_DEVICE_MEMORY
+2026-08-12T17:17:23Z [317,282ms] [Error] [omni.rtx] vkAllocateMemory failed for flags: 2.
+2026-08-12T17:17:23Z [317,282ms] [Error] [omni.rtx] Unable to allocate buffer
+2026-08-12T17:17:23Z [317,282ms] [Error] [omni.rtx] Buffer creation failed for the device: 0.
+2026-08-12T17:17:23Z [317,283ms] [Error] [omni.usd.multitick.render] multiTickRateRender() returned null (partition 2/2); skipping partition and closing frame
+2026-08-12T17:17:23Z [317,362ms] [Error] [omni.rtx] Out of GPU memory allocating resource 'MemoryManager-allocate' [size: unknown]
+2026-08-12T17:17:23Z [317,362ms] [Error] [omni.rtx] Failure injector rule to repro:
+2026-08-12T17:17:23Z [317,365ms] [Error] [omni.rtx] VkResult: ERROR_OUT_OF_DEVICE_MEMORY
+2026-08-12T17:17:23Z [317,366ms] [Error] [omni.rtx] vkAllocateMemory failed for flags: 2.
+2026-08-12T17:17:23Z [317,366ms] [Error] [omni.rtx] Unable to allocate buffer
+2026-08-12T17:17:23Z [317,367ms] [Error] [omni.rtx] Buffer creation failed for the device: 0.
+2026-08-12T17:17:23Z [317,370ms] [Error] [omni.usd.multitick.render] multiTickRateRender() returned null (partition 1/2); skipping partition and closing frame
+2026-08-12T17:17:23Z [317,384ms] [Error] [omni.rtx] Out of GPU memory allocating resource 'MemoryManager-allocate' [size: unknown]
+2026-08-12T17:17:23Z [317,385ms] [Error] [omni.rtx] Failure injector rule to repro:
+2026-08-12T17:17:23Z [317,388ms] [Error] [omni.rtx] VkResult: ERROR_OUT_OF_DEVICE_MEMORY
+2026-08-12T17:17:23Z [317,389ms] [Error] [omni.rtx] vkAllocateMemory failed for flags: 2.
+2026-08-12T17:17:23Z [317,389ms] [Error] [omni.rtx] Unable to allocate buffer
+2026-08-12T17:17:23Z [317,390ms] [Error] [omni.rtx] Buffer creation failed for the device: 0.
+2026-08-12T17:17:23Z [317,391ms] [Error] [omni.usd.multitick.render] multiTickRateRender() returned null (partition 2/2); skipping partition and closing frame
+2026-08-12T17:17:23Z [317,416ms] [Error] [omni.rtx] Out of GPU memory allocating resource 'MemoryManager-allocate' [size: unknown]
+2026-08-12T17:17:23Z [317,417ms] [Error] [omni.rtx] Failure injector rule to repro:
+2026-08-12T17:17:23Z [317,420ms] [Error] [omni.rtx] VkResult: ERROR_OUT_OF_DEVICE_MEMORY
+2026-08-12T17:17:23Z [317,420ms] [Error] [omni.rtx] vkAllocateMemory failed for flags: 2.
+2026-08-12T17:17:23Z [317,420ms] [Error] [omni.rtx] Unable to allocate buffer
+2026-08-12T17:17:23Z [317,421ms] [Error] [omni.rtx] Buffer creation failed for the device: 0.
+2026-08-12T17:17:23Z [317,422ms] [Error] [omni.usd.multitick.render] multiTickRateRender() returned null (partition 1/2); skipping partition and closing frame
+2026-08-12T17:17:23Z [317,434ms] [Error] [omni.rtx] Out of GPU memory allocating resource 'MemoryManager-allocate' [size: unknown]
+2026-08-12T17:17:23Z [317,434ms] [Error] [omni.rtx] Failure injector rule to repro:
+2026-08-12T17:17:23Z [317,437ms] [Error] [omni.rtx] VkResult: ERROR_OUT_OF_DEVICE_MEMORY
+2026-08-12T17:17:23Z [317,437ms] [Error] [omni.rtx] vkAllocateMemory failed for flags: 2.
+2026-08-12T17:17:23Z [317,438ms] [Error] [omni.rtx] Unable to allocate buffer
+2026-08-12T17:17:23Z [317,438ms] [Error] [omni.rtx] Buffer creation failed for the device: 0.
+2026-08-12T17:17:23Z [317,439ms] [Error] [omni.usd.multitick.render] multiTickRateRender() returned null (partition 2/2); skipping partition and closing frame
+2026-08-12T17:17:23Z [317,459ms] [Error] [omni.rtx] Out of GPU memory allocating resource 'MemoryManager-allocate' [size: unknown]
+2026-08-12T17:17:23Z [317,459ms] [Error] [omni.rtx] Failure injector rule to repro:
+2026-08-12T17:17:23Z [317,461ms] [Error] [omni.rtx] VkResult: ERROR_OUT_OF_DEVICE_MEMORY
+2026-08-12T17:17:23Z [317,462ms] [Error] [omni.rtx] vkAllocateMemory failed for flags: 2.
+2026-08-12T17:17:23Z [317,462ms] [Error] [omni.rtx] Unable to allocate buffer
+2026-08-12T17:17:23Z [317,462ms] [Error] [omni.rtx] Buffer creation failed for the device: 0.
+2026-08-12T17:17:23Z [317,464ms] [Error] [omni.usd.multitick.render] multiTickRateRender() returned null (partition 1/2); skipping partition and closing frame
+2026-08-12T17:17:23Z [317,475ms] [Error] [omni.rtx] Out of GPU memory allocating resource 'MemoryManager-allocate' [size: unknown]
+2026-08-12T17:17:23Z [317,475ms] [Error] [omni.rtx] Failure injector rule to repro:
+2026-08-12T17:17:23Z [317,478ms] [Error] [omni.rtx] VkResult: ERROR_OUT_OF_DEVICE_MEMORY
+2026-08-12T17:17:23Z [317,478ms] [Error] [omni.rtx] vkAllocateMemory failed for flags: 2.
+2026-08-12T17:17:23Z [317,478ms] [Error] [omni.rtx] Unable to allocate buffer
+2026-08-12T17:17:23Z [317,479ms] [Error] [omni.rtx] Buffer creation failed for the device: 0.
+2026-08-12T17:17:23Z [317,479ms] [Error] [omni.usd.multitick.render] multiTickRateRender() returned null (partition 2/2); skipping partition and closing frame
+2026-08-12T17:17:23Z [317,498ms] [Error] [omni.rtx] Out of GPU memory allocating resource 'MemoryManager-allocate' [size: unknown]
+2026-08-12T17:17:23Z [317,499ms] [Error] [omni.rtx] Failure injector rule to repro:
+2026-08-12T17:17:23Z [317,501ms] [Error] [omni.rtx] VkResult: ERROR_OUT_OF_DEVICE_MEMORY
+2026-08-12T17:17:23Z [317,502ms] [Error] [omni.rtx] vkAllocateMemory failed for flags: 2.
+2026-08-12T17:17:23Z [317,502ms] [Error] [omni.rtx] Unable to allocate buffer
+2026-08-12T17:17:23Z [317,502ms] [Error] [omni.rtx] Buffer creation failed for the device: 0.
+2026-08-12T17:17:23Z [317,504ms] [Error] [omni.usd.multitick.render] multiTickRateRender() returned null (partition 1/2); skipping partition and closing frame
+2026-08-12T17:17:23Z [317,515ms] [Error] [omni.rtx] Out of GPU memory allocating resource 'MemoryManager-allocate' [size: unknown]
+2026-08-12T17:17:23Z [317,515ms] [Error] [omni.rtx] Failure injector rule to repro:
+2026-08-12T17:17:23Z [317,517ms] [Error] [omni.rtx] VkResult: ERROR_OUT_OF_DEVICE_MEMORY
+2026-08-12T17:17:23Z [317,518ms] [Error] [omni.rtx] vkAllocateMemory failed for flags: 2.
+2026-08-12T17:17:23Z [317,518ms] [Error] [omni.rtx] Unable to allocate buffer
+2026-08-12T17:17:23Z [317,518ms] [Error] [omni.rtx] Buffer creation failed for the device: 0.
+2026-08-12T17:17:23Z [317,519ms] [Error] [omni.usd.multitick.render] multiTickRateRender() returned null (partition 2/2); skipping partition and closing frame
+2026-08-12T17:17:23Z [317,538ms] [Error] [omni.rtx] Out of GPU memory allocating resource 'MemoryManager-allocate' [size: unknown]
+2026-08-12T17:17:23Z [317,539ms] [Error] [omni.rtx] Failure injector rule to repro:
+2026-08-12T17:17:23Z [317,541ms] [Error] [omni.rtx] VkResult: ERROR_OUT_OF_DEVICE_MEMORY
+2026-08-12T17:17:23Z [317,542ms] [Error] [omni.rtx] vkAllocateMemory failed for flags: 2.
+2026-08-12T17:17:23Z [317,542ms] [Error] [omni.rtx] Unable to allocate buffer
+2026-08-12T17:17:23Z [317,542ms] [Error] [omni.rtx] Buffer creation failed for the device: 0.
+2026-08-12T17:17:23Z [317,544ms] [Error] [omni.usd.multitick.render] multiTickRateRender() returned null (partition 1/2); skipping partition and closing frame
+2026-08-12T17:17:23Z [317,555ms] [Error] [omni.rtx] Out of GPU memory allocating resource 'MemoryManager-allocate' [size: unknown]
+2026-08-12T17:17:23Z [317,555ms] [Error] [omni.rtx] Failure injector rule to repro:
+2026-08-12T17:17:23Z [317,557ms] [Error] [omni.rtx] VkResult: ERROR_OUT_OF_DEVICE_MEMORY
+2026-08-12T17:17:23Z [317,558ms] [Error] [omni.rtx] vkAllocateMemory failed for flags: 2.
+2026-08-12T17:17:23Z [317,558ms] [Error] [omni.rtx] Unable to allocate buffer
+2026-08-12T17:17:23Z [317,558ms] [Error] [omni.rtx] Buffer creation failed for the device: 0.
+2026-08-12T17:17:23Z [317,559ms] [Error] [omni.usd.multitick.render] multiTickRateRender() returned null (partition 2/2); skipping partition and closing frame
+2026-08-12T17:17:23Z [317,579ms] [Error] [omni.rtx] Out of GPU memory allocating resource 'MemoryManager-allocate' [size: unknown]
+2026-08-12T17:17:23Z [317,579ms] [Error] [omni.rtx] Failure injector rule to repro:
+2026-08-12T17:17:23Z [317,582ms] [Error] [omni.rtx] VkResult: ERROR_OUT_OF_DEVICE_MEMORY
+2026-08-12T17:17:23Z [317,582ms] [Error] [omni.rtx] vkAllocateMemory failed for flags: 2.
+2026-08-12T17:17:23Z [317,582ms] [Error] [omni.rtx] Unable to allocate buffer
+2026-08-12T17:17:23Z [317,583ms] [Error] [omni.rtx] Buffer creation failed for the device: 0.
+2026-08-12T17:17:23Z [317,584ms] [Error] [omni.usd.multitick.render] multiTickRateRender() returned null (partition 1/2); skipping partition and closing frame
+2026-08-12T17:17:23Z [317,595ms] [Error] [omni.rtx] Out of GPU memory allocating resource 'MemoryManager-allocate' [size: unknown]
+2026-08-12T17:17:23Z [317,596ms] [Error] [omni.rtx] Failure injector rule to repro:
+2026-08-12T17:17:23Z [317,598ms] [Error] [omni.rtx] VkResult: ERROR_OUT_OF_DEVICE_MEMORY
+2026-08-12T17:17:23Z [317,599ms] [Error] [omni.rtx] vkAllocateMemory failed for flags: 2.
+2026-08-12T17:17:23Z [317,599ms] [Error] [omni.rtx] Unable to allocate buffer
+2026-08-12T17:17:23Z [317,599ms] [Error] [omni.rtx] Buffer creation failed for the device: 0.
+2026-08-12T17:17:23Z [317,600ms] [Error] [omni.usd.multitick.render] multiTickRateRender() returned null (partition 2/2); skipping partition and closing frame
+2026-08-12T17:17:23Z [317,619ms] [Error] [omni.rtx] Out of GPU memory allocating resource 'MemoryManager-allocate' [size: unknown]
+2026-08-12T17:17:23Z [317,620ms] [Error] [omni.rtx] Failure injector rule to repro:
+2026-08-12T17:17:23Z [317,622ms] [Error] [omni.rtx] VkResult: ERROR_OUT_OF_DEVICE_MEMORY
+2026-08-12T17:17:23Z [317,623ms] [Error] [omni.rtx] vkAllocateMemory failed for flags: 2.
+2026-08-12T17:17:23Z [317,623ms] [Error] [omni.rtx] Unable to allocate buffer
+2026-08-12T17:17:23Z [317,623ms] [Error] [omni.rtx] Buffer creation failed for the device: 0.
+2026-08-12T17:17:23Z [317,625ms] [Error] [omni.usd.multitick.render] multiTickRateRender() returned null (partition 1/2); skipping partition and closing frame
+2026-08-12T17:17:23Z [317,636ms] [Error] [omni.rtx] Out of GPU memory allocating resource 'MemoryManager-allocate' [size: unknown]
+2026-08-12T17:17:23Z [317,636ms] [Error] [omni.rtx] Failure injector rule to repro:
+2026-08-12T17:17:23Z [317,639ms] [Error] [omni.rtx] VkResult: ERROR_OUT_OF_DEVICE_MEMORY
+2026-08-12T17:17:23Z [317,639ms] [Error] [omni.rtx] vkAllocateMemory failed for flags: 2.
+2026-08-12T17:17:23Z [317,640ms] [Error] [omni.rtx] Unable to allocate buffer
+2026-08-12T17:17:23Z [317,640ms] [Error] [omni.rtx] Buffer creation failed for the device: 0.
+2026-08-12T17:17:23Z [317,641ms] [Error] [omni.usd.multitick.render] multiTickRateRender() returned null (partition 2/2); skipping partition and closing frame
+2026-08-12T17:17:23Z [317,660ms] [Error] [omni.rtx] Out of GPU memory allocating resource 'MemoryManager-allocate' [size: unknown]
+2026-08-12T17:17:23Z [317,661ms] [Error] [omni.rtx] Failure injector rule to repro:
+2026-08-12T17:17:23Z [317,663ms] [Error] [omni.rtx] VkResult: ERROR_OUT_OF_DEVICE_MEMORY
+2026-08-12T17:17:23Z [317,664ms] [Error] [omni.rtx] vkAllocateMemory failed for flags: 2.
+2026-08-12T17:17:23Z [317,664ms] [Error] [omni.rtx] Unable to allocate buffer
+2026-08-12T17:17:23Z [317,664ms] [Error] [omni.rtx] Buffer creation failed for the device: 0.
+2026-08-12T17:17:23Z [317,665ms] [Error] [omni.usd.multitick.render] multiTickRateRender() returned null (partition 1/2); skipping partition and closing frame
+2026-08-12T17:17:23Z [317,679ms] [Error] [omni.rtx] Out of GPU memory allocating resource 'MemoryManager-allocate' [size: unknown]
+2026-08-12T17:17:23Z [317,680ms] [Error] [omni.rtx] Failure injector rule to repro:
+2026-08-12T17:17:23Z [317,683ms] [Error] [omni.rtx] VkResult: ERROR_OUT_OF_DEVICE_MEMORY
+2026-08-12T17:17:23Z [317,683ms] [Error] [omni.rtx] vkAllocateMemory failed for flags: 2.
+2026-08-12T17:17:23Z [317,683ms] [Error] [omni.rtx] Unable to allocate buffer
+2026-08-12T17:17:23Z [317,684ms] [Error] [omni.rtx] Buffer creation failed for the device: 0.
+2026-08-12T17:17:23Z [317,685ms] [Error] [omni.usd.multitick.render] multiTickRateRender() returned null (partition 2/2); skipping partition and closing frame
+2026-08-12T17:17:23Z [317,774ms] [Error] [omni.rtx] Out of GPU memory allocating resource 'MemoryManager-allocate' [size: unknown]
+2026-08-12T17:17:23Z [317,774ms] [Error] [omni.rtx] Failure injector rule to repro:
+2026-08-12T17:17:23Z [317,777ms] [Error] [omni.rtx] VkResult: ERROR_OUT_OF_DEVICE_MEMORY
+2026-08-12T17:17:23Z [317,777ms] [Error] [omni.rtx] vkAllocateMemory failed for flags: 2.
+2026-08-12T17:17:23Z [317,778ms] [Error] [omni.rtx] Unable to allocate buffer
+2026-08-12T17:17:23Z [317,778ms] [Error] [omni.rtx] Buffer creation failed for the device: 0.
+2026-08-12T17:17:23Z [317,779ms] [Error] [omni.usd.multitick.render] multiTickRateRender() returned null (partition 1/2); skipping partition and closing frame
+2026-08-12T17:17:23Z [317,793ms] [Error] [omni.rtx] Out of GPU memory allocating resource 'MemoryManager-allocate' [size: unknown]
+2026-08-12T17:17:23Z [317,794ms] [Error] [omni.rtx] Failure injector rule to repro:
+2026-08-12T17:17:23Z [317,796ms] [Error] [omni.rtx] VkResult: ERROR_OUT_OF_DEVICE_MEMORY
+2026-08-12T17:17:23Z [317,797ms] [Error] [omni.rtx] vkAllocateMemory failed for flags: 2.
+2026-08-12T17:17:23Z [317,797ms] [Error] [omni.rtx] Unable to allocate buffer
+2026-08-12T17:17:23Z [317,798ms] [Error] [omni.rtx] Buffer creation failed for the device: 0.
+2026-08-12T17:17:23Z [317,799ms] [Error] [omni.usd.multitick.render] multiTickRateRender() returned null (partition 2/2); skipping partition and closing frame
+2026-08-12T17:17:23Z [317,821ms] [Error] [omni.rtx] Out of GPU memory allocating resource 'MemoryManager-allocate' [size: unknown]
+2026-08-12T17:17:23Z [317,821ms] [Error] [omni.rtx] Failure injector rule to repro:
+2026-08-12T17:17:23Z [317,826ms] [Error] [omni.rtx] VkResult: ERROR_OUT_OF_DEVICE_MEMORY
+2026-08-12T17:17:23Z [317,826ms] [Error] [omni.rtx] vkAllocateMemory failed for flags: 2.
+2026-08-12T17:17:23Z [317,826ms] [Error] [omni.rtx] Unable to allocate buffer
+2026-08-12T17:17:23Z [317,827ms] [Error] [omni.rtx] Buffer creation failed for the device: 0.
+2026-08-12T17:17:23Z [317,828ms] [Error] [omni.usd.multitick.render] multiTickRateRender() returned null (partition 1/2); skipping partition and closing frame
+2026-08-12T17:17:23Z [317,839ms] [Error] [omni.rtx] Out of GPU memory allocating resource 'MemoryManager-allocate' [size: unknown]
+2026-08-12T17:17:23Z [317,847ms] [Error] [omni.rtx] Failure injector rule to repro:
+2026-08-12T17:17:23Z [317,849ms] [Error] [omni.rtx] VkResult: ERROR_OUT_OF_DEVICE_MEMORY
+2026-08-12T17:17:23Z [317,849ms] [Error] [omni.rtx] vkAllocateMemory failed for flags: 2.
+2026-08-12T17:17:23Z [317,850ms] [Error] [omni.rtx] Unable to allocate buffer
+2026-08-12T17:17:23Z [317,850ms] [Error] [omni.rtx] Buffer creation failed for the device: 0.
+2026-08-12T17:17:23Z [317,851ms] [Error] [omni.usd.multitick.render] multiTickRateRender() returned null (partition 2/2); skipping partition and closing frame
+2026-08-12T17:17:23Z [317,938ms] [Error] [omni.rtx] Out of GPU memory allocating resource 'MemoryManager-allocate' [size: unknown]
+2026-08-12T17:17:23Z [317,939ms] [Error] [omni.rtx] Failure injector rule to repro:
+2026-08-12T17:17:23Z [317,942ms] [Error] [omni.rtx] VkResult: ERROR_OUT_OF_DEVICE_MEMORY
+2026-08-12T17:17:23Z [317,942ms] [Error] [omni.rtx] vkAllocateMemory failed for flags: 2.
+2026-08-12T17:17:23Z [317,942ms] [Error] [omni.rtx] Unable to allocate buffer
+2026-08-12T17:17:23Z [317,943ms] [Error] [omni.rtx] Buffer creation failed for the device: 0.
+2026-08-12T17:17:23Z [317,944ms] [Error] [omni.usd.multitick.render] multiTickRateRender() returned null (partition 1/2); skipping partition and closing frame
+2026-08-12T17:17:23Z [317,959ms] [Error] [omni.rtx] Out of GPU memory allocating resource 'MemoryManager-allocate' [size: unknown]
+2026-08-12T17:17:23Z [317,960ms] [Error] [omni.rtx] Failure injector rule to repro:
+2026-08-12T17:17:23Z [317,962ms] [Error] [omni.rtx] VkResult: ERROR_OUT_OF_DEVICE_MEMORY
+2026-08-12T17:17:23Z [317,962ms] [Error] [omni.rtx] vkAllocateMemory failed for flags: 2.
+2026-08-12T17:17:23Z [317,963ms] [Error] [omni.rtx] Unable to allocate buffer
+2026-08-12T17:17:23Z [317,963ms] [Error] [omni.rtx] Buffer creation failed for the device: 0.
+2026-08-12T17:17:23Z [317,963ms] [Error] [omni.usd.multitick.render] multiTickRateRender() returned null (partition 2/2); skipping partition and closing frame
+2026-08-12T17:17:23Z [318,046ms] [Error] [omni.rtx] Out of GPU memory allocating resource 'MemoryManager-allocate' [size: unknown]
+2026-08-12T17:17:23Z [318,046ms] [Error] [omni.rtx] Failure injector rule to repro:
+2026-08-12T17:17:23Z [318,049ms] [Error] [omni.rtx] VkResult: ERROR_OUT_OF_DEVICE_MEMORY
+2026-08-12T17:17:23Z [318,049ms] [Error] [omni.rtx] vkAllocateMemory failed for flags: 2.
+2026-08-12T17:17:23Z [318,050ms] [Error] [omni.rtx] Unable to allocate buffer
+2026-08-12T17:17:23Z [318,050ms] [Error] [omni.rtx] Buffer creation failed for the device: 0.
+2026-08-12T17:17:23Z [318,051ms] [Error] [omni.usd.multitick.render] multiTickRateRender() returned null (partition 1/2); skipping partition and closing frame
+2026-08-12T17:17:23Z [318,062ms] [Error] [omni.rtx] Out of GPU memory allocating resource 'MemoryManager-allocate' [size: unknown]
+2026-08-12T17:17:23Z [318,063ms] [Error] [omni.rtx] Failure injector rule to repro:
+2026-08-12T17:17:23Z [318,066ms] [Error] [omni.rtx] VkResult: ERROR_OUT_OF_DEVICE_MEMORY
+2026-08-12T17:17:23Z [318,067ms] [Error] [omni.rtx] vkAllocateMemory failed for flags: 2.
+2026-08-12T17:17:23Z [318,067ms] [Error] [omni.rtx] Unable to allocate buffer
+2026-08-12T17:17:23Z [318,068ms] [Error] [omni.rtx] Buffer creation failed for the device: 0.
+2026-08-12T17:17:23Z [318,069ms] [Error] [omni.usd.multitick.render] multiTickRateRender() returned null (partition 2/2); skipping partition and closing frame
+2026-08-12T17:17:23Z [318,088ms] [Error] [omni.rtx] Out of GPU memory allocating resource 'MemoryManager-allocate' [size: unknown]
+2026-08-12T17:17:23Z [318,089ms] [Error] [omni.rtx] Failure injector rule to repro:
+2026-08-12T17:17:23Z [318,091ms] [Error] [omni.rtx] VkResult: ERROR_OUT_OF_DEVICE_MEMORY
+2026-08-12T17:17:23Z [318,092ms] [Error] [omni.rtx] vkAllocateMemory failed for flags: 2.
+2026-08-12T17:17:23Z [318,092ms] [Error] [omni.rtx] Unable to allocate buffer
+2026-08-12T17:17:23Z [318,093ms] [Error] [omni.rtx] Buffer creation failed for the device: 0.
+2026-08-12T17:17:23Z [318,094ms] [Error] [omni.usd.multitick.render] multiTickRateRender() returned null (partition 1/2); skipping partition and closing frame
+2026-08-12T17:17:23Z [318,106ms] [Error] [omni.rtx] Out of GPU memory allocating resource 'MemoryManager-allocate' [size: unknown]
+2026-08-12T17:17:23Z [318,106ms] [Error] [omni.rtx] Failure injector rule to repro:
+2026-08-12T17:17:23Z [318,109ms] [Error] [omni.rtx] VkResult: ERROR_OUT_OF_DEVICE_MEMORY
+2026-08-12T17:17:23Z [318,110ms] [Error] [omni.rtx] vkAllocateMemory failed for flags: 2.
+2026-08-12T17:17:23Z [318,110ms] [Error] [omni.rtx] Unable to allocate buffer
+2026-08-12T17:17:23Z [318,111ms] [Error] [omni.rtx] Buffer creation failed for the device: 0.
+2026-08-12T17:17:23Z [318,112ms] [Error] [omni.usd.multitick.render] multiTickRateRender() returned null (partition 2/2); skipping partition and closing frame
+2026-08-12T17:17:24Z [318,148ms] [Error] [omni.rtx] Out of GPU memory allocating resource 'MemoryManager-allocate' [size: unknown]
+2026-08-12T17:17:24Z [318,148ms] [Error] [omni.rtx] Failure injector rule to repro:
+2026-08-12T17:17:24Z [318,151ms] [Error] [omni.rtx] VkResult: ERROR_OUT_OF_DEVICE_MEMORY
+2026-08-12T17:17:24Z [318,151ms] [Error] [omni.rtx] vkAllocateMemory failed for flags: 2.
+2026-08-12T17:17:24Z [318,152ms] [Error] [omni.rtx] Unable to allocate buffer
+2026-08-12T17:17:24Z [318,152ms] [Error] [omni.rtx] Buffer creation failed for the device: 0.
+2026-08-12T17:17:24Z [318,154ms] [Error] [omni.usd.multitick.render] multiTickRateRender() returned null (partition 1/2); skipping partition and closing frame
+2026-08-12T17:17:24Z [318,165ms] [Error] [omni.rtx] Out of GPU memory allocating resource 'MemoryManager-allocate' [size: unknown]
+2026-08-12T17:17:24Z [318,166ms] [Error] [omni.rtx] Failure injector rule to repro:
+2026-08-12T17:17:24Z [318,168ms] [Error] [omni.rtx] VkResult: ERROR_OUT_OF_DEVICE_MEMORY
+2026-08-12T17:17:24Z [318,169ms] [Error] [omni.rtx] vkAllocateMemory failed for flags: 2.
+2026-08-12T17:17:24Z [318,169ms] [Error] [omni.rtx] Unable to allocate buffer
+2026-08-12T17:17:24Z [318,169ms] [Error] [omni.rtx] Buffer creation failed for the device: 0.
+2026-08-12T17:17:24Z [318,170ms] [Error] [omni.usd.multitick.render] multiTickRateRender() returned null (partition 2/2); skipping partition and closing frame
+2026-08-12T17:17:24Z [318,189ms] [Error] [omni.rtx] Out of GPU memory allocating resource 'MemoryManager-allocate' [size: unknown]
+2026-08-12T17:17:24Z [318,190ms] [Error] [omni.rtx] Failure injector rule to repro:
+2026-08-12T17:17:24Z [318,193ms] [Error] [omni.rtx] VkResult: ERROR_OUT_OF_DEVICE_MEMORY
+2026-08-12T17:17:24Z [318,193ms] [Error] [omni.rtx] vkAllocateMemory failed for flags: 2.
+2026-08-12T17:17:24Z [318,194ms] [Error] [omni.rtx] Unable to allocate buffer
+2026-08-12T17:17:24Z [318,194ms] [Error] [omni.rtx] Buffer creation failed for the device: 0.
+2026-08-12T17:17:24Z [318,195ms] [Error] [omni.usd.multitick.render] multiTickRateRender() returned null (partition 1/2); skipping partition and closing frame
+2026-08-12T17:17:24Z [318,206ms] [Error] [omni.rtx] Out of GPU memory allocating resource 'MemoryManager-allocate' [size: unknown]
+2026-08-12T17:17:24Z [318,207ms] [Error] [omni.rtx] Failure injector rule to repro:
+2026-08-12T17:17:24Z [318,210ms] [Error] [omni.rtx] VkResult: ERROR_OUT_OF_DEVICE_MEMORY
+2026-08-12T17:17:24Z [318,210ms] [Error] [omni.rtx] vkAllocateMemory failed for flags: 2.
+2026-08-12T17:17:24Z [318,210ms] [Error] [omni.rtx] Unable to allocate buffer
+2026-08-12T17:17:24Z [318,211ms] [Error] [omni.rtx] Buffer creation failed for the device: 0.
+2026-08-12T17:17:24Z [318,212ms] [Error] [omni.usd.multitick.render] multiTickRateRender() returned null (partition 2/2); skipping partition and closing frame
+2026-08-12T17:17:24Z [318,231ms] [Error] [omni.rtx] Out of GPU memory allocating resource 'MemoryManager-allocate' [size: unknown]
+2026-08-12T17:17:24Z [318,231ms] [Error] [omni.rtx] Failure injector rule to repro:
+2026-08-12T17:17:24Z [318,234ms] [Error] [omni.rtx] VkResult: ERROR_OUT_OF_DEVICE_MEMORY
+2026-08-12T17:17:24Z [318,234ms] [Error] [omni.rtx] vkAllocateMemory failed for flags: 2.
+2026-08-12T17:17:24Z [318,236ms] [Error] [omni.rtx] Unable to allocate buffer
+2026-08-12T17:17:24Z [318,237ms] [Error] [omni.rtx] Buffer creation failed for the device: 0.
+2026-08-12T17:17:24Z [318,239ms] [Error] [omni.usd.multitick.render] multiTickRateRender() returned null (partition 1/2); skipping partition and closing frame
+2026-08-12T17:17:24Z [318,251ms] [Error] [omni.rtx] Out of GPU memory allocating resource 'MemoryManager-allocate' [size: unknown]
+2026-08-12T17:17:24Z [318,252ms] [Error] [omni.rtx] Failure injector rule to repro:
+2026-08-12T17:17:24Z [318,255ms] [Error] [omni.rtx] VkResult: ERROR_OUT_OF_DEVICE_MEMORY
+2026-08-12T17:17:24Z [318,255ms] [Error] [omni.rtx] vkAllocateMemory failed for flags: 2.
+2026-08-12T17:17:24Z [318,256ms] [Error] [omni.rtx] Unable to allocate buffer
+2026-08-12T17:17:24Z [318,256ms] [Error] [omni.rtx] Buffer creation failed for the device: 0.
+2026-08-12T17:17:24Z [318,257ms] [Error] [omni.usd.multitick.render] multiTickRateRender() returned null (partition 2/2); skipping partition and closing frame
+2026-08-12T17:17:24Z [318,276ms] [Error] [omni.rtx] Out of GPU memory allocating resource 'MemoryManager-allocate' [size: unknown]
+2026-08-12T17:17:24Z [318,277ms] [Error] [omni.rtx] Failure injector rule to repro:
+2026-08-12T17:17:24Z [318,280ms] [Error] [omni.rtx] VkResult: ERROR_OUT_OF_DEVICE_MEMORY
+2026-08-12T17:17:24Z [318,281ms] [Error] [omni.rtx] vkAllocateMemory failed for flags: 2.
+2026-08-12T17:17:24Z [318,281ms] [Error] [omni.rtx] Unable to allocate buffer
+2026-08-12T17:17:24Z [318,282ms] [Error] [omni.rtx] Buffer creation failed for the device: 0.
+2026-08-12T17:17:24Z [318,284ms] [Error] [omni.usd.multitick.render] multiTickRateRender() returned null (partition 1/2); skipping partition and closing frame
+2026-08-12T17:17:24Z [318,295ms] [Error] [omni.rtx] Out of GPU memory allocating resource 'MemoryManager-allocate' [size: unknown]
+2026-08-12T17:17:24Z [318,296ms] [Error] [omni.rtx] Failure injector rule to repro:
+2026-08-12T17:17:24Z [318,299ms] [Error] [omni.rtx] VkResult: ERROR_OUT_OF_DEVICE_MEMORY
+2026-08-12T17:17:24Z [318,299ms] [Error] [omni.rtx] vkAllocateMemory failed for flags: 2.
+2026-08-12T17:17:24Z [318,299ms] [Error] [omni.rtx] Unable to allocate buffer
+2026-08-12T17:17:24Z [318,300ms] [Error] [omni.rtx] Buffer creation failed for the device: 0.
+2026-08-12T17:17:24Z [318,301ms] [Error] [omni.usd.multitick.render] multiTickRateRender() returned null (partition 2/2); skipping partition and closing frame
+2026-08-12T17:17:24Z [318,323ms] [Error] [omni.rtx] Out of GPU memory allocating resource 'MemoryManager-allocate' [size: unknown]
+2026-08-12T17:17:24Z [318,324ms] [Error] [omni.rtx] Failure injector rule to repro:
+2026-08-12T17:17:24Z [318,326ms] [Error] [omni.rtx] VkResult: ERROR_OUT_OF_DEVICE_MEMORY
+2026-08-12T17:17:24Z [318,327ms] [Error] [omni.rtx] vkAllocateMemory failed for flags: 2.
+2026-08-12T17:17:24Z [318,327ms] [Error] [omni.rtx] Unable to allocate buffer
+2026-08-12T17:17:24Z [318,328ms] [Error] [omni.rtx] Buffer creation failed for the device: 0.
+2026-08-12T17:17:24Z [318,329ms] [Error] [omni.usd.multitick.render] multiTickRateRender() returned null (partition 1/2); skipping partition and closing frame
+2026-08-12T17:17:24Z [318,341ms] [Error] [omni.rtx] Out of GPU memory allocating resource 'MemoryManager-allocate' [size: unknown]
+2026-08-12T17:17:24Z [318,341ms] [Error] [omni.rtx] Failure injector rule to repro:
+2026-08-12T17:17:24Z [318,344ms] [Error] [omni.rtx] VkResult: ERROR_OUT_OF_DEVICE_MEMORY
+2026-08-12T17:17:24Z [318,344ms] [Error] [omni.rtx] vkAllocateMemory failed for flags: 2.
+2026-08-12T17:17:24Z [318,345ms] [Error] [omni.rtx] Unable to allocate buffer
+2026-08-12T17:17:24Z [318,345ms] [Error] [omni.rtx] Buffer creation failed for the device: 0.
+2026-08-12T17:17:24Z [318,346ms] [Error] [omni.usd.multitick.render] multiTickRateRender() returned null (partition 2/2); skipping partition and closing frame
+2026-08-12T17:17:24Z [318,429ms] [Error] [omni.rtx] Out of GPU memory allocating resource 'MemoryManager-allocate' [size: unknown]
+2026-08-12T17:17:24Z [318,429ms] [Error] [omni.rtx] Failure injector rule to repro:
+2026-08-12T17:17:24Z [318,432ms] [Error] [omni.rtx] VkResult: ERROR_OUT_OF_DEVICE_MEMORY
+2026-08-12T17:17:24Z [318,432ms] [Error] [omni.rtx] vkAllocateMemory failed for flags: 2.
+2026-08-12T17:17:24Z [318,432ms] [Error] [omni.rtx] Unable to allocate buffer
+2026-08-12T17:17:24Z [318,433ms] [Error] [omni.rtx] Buffer creation failed for the device: 0.
+2026-08-12T17:17:24Z [318,434ms] [Error] [omni.usd.multitick.render] multiTickRateRender() returned null (partition 1/2); skipping partition and closing frame
+2026-08-12T17:17:24Z [318,445ms] [Error] [omni.rtx] Out of GPU memory allocating resource 'MemoryManager-allocate' [size: unknown]
+2026-08-12T17:17:24Z [318,446ms] [Error] [omni.rtx] Failure injector rule to repro:
+2026-08-12T17:17:24Z [318,448ms] [Error] [omni.rtx] VkResult: ERROR_OUT_OF_DEVICE_MEMORY
+2026-08-12T17:17:24Z [318,448ms] [Error] [omni.rtx] vkAllocateMemory failed for flags: 2.
+2026-08-12T17:17:24Z [318,449ms] [Error] [omni.rtx] Unable to allocate buffer
+2026-08-12T17:17:24Z [318,449ms] [Error] [omni.rtx] Buffer creation failed for the device: 0.
+2026-08-12T17:17:24Z [318,450ms] [Error] [omni.usd.multitick.render] multiTickRateRender() returned null (partition 2/2); skipping partition and closing frame
+2026-08-12T17:17:24Z [318,469ms] [Error] [omni.rtx] Out of GPU memory allocating resource 'MemoryManager-allocate' [size: unknown]
+2026-08-12T17:17:24Z [318,470ms] [Error] [omni.rtx] Failure injector rule to repro:
+2026-08-12T17:17:24Z [318,472ms] [Error] [omni.rtx] VkResult: ERROR_OUT_OF_DEVICE_MEMORY
+2026-08-12T17:17:24Z [318,472ms] [Error] [omni.rtx] vkAllocateMemory failed for flags: 2.
+2026-08-12T17:17:24Z [318,473ms] [Error] [omni.rtx] Unable to allocate buffer
+2026-08-12T17:17:24Z [318,473ms] [Error] [omni.rtx] Buffer creation failed for the device: 0.
+2026-08-12T17:17:24Z [318,475ms] [Error] [omni.usd.multitick.render] multiTickRateRender() returned null (partition 1/2); skipping partition and closing frame
+2026-08-12T17:17:24Z [318,486ms] [Error] [omni.rtx] Out of GPU memory allocating resource 'MemoryManager-allocate' [size: unknown]
+2026-08-12T17:17:24Z [318,487ms] [Error] [omni.rtx] Failure injector rule to repro:
+2026-08-12T17:17:24Z [318,490ms] [Error] [omni.rtx] VkResult: ERROR_OUT_OF_DEVICE_MEMORY
+2026-08-12T17:17:24Z [318,490ms] [Error] [omni.rtx] vkAllocateMemory failed for flags: 2.
+2026-08-12T17:17:24Z [318,491ms] [Error] [omni.rtx] Unable to allocate buffer
+2026-08-12T17:17:24Z [318,491ms] [Error] [omni.rtx] Buffer creation failed for the device: 0.
+2026-08-12T17:17:24Z [318,492ms] [Error] [omni.usd.multitick.render] multiTickRateRender() returned null (partition 2/2); skipping partition and closing frame
+2026-08-12T17:17:24Z [318,512ms] [Error] [omni.rtx] Out of GPU memory allocating resource 'MemoryManager-allocate' [size: unknown]
+2026-08-12T17:17:24Z [318,512ms] [Error] [omni.rtx] Failure injector rule to repro:
+2026-08-12T17:17:24Z [318,515ms] [Error] [omni.rtx] VkResult: ERROR_OUT_OF_DEVICE_MEMORY
+2026-08-12T17:17:24Z [318,515ms] [Error] [omni.rtx] vkAllocateMemory failed for flags: 2.
+2026-08-12T17:17:24Z [318,516ms] [Error] [omni.rtx] Unable to allocate buffer
+2026-08-12T17:17:24Z [318,516ms] [Error] [omni.rtx] Buffer creation failed for the device: 0.
+2026-08-12T17:17:24Z [318,518ms] [Error] [omni.usd.multitick.render] multiTickRateRender() returned null (partition 1/2); skipping partition and closing frame
+2026-08-12T17:17:24Z [318,530ms] [Error] [omni.rtx] Out of GPU memory allocating resource 'MemoryManager-allocate' [size: unknown]
+2026-08-12T17:17:24Z [318,531ms] [Error] [omni.rtx] Failure injector rule to repro:
+2026-08-12T17:17:24Z [318,533ms] [Error] [omni.rtx] VkResult: ERROR_OUT_OF_DEVICE_MEMORY
+2026-08-12T17:17:24Z [318,534ms] [Error] [omni.rtx] vkAllocateMemory failed for flags: 2.
+2026-08-12T17:17:24Z [318,534ms] [Error] [omni.rtx] Unable to allocate buffer
+2026-08-12T17:17:24Z [318,535ms] [Error] [omni.rtx] Buffer creation failed for the device: 0.
+2026-08-12T17:17:24Z [318,536ms] [Error] [omni.usd.multitick.render] multiTickRateRender() returned null (partition 2/2); skipping partition and closing frame
+2026-08-12T17:17:24Z [318,555ms] [Error] [omni.rtx] Out of GPU memory allocating resource 'MemoryManager-allocate' [size: unknown]
+2026-08-12T17:17:24Z [318,555ms] [Error] [omni.rtx] Failure injector rule to repro:
+2026-08-12T17:17:24Z [318,558ms] [Error] [omni.rtx] VkResult: ERROR_OUT_OF_DEVICE_MEMORY
+2026-08-12T17:17:24Z [318,559ms] [Error] [omni.rtx] vkAllocateMemory failed for flags: 2.
+2026-08-12T17:17:24Z [318,559ms] [Error] [omni.rtx] Unable to allocate buffer

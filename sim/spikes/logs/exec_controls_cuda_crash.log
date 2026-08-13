@@ -1,0 +1,791 @@
+
+The NVIDIA Isaac Sim Additional Software and Materials License must be accepted before
+Isaac Sim can start. The license terms for this product can be viewed at
+https://www.nvidia.com/en-us/agreements/enterprise-software/isaac-sim-additional-software-and-materials-license/
+
+Omniverse Software collects installation and configuration details about your software, hardware, and network
+configuration (e.g., version of operating system, applications installed, type of hardware, network speed, IP
+address) based on our legitimate interest in improving your experience. To improve performance, troubleshooting
+and diagnostic purposes of our software, we also collect session behavior, error and crash logs.
+
+Data Collection in container mode is completely anonymous unless specified. You may opt-out of this collection
+anytime by not setting the PRIVACY_CONSENT environment variable.
+
+To opt-in set the PRIVACY_CONSENT environment variable when running the container. Set the 
+PRIVACY_USERID environment variable to tag the telemetry data with a user ID.
+Loading user config located at: '/isaac-sim/.local/share/ov/data/Kit/Isaac-Sim Streaming/6.0/user.config.json'
+2026-08-10T09:14:51Z [Info] [carb] Logging to file: /isaac-sim/.nvidia-omniverse/logs/Kit/Isaac-Sim Streaming/6.0/kit_20260810_091451.log
+[2.739s] [ext: omni.kit.async_engine-0.0.3] startup
+[18.578s] [ext: omni.assets.plugins-0.0.0] startup
+[18.589s] [ext: omni.blobkey-1.1.2] startup
+[18.591s] [ext: omni.client.lib-1.1.1] startup
+[18.837s] [ext: omni.client-1.3.0] startup
+2026-08-10T09:15:10Z [18,847ms] [Warning] [carb.omniclient.plugin]  76: OmniHub: ThreadId(02) Hub encountered error. Trying to reconnect to Hub. retry_reason="Hub failed to launch: Io(\"child exited with exit status: 1 without writing file \\\"/tmp/hub-isaac-sim-C85EA7BE.config.json\\\"\")"
+2026-08-10T09:15:10Z [19,071ms] [Warning] [carb.omniclient.plugin]  76: OmniHub: ThreadId(02) Hub encountered error. Trying to reconnect to Hub. retry_reason="Hub failed to launch: Io(\"child exited with exit status: 1 without writing file \\\"/tmp/hub-isaac-sim-C85EA7BE.config.json\\\"\")"
+2026-08-10T09:15:11Z [19,306ms] [Warning] [carb.omniclient.plugin]  76: OmniHub: ThreadId(02) Hub encountered error. Trying to reconnect to Hub. retry_reason="Hub failed to launch: Io(\"child exited with exit status: 1 without writing file \\\"/tmp/hub-isaac-sim-C85EA7BE.config.json\\\"\")"
+2026-08-10T09:15:11Z [19,550ms] [Warning] [carb.omniclient.plugin]  76: OmniHub: ThreadId(02) Hub encountered error. Trying to reconnect to Hub. retry_reason="Hub failed to launch: Io(\"child exited with exit status: 1 without writing file \\\"/tmp/hub-isaac-sim-C85EA7BE.config.json\\\"\")"
+2026-08-10T09:15:11Z [19,805ms] [Warning] [carb.omniclient.plugin]  76: OmniHub: ThreadId(02) Hub encountered error. Trying to reconnect to Hub. retry_reason="Hub failed to launch: Io(\"child exited with exit status: 1 without writing file \\\"/tmp/hub-isaac-sim-C85EA7BE.config.json\\\"\")"
+2026-08-10T09:15:11Z [20,069ms] [Warning] [carb.omniclient.plugin]  76: OmniHub: ThreadId(02) Hub encountered error. Trying to reconnect to Hub. retry_reason="Hub failed to launch: Io(\"child exited with exit status: 1 without writing file \\\"/tmp/hub-isaac-sim-C85EA7BE.config.json\\\"\")"
+2026-08-10T09:15:12Z [20,344ms] [Warning] [carb.omniclient.plugin]  76: OmniHub: ThreadId(02) Hub encountered error. Trying to reconnect to Hub. retry_reason="Hub failed to launch: Io(\"child exited with exit status: 1 without writing file \\\"/tmp/hub-isaac-sim-C85EA7BE.config.json\\\"\")"
+2026-08-10T09:15:12Z [20,628ms] [Warning] [carb.omniclient.plugin]  76: OmniHub: ThreadId(02) Hub encountered error. Trying to reconnect to Hub. retry_reason="Hub failed to launch: Io(\"child exited with exit status: 1 without writing file \\\"/tmp/hub-isaac-sim-C85EA7BE.config.json\\\"\")"
+2026-08-10T09:15:12Z [20,921ms] [Warning] [carb.omniclient.plugin]  76: OmniHub: ThreadId(02) Hub encountered error. Trying to reconnect to Hub. retry_reason="Hub failed to launch: Io(\"child exited with exit status: 1 without writing file \\\"/tmp/hub-isaac-sim-C85EA7BE.config.json\\\"\")"
+2026-08-10T09:15:12Z [21,226ms] [Warning] [carb.omniclient.plugin]  76: OmniHub: ThreadId(02) Hub encountered error. Trying to reconnect to Hub. retry_reason="Hub failed to launch: Io(\"child exited with exit status: 1 without writing file \\\"/tmp/hub-isaac-sim-C85EA7BE.config.json\\\"\")"
+2026-08-10T09:15:13Z [21,540ms] [Warning] [carb.omniclient.plugin]  76: OmniHub: ThreadId(02) Hub encountered error. Trying to reconnect to Hub. retry_reason="Hub failed to launch: Io(\"child exited with exit status: 1 without writing file \\\"/tmp/hub-isaac-sim-C85EA7BE.config.json\\\"\")"
+2026-08-10T09:15:13Z [21,866ms] [Warning] [carb.omniclient.plugin]  76: OmniHub: ThreadId(02) Hub encountered error. Trying to reconnect to Hub. retry_reason="Hub failed to launch: Io(\"child exited with exit status: 1 without writing file \\\"/tmp/hub-isaac-sim-C85EA7BE.config.json\\\"\")"
+2026-08-10T09:15:13Z [22,200ms] [Warning] [carb.omniclient.plugin]  76: OmniHub: ThreadId(02) Hub encountered error. Trying to reconnect to Hub. retry_reason="Hub failed to launch: Io(\"child exited with exit status: 1 without writing file \\\"/tmp/hub-isaac-sim-C85EA7BE.config.json\\\"\")"
+2026-08-10T09:15:14Z [22,545ms] [Warning] [carb.omniclient.plugin]  76: OmniHub: ThreadId(02) Hub encountered error. Trying to reconnect to Hub. retry_reason="Hub failed to launch: Io(\"child exited with exit status: 1 without writing file \\\"/tmp/hub-isaac-sim-C85EA7BE.config.json\\\"\")"
+2026-08-10T09:15:14Z [22,899ms] [Warning] [carb.omniclient.plugin]  76: OmniHub: ThreadId(02) Hub encountered error. Trying to reconnect to Hub. retry_reason="Hub failed to launch: Io(\"child exited with exit status: 1 without writing file \\\"/tmp/hub-isaac-sim-C85EA7BE.config.json\\\"\")"
+2026-08-10T09:15:14Z [23,263ms] [Warning] [carb.omniclient.plugin]  76: OmniHub: ThreadId(02) Hub encountered error. Trying to reconnect to Hub. retry_reason="Hub failed to launch: Io(\"child exited with exit status: 1 without writing file \\\"/tmp/hub-isaac-sim-C85EA7BE.config.json\\\"\")"
+2026-08-10T09:15:15Z [23,638ms] [Warning] [carb.omniclient.plugin]  76: OmniHub: ThreadId(02) Hub encountered error. Trying to reconnect to Hub. retry_reason="Hub failed to launch: Io(\"child exited with exit status: 1 without writing file \\\"/tmp/hub-isaac-sim-C85EA7BE.config.json\\\"\")"
+2026-08-10T09:15:15Z [24,023ms] [Warning] [carb.omniclient.plugin]  76: OmniHub: ThreadId(02) Hub encountered error. Trying to reconnect to Hub. retry_reason="Hub failed to launch: Io(\"child exited with exit status: 1 without writing file \\\"/tmp/hub-isaac-sim-C85EA7BE.config.json\\\"\")"
+2026-08-10T09:15:16Z [24,417ms] [Warning] [carb.omniclient.plugin]  76: OmniHub: ThreadId(02) Hub encountered error. Trying to reconnect to Hub. retry_reason="Hub failed to launch: Io(\"child exited with exit status: 1 without writing file \\\"/tmp/hub-isaac-sim-C85EA7BE.config.json\\\"\")"
+2026-08-10T09:15:16Z [24,821ms] [Warning] [carb.omniclient.plugin]  76: OmniHub: ThreadId(02) Hub encountered error. Trying to reconnect to Hub. retry_reason="Hub failed to launch: Io(\"child exited with exit status: 1 without writing file \\\"/tmp/hub-isaac-sim-C85EA7BE.config.json\\\"\")"
+2026-08-10T09:15:16Z [25,236ms] [Warning] [carb.omniclient.plugin]  76: OmniHub: ThreadId(02) Hub encountered error. Trying to reconnect to Hub. retry_reason="Hub failed to launch: Io(\"child exited with exit status: 1 without writing file \\\"/tmp/hub-isaac-sim-C85EA7BE.config.json\\\"\")"
+2026-08-10T09:15:17Z [25,660ms] [Warning] [carb.omniclient.plugin]  76: OmniHub: ThreadId(02) Hub encountered error. Trying to reconnect to Hub. retry_reason="Hub failed to launch: Io(\"child exited with exit status: 1 without writing file \\\"/tmp/hub-isaac-sim-C85EA7BE.config.json\\\"\")"
+2026-08-10T09:15:17Z [26,094ms] [Warning] [carb.omniclient.plugin]  76: OmniHub: ThreadId(02) Hub encountered error. Trying to reconnect to Hub. retry_reason="Hub failed to launch: Io(\"child exited with exit status: 1 without writing file \\\"/tmp/hub-isaac-sim-C85EA7BE.config.json\\\"\")"
+2026-08-10T09:15:18Z [26,537ms] [Warning] [carb.omniclient.plugin]  76: OmniHub: ThreadId(02) Hub encountered error. Trying to reconnect to Hub. retry_reason="Hub failed to launch: Io(\"child exited with exit status: 1 without writing file \\\"/tmp/hub-isaac-sim-C85EA7BE.config.json\\\"\")"
+2026-08-10T09:15:18Z [26,992ms] [Warning] [carb.omniclient.plugin]  76: OmniHub: ThreadId(02) Hub encountered error. Trying to reconnect to Hub. retry_reason="Hub failed to launch: Io(\"child exited with exit status: 1 without writing file \\\"/tmp/hub-isaac-sim-C85EA7BE.config.json\\\"\")"
+2026-08-10T09:15:19Z [27,457ms] [Warning] [carb.omniclient.plugin]  76: OmniHub: ThreadId(02) Hub encountered error. Trying to reconnect to Hub. retry_reason="Hub failed to launch: Io(\"child exited with exit status: 1 without writing file \\\"/tmp/hub-isaac-sim-C85EA7BE.config.json\\\"\")"
+2026-08-10T09:15:19Z [27,930ms] [Warning] [carb.omniclient.plugin]  76: OmniHub: ThreadId(02) Hub encountered error. Trying to reconnect to Hub. retry_reason="Hub failed to launch: Io(\"child exited with exit status: 1 without writing file \\\"/tmp/hub-isaac-sim-C85EA7BE.config.json\\\"\")"
+2026-08-10T09:15:20Z [28,415ms] [Warning] [carb.omniclient.plugin]  76: OmniHub: ThreadId(02) Hub encountered error. Trying to reconnect to Hub. retry_reason="Hub failed to launch: Io(\"child exited with exit status: 1 without writing file \\\"/tmp/hub-isaac-sim-C85EA7BE.config.json\\\"\")"
+2026-08-10T09:15:20Z [28,909ms] [Warning] [carb.omniclient.plugin]  76: OmniHub: ThreadId(02) Hub encountered error. Trying to reconnect to Hub. retry_reason="Hub failed to launch: Io(\"child exited with exit status: 1 without writing file \\\"/tmp/hub-isaac-sim-C85EA7BE.config.json\\\"\")"
+2026-08-10T09:15:21Z [29,414ms] [Warning] [carb.omniclient.plugin]  76: OmniHub: ThreadId(02) Hub encountered error. Trying to reconnect to Hub. retry_reason="Hub failed to launch: Io(\"child exited with exit status: 1 without writing file \\\"/tmp/hub-isaac-sim-C85EA7BE.config.json\\\"\")"
+2026-08-10T09:15:21Z [29,928ms] [Warning] [carb.omniclient.plugin]  76: OmniHub: ThreadId(02) Hub encountered error. Trying to reconnect to Hub. retry_reason="Hub failed to launch: Io(\"child exited with exit status: 1 without writing file \\\"/tmp/hub-isaac-sim-C85EA7BE.config.json\\\"\")"
+2026-08-10T09:15:22Z [30,452ms] [Warning] [carb.omniclient.plugin]  76: OmniHub: ThreadId(02) Hub encountered error. Trying to reconnect to Hub. retry_reason="Hub failed to launch: Io(\"child exited with exit status: 1 without writing file \\\"/tmp/hub-isaac-sim-C85EA7BE.config.json\\\"\")"
+2026-08-10T09:15:22Z [30,986ms] [Warning] [carb.omniclient.plugin]  76: OmniHub: ThreadId(02) Hub encountered error. Trying to reconnect to Hub. retry_reason="Hub failed to launch: Io(\"child exited with exit status: 1 without writing file \\\"/tmp/hub-isaac-sim-C85EA7BE.config.json\\\"\")"
+2026-08-10T09:15:23Z [31,529ms] [Warning] [carb.omniclient.plugin]  76: OmniHub: ThreadId(02) Hub encountered error. Trying to reconnect to Hub. retry_reason="Hub failed to launch: Io(\"child exited with exit status: 1 without writing file \\\"/tmp/hub-isaac-sim-C85EA7BE.config.json\\\"\")"
+2026-08-10T09:15:23Z [32,084ms] [Warning] [carb.omniclient.plugin]  76: OmniHub: ThreadId(02) Hub encountered error. Trying to reconnect to Hub. retry_reason="Hub failed to launch: Io(\"child exited with exit status: 1 without writing file \\\"/tmp/hub-isaac-sim-C85EA7BE.config.json\\\"\")"
+2026-08-10T09:15:24Z [32,649ms] [Warning] [carb.omniclient.plugin]  76: OmniHub: ThreadId(02) Hub encountered error. Trying to reconnect to Hub. retry_reason="Hub failed to launch: Io(\"child exited with exit status: 1 without writing file \\\"/tmp/hub-isaac-sim-C85EA7BE.config.json\\\"\")"
+2026-08-10T09:15:24Z [33,222ms] [Warning] [carb.omniclient.plugin]  76: OmniHub: ThreadId(02) Hub encountered error. Trying to reconnect to Hub. retry_reason="Hub failed to launch: Io(\"child exited with exit status: 1 without writing file \\\"/tmp/hub-isaac-sim-C85EA7BE.config.json\\\"\")"
+2026-08-10T09:15:25Z [33,805ms] [Warning] [carb.omniclient.plugin]  76: OmniHub: ThreadId(02) Hub encountered error. Trying to reconnect to Hub. retry_reason="Hub failed to launch: Io(\"child exited with exit status: 1 without writing file \\\"/tmp/hub-isaac-sim-C85EA7BE.config.json\\\"\")"
+2026-08-10T09:15:26Z [34,400ms] [Warning] [carb.omniclient.plugin]  76: OmniHub: ThreadId(02) Hub encountered error. Trying to reconnect to Hub. retry_reason="Hub failed to launch: Io(\"child exited with exit status: 1 without writing file \\\"/tmp/hub-isaac-sim-C85EA7BE.config.json\\\"\")"
+[35.242s] [ext: omni.protobuf.lib-1.0.0] startup
+[35.253s] [ext: omni.grpc.lib-1.0.0] startup
+[35.293s] [ext: omni.metrics.core-0.0.3] startup
+[35.295s] [ext: omni.datastore-0.0.0] startup
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+E0000 00:00:1786353326.762716       9 descriptor_database.cc:633] File already exists in database: grpc/health/v1/health.proto
+W0000 00:00:1786353326.762888       9 message.cc:301] Protobuf GeneratedMessageFactory: File is already registered: grpc/health/v1/health.proto
+[35.303s] [ext: omni.gpu_foundation.shadercache.vulkan-1.0.0] startup
+[35.369s] [ext: omni.hsscclient-1.1.4] startup
+[35.378s] [ext: omni.stats-1.0.1] startup
+[35.393s] [ext: omni.ujitso.default-1.0.0] startup
+[35.428s] [ext: omni.gpu_foundation-0.0.0] startup
+[38.303s] [ext: carb.windowing.plugins-1.0.1] startup
+[38.309s] [ext: omni.kit.renderer.init-1.0.1] startup
+2026-08-10T09:15:30Z [38,534ms] [Warning] [omni.platforminfo.plugin] failed to open the default display.  Can't verify X Server version.
+
+|---------------------------------------------------------------------------------------------|
+| Driver Version: 580.173.02    | Graphics API: Vulkan
+|=============================================================================================|
+| GPU | Name                             | Active | LDA | GPU Memory | Vendor-ID | LUID       |
+|     |                                  |        |     |            | Device-ID | UUID       |
+|     |                                  |        |     |            | Bus-ID    |            |
+|---------------------------------------------------------------------------------------------|
+| 0   | NVIDIA GeForce RTX 3090          | Yes: 0 |     | 24822   MB | 10de      | 0          |
+|     |                                  |        |     |            | 2204      | 3b002aa7.. |
+|     |                                  |        |     |            | c1        |            |
+|=============================================================================================|
+| OS: 24.04.3 LTS (Noble Numbat) ubuntu, Version: 24.04.3, Kernel: 6.8.0-136-generic
+| Processor: AMD EPYC 7543 32-Core Processor
+| Cores: 32 | Logical Cores: 64
+|---------------------------------------------------------------------------------------------|
+| Total Memory (MB): 128656 | Free Memory: 120316
+| Total Page/Swap (MB): 0 | Free Page/Swap: 0
+|---------------------------------------------------------------------------------------------|
+2026-08-10T09:15:33Z [42,183ms] [Warning] [omni.rtx] IOMMU is enabled.
+[43.964s] [ext: omni.kit.pipapi-0.0.0] startup
+[44.003s] [ext: omni.kit.pip_archive-0.0.0] startup
+[44.011s] [ext: isaacsim.pip.newton-0.6.1] startup
+[44.067s] [ext: omni.pip.compute-1.9.2] startup
+[44.075s] [ext: omni.isaac.core_archive-5.3.1] startup
+[44.082s] [ext: omni.kit.telemetry-0.5.2] startup
+[44.375s] [ext: omni.kit.loop-isaac-1.6.0] startup
+[44.398s] [ext: omni.kit.test-2.0.7] startup
+[47.550s] [ext: omni.materialx.libs-1.0.9] startup
+[47.656s] [ext: omni.gpucompute.plugins-0.0.0] startup
+[47.664s] [ext: omni.usd.config-1.0.7] startup
+[47.745s] [ext: omni.usd.libs-1.0.3] startup
+[48.527s] [ext: omni.iray.libs-0.0.1] startup
+[48.578s] [ext: omni.mdl-57.0.3] startup
+[52.231s] [ext: omni.mdl.neuraylib-0.2.20] startup
+[52.306s] [ext: omni.kit.usd.mdl-1.1.9] startup
+[53.508s] [ext: omni.services.pip_archive-0.18.7] startup
+[53.517s] [ext: omni.appwindow-1.2.2] startup
+[53.544s] [ext: omni.kit.renderer.core-1.2.2] startup
+2026-08-10T09:15:45Z [53,393ms] [Warning] [carb.windowing-glfw.plugin] GLFW initialization failed.
+2026-08-10T09:15:45Z [53,393ms] [Warning] [carb] Failed to startup plugin carb.windowing-glfw.plugin (interfaces: [carb::windowing::IGLContext v1.0],[carb::windowing::IWindowing v1.5]) (impl: carb.windowing-glfw.plugin)
+[53.785s] [ext: omni.kit.renderer.capture-2.0.1] startup
+[53.836s] [ext: omni.kit.renderer.imgui-2.0.6] startup
+2026-08-10T09:15:45Z [53,657ms] [Warning] [carb.windowing-glfw.plugin] GLFW initialization failed.
+2026-08-10T09:15:45Z [53,657ms] [Warning] [carb] Failed to startup plugin carb.windowing-glfw.plugin (interfaces: [carb::windowing::IGLContext v1.0],[carb::windowing::IWindowing v1.5]) (impl: carb.windowing-glfw.plugin)
+2026-08-10T09:15:45Z [53,669ms] [Warning] [carb.windowing-glfw.plugin] GLFW initialization failed.
+2026-08-10T09:15:45Z [53,669ms] [Warning] [carb] Failed to startup plugin carb.windowing-glfw.plugin (interfaces: [carb::windowing::IGLContext v1.0],[carb::windowing::IWindowing v1.5]) (impl: carb.windowing-glfw.plugin)
+[54.365s] [ext: omni.ui-3.2.0] startup
+[54.556s] [ext: omni.kit.mainwindow-1.0.3] startup
+[54.583s] [ext: carb.audio-0.1.0] startup
+[54.639s] [ext: omni.uiaudio-1.0.0] startup
+[54.653s] [ext: omni.kit.uiapp-0.0.0] startup
+[54.654s] [ext: omni.usd.schema.metrics.assembler-110.1.0] startup
+[54.700s] [ext: omni.usd.schema.audio-0.0.1] startup
+[54.740s] [ext: omni.usd_resolver-1.0.0] startup
+[54.779s] [ext: omni.usd.core-1.8.3] startup
+[54.814s] [ext: omni.metropolis.schema-0.0.3] startup
+[54.826s] [ext: isaacsim.anim.robot.schema-0.1.1] startup
+[54.850s] [ext: omni.usd.schema.anim-0.0.1] startup
+[55.058s] [ext: omni.usd.schema.geospatial-0.0.1] startup
+[55.091s] [ext: omni.usd.schema.omnigraph-1.0.1] startup
+[55.156s] [ext: omni.usd.schema.semantics-0.0.0] startup
+[55.188s] [ext: omni.activity.core-1.0.3] startup
+[55.204s] [ext: omni.cubric-0.1.0] startup
+[55.207s] [ext: omni.graph.exec-0.9.6] startup
+[55.211s] [ext: omni.hydra.scene_delegate-0.3.5] startup
+[55.251s] [ext: usdrt.scenegraph-7.6.3] startup
+[55.607s] [ext: omni.hydra.usdrt_delegate-7.5.2] startup
+[55.681s] [ext: omni.inspect-1.0.2] startup
+[55.710s] [ext: omni.kit.actions.core-1.0.0] startup
+[55.750s] [ext: omni.kit.audiodeviceenum-1.0.2] startup
+[55.774s] [ext: omni.kit.commands-1.5.0] startup
+[55.904s] [ext: omni.kit.exec.core-0.13.5] startup
+[55.929s] [ext: omni.kit.usd_undo-0.1.8] startup
+[55.949s] [ext: omni.kit.window.popup_dialog-2.0.25] startup
+[56.070s] [ext: omni.kit.widget.nucleus_connector-2.3.1] startup
+[56.246s] [ext: omni.timeline-1.1.0] startup
+[56.276s] [ext: omni.usd-1.16.0] startup
+[57.400s] [ext: omni.graph.core-3.1.2] startup
+[57.429s] [ext: omni.kit.notification_manager-1.0.11] startup
+[57.498s] [ext: isaacsim.core.deprecation_manager-0.4.2] startup
+[57.547s] [ext: isaacsim.replicator.agent.schema-0.1.1] startup
+[57.584s] [ext: isaacsim.robot.schema-6.3.7] startup
+[57.734s] [ext: isaacsim.robot_motion.schema-0.2.1] startup
+[57.771s] [ext: omni.anim.behavior.schema-110.1.0] startup
+[57.827s] [ext: omni.anim.graph.schema-110.1.1] startup
+[57.896s] [ext: omni.anim.navigation.schema-110.1.0] startup
+[57.940s] [ext: omni.behavior.tree.schema-110.1.0] startup
+[57.961s] [ext: omni.isaac.ml_archive-3.3.0] startup
+[57.969s] [ext: omni.kit.asset_converter-6.0.1] startup
+[58.158s] [ext: omni.pip.cloud-1.5.4] startup
+[58.330s] [ext: omni.usd.schema.flow-110.0.0] startup
+[58.340s] [ext: omni.usd.schema.mujoco-1.1.1] startup
+[58.350s] [ext: omni.usd.schema.newton-1.2.1] startup
+[58.367s] [ext: omni.usd.schema.omni_lens_distortion-1.0.0] startup
+[58.379s] [ext: omni.usd.schema.omni_projectors-1.0.0] startup
+[58.388s] [ext: omni.usd.schema.omni_sensors-0.0.0] startup
+[58.475s] [ext: omni.usd.schema.omniscripting-1.0.1] startup
+[58.527s] [ext: omni.usd.schema.physical_lighting-0.1.0] startup
+[58.566s] [ext: omni.usd.schema.physx-110.1.13] startup
+[58.883s] [ext: omni.usd.schema.render_settings.rtx-1.0.2] startup
+[58.939s] [ext: omni.usd.schema.scene.visualization-2.0.2] startup
+[58.962s] [ext: omni.usd.schema.usd_particle_field-1.0.0] startup
+[58.973s] [ext: omni.kit.clipboard-1.1.1] startup
+[58.989s] [ext: omni.kit.collaboration.telemetry-1.1.0] startup
+[59.001s] [ext: omni.kit.collaboration.channel_manager-1.1.1] startup
+[59.084s] [ext: omni.kit.usd.layers-2.6.1] startup
+[59.440s] [ext: omni.kit.collaboration.presence_layer-1.2.1] startup
+[59.556s] [ext: omni.kit.menu.core-1.2.0] startup
+[59.600s] [ext: omni.kit.widget.context_menu-1.4.0] startup
+[59.668s] [ext: omni.kit.context_menu-1.9.0] startup
+[59.775s] [ext: omni.kit.helper.file_utils-0.1.10] startup
+[59.830s] [ext: omni.kit.hotkeys.core-1.3.12] startup
+[59.983s] [ext: omni.kit.menu.utils-2.2.4] startup
+[60.242s] [ext: omni.kit.widget.nucleus_info-2.0.2] startup
+[60.268s] [ext: omni.kit.search_core-1.0.8] startup
+[60.298s] [ext: omni.kit.stage_template.core-1.1.22] startup
+[60.324s] [ext: omni.kit.widget.path_field-2.0.13] startup
+[60.378s] [ext: omni.kit.widget.browser_bar-2.0.10] startup
+[60.422s] [ext: omni.kit.widget.filebrowser-2.13.4] startup
+[60.750s] [ext: omni.kit.widget.options_menu-1.1.6] startup
+[60.886s] [ext: omni.kit.widget.filter-1.1.5] startup
+[60.913s] [ext: omni.kit.widget.options_button-1.0.3] startup
+[60.936s] [ext: omni.kit.widget.prompt-1.0.7] startup
+[60.973s] [ext: omni.kit.widget.search_delegate-1.0.9] startup
+[61.033s] [ext: omni.kit.widget.versioning-1.4.11] startup
+[61.158s] [ext: omni.ui.scene-2.0.3] startup
+[61.236s] [ext: omni.kit.window.filepicker-2.15.5] startup
+[62.241s] [ext: omni.kit.widget.live_session_management.ui-1.0.4] startup
+[62.394s] [ext: omni.kit.widget.searchable_combobox-1.0.7] startup
+[62.448s] [ext: omni.kit.widget.settings-2.0.0] startup
+[62.582s] [ext: omni.kit.window.preferences-1.8.3] startup
+[62.766s] [ext: omni.kit.widget.live_session_management-1.2.28] startup
+[62.902s] [ext: omni.kit.widget.searchfield-1.1.8] startup
+[62.970s] [ext: omni.kit.window.file_exporter-1.0.36] startup
+[63.021s] [ext: omni.kit.widget.stage-4.4.0] startup
+[63.597s] [ext: omni.kit.window.content_browser_registry-0.0.6] startup
+[63.622s] [ext: omni.kit.window.drop_support-1.0.8] startup
+[63.639s] [ext: omni.kit.window.file_importer-1.1.21] startup
+[63.683s] [ext: omni.kit.window.file-2.0.10] startup
+[63.856s] [ext: omni.kit.window.content_browser-3.1.8] startup
+[64.124s] [ext: omni.kit.widget.layers-1.9.2] startup
+[64.761s] [ext: isaacsim.core.version-2.1.1] startup
+[64.780s] [ext: isaacsim.app.about-2.3.1] startup
+[64.909s] [ext: isaacsim.asset.transformer-1.2.5] startup
+[65.025s] [ext: omni.scene.optimizer.core-110.1.0] startup
+[65.619s] [ext: isaacsim.asset.importer.utils-1.8.1] startup
+[65.744s] [ext: omni.convexdecomposition-110.1.13] startup
+[65.776s] [ext: omni.physics-110.1.13] startup
+[65.821s] [ext: omni.physx.gpu-110.1.13] startup
+[65.824s] [ext: omni.physx.foundation-110.1.13] startup
+[65.852s] [ext: omni.usdphysics-110.1.13] startup
+[65.877s] [ext: omni.physx.cooking-110.1.13] startup
+[65.913s] [ext: omni.physx-110.1.13] startup
+[66.173s] [ext: omni.physics.physx-110.1.13] startup
+[66.195s] [ext: isaacsim.asset.exporter.urdf-2.0.5] startup
+[66.559s] [ext: omni.graph.tools-1.81.0] startup
+[68.209s] [ext: omni.graph-1.142.5] startup
+[69.654s] [ext: omni.graph.action_core-1.1.9] startup
+[69.698s] [ext: omni.hydra.engine.stats-1.0.5] startup
+[69.732s] [ext: omni.hydra.rtx.shadercache.vulkan-1.0.0] startup
+[69.755s] [ext: omni.index.libs-387500.4413.0] startup
+[69.757s] [ext: omni.index-1.0.1] startup
+[69.763s] [ext: omni.ujitso.client-0.0.0] startup
+[69.767s] [ext: omni.usd.schema.playback-1.0.0] startup
+[69.812s] [ext: omni.volume-0.5.2] startup
+[69.859s] [ext: omni.hydra.rtx-1.0.4] startup
+2026-08-10T09:16:01Z [69,775ms] [Warning] [omni.log] Source: omni.hydra was already registered.
+[70.268s] [ext: omni.kit.hydra_texture-1.6.0] startup
+[70.328s] [ext: omni.kit.material.library-3.1.2] startup
+[70.791s] [ext: omni.kit.property.adapter.core-1.1.1] startup
+[70.853s] [ext: omni.kit.property.adapter.usd-1.0.5] startup
+[70.896s] [ext: omni.kit.widget.highlight_label-1.0.3] startup
+[70.927s] [ext: omni.kit.window.property-1.15.1] startup
+[77.295s] [ext: omni.kit.property.usd-4.9.4] startup
+[78.233s] [ext: omni.kit.raycast.query-1.2.0] startup
+[78.299s] [ext: omni.kit.viewport.legacy_gizmos-1.0.24] startup
+[78.336s] [ext: omni.kit.viewport.registry-104.0.6] startup
+[78.360s] [ext: omni.kit.viewport.scene_camera_model-1.0.7] startup
+[78.411s] [ext: omni.kit.widget.viewport-109.2.0] startup
+[78.657s] [ext: omni.kit.viewport.window-109.0.2] startup
+[79.211s] [ext: omni.kit.viewport.utility-2.0.1] startup
+[79.266s] [ext: omni.kit.widget.text_editor-1.1.1] startup
+[79.289s] [ext: omni.kit.window.extensions-1.5.10] startup
+[79.749s] [ext: omni.ui_query-1.1.10] startup
+[79.792s] [ext: omni.graph.ui-2.10.3] startup
+[80.524s] [ext: omni.graph.action_nodes_core-2.11.0] startup
+[80.570s] [ext: omni.graph.action_nodes-2.11.0] startup
+[81.242s] [ext: omni.graph.action-2.10.2] startup
+[81.263s] [ext: omni.kit.manipulator.viewport-107.0.1] startup
+[81.307s] [ext: omni.graph.visualization.nodes-2.1.4] startup
+[81.572s] [ext: isaacsim.gui.components-1.8.5] startup
+[81.927s] [ext: isaacsim.asset.exporter.urdf.ui-1.0.2] startup
+[82.019s] [ext: isaacsim.util.debug_draw-3.2.3] startup
+[82.124s] [ext: omni.physics.stageupdate-110.1.13] startup
+[82.168s] [ext: isaacsim.asset.gen.omap-2.3.2] startup
+[82.300s] [ext: omni.kit.primitive.mesh-1.1.0] startup
+[82.492s] [ext: omni.kit.stage_templates-2.0.2] startup
+[82.582s] [ext: omni.usd.metrics.assembler-110.1.2] startup
+[82.630s] [ext: omni.warp.core-1.13.0] startup
+[82.643s] [ext: isaacsim.core.experimental.utils-0.17.2] startup
+[82.681s] [ext: isaacsim.asset.gen.omap.ui-2.6.1] startup
+[82.882s] [ext: omni.physics.tensors-110.1.13] startup
+[83.098s] [ext: omni.physx.tensors-110.1.13] startup
+[83.128s] [ext: omni.usdex.libs-2.2.2] startup
+[83.246s] [ext: isaacsim.core.simulation_manager-1.15.6] startup
+[83.571s] [ext: isaacsim.test.docstring-1.3.2] startup
+[83.926s] [ext: isaacsim.core.experimental.prims-1.8.9] startup
+[92.044s] [ext: isaacsim.core.experimental.primdata-0.3.2] startup
+[92.088s] [ext: isaacsim.core.experimental.materials-0.7.1] startup
+[92.323s] [ext: isaacsim.core.experimental.objects-0.8.1] startup
+[95.717s] [ext: isaacsim.asset.importer.heightmap-2.3.4] startup
+[95.792s] [ext: isaacsim.asset.transformer.rules-1.7.10] startup
+[96.597s] [ext: isaacsim.asset.importer.mjcf-3.10.1] startup
+[96.667s] [ext: omni.kit.usd.collect-3.0.6] startup
+[96.836s] [ext: omni.kit.usdz_export-1.1.0] startup
+[96.914s] [ext: omni.kit.tool.asset_importer-6.0.1] startup
+[97.222s] [ext: isaacsim.asset.importer.mjcf.ui-1.4.4] startup
+[97.721s] [ext: isaacsim.asset.importer.urdf-3.11.2] startup
+[97.897s] [ext: isaacsim.asset.importer.urdf.ui-1.4.3] startup
+[98.037s] [ext: isaacsim.asset.transformer.ui-1.1.2] startup
+[98.261s] [ext: omni.asset_validator.core-1.19.3] startup
+[100.335s] [ext: isaacsim.asset.validation-1.3.6] startup
+[100.477s] [ext: isaacsim.storage.native-1.9.3] startup
+[100.594s] [ext: omni.debugdraw-0.1.4] startup
+[100.643s] [ext: omni.kit.manipulator.selector-1.1.4] startup
+[100.689s] [ext: omni.kit.manipulator.transform-107.0.0] startup
+[100.953s] [ext: omni.kit.widget.toolbar-2.1.0] startup
+[101.218s] [ext: omni.kit.manipulator.tool.snap-1.5.14] startup
+[101.393s] [ext: omni.kit.viewport.manipulator.transform-107.0.4] startup
+[101.471s] [ext: omni.kit.manipulator.prim.core-108.0.2] startup
+[101.771s] [ext: omni.kit.manipulator.prim.usd-107.0.3] startup
+[101.819s] [ext: omni.kit.manipulator.prim-108.0.0] startup
+[101.820s] [ext: omni.kit.manipulator.selection-109.0.1] startup
+[101.877s] [ext: omni.kit.viewport.actions-110.0.0] startup
+[101.994s] [ext: omni.kit.window.cursor-1.1.6] startup
+[102.020s] [ext: omni.kit.viewport.menubar.core-107.2.2] startup
+[102.554s] [ext: omni.kit.viewport.menubar.display-107.1.3] startup
+[102.615s] [ext: omni.physx.commands-110.1.13] startup
+[102.860s] [ext: omni.usdphysics.ui-110.1.13] startup
+[103.565s] [ext: omni.physx.ui-110.1.13] startup
+[104.365s] [ext: omni.usd.metrics.assembler.physics-110.1.13] startup
+[104.500s] [ext: isaacsim.core.utils-4.1.7] startup
+[104.594s] [ext: isaacsim.core.prims-0.11.7] startup
+[133.175s] [ext: isaacsim.core.api-5.2.13] startup
+[133.809s] [ext: isaacsim.core.cloner-1.7.3] startup
+[133.875s] [ext: isaacsim.core.experimental.actuators-0.1.2] startup
+[134.156s] [ext: isaacsim.core.rendering_manager-0.4.3] startup
+[134.547s] [ext: omni.graph.image.core-0.6.1] startup
+[134.562s] [ext: omni.graph.image.nodes-1.3.1] startup
+[134.577s] [ext: omni.graph.nodes_core-2.11.0] startup
+[134.652s] [ext: omni.graph.nodes-2.12.0] startup
+[134.732s] [ext: omni.graph.scriptnode-2.10.2] startup
+[134.924s] [ext: omni.syntheticdata-0.6.15] startup
+[135.772s] [ext: omni.replicator.nv-1.1.1] startup
+[135.901s] [ext: omni.videoencoding-0.2.1] startup
+[135.972s] [ext: omni.replicator.core-1.13.27] startup
+2026-08-10T09:17:08Z [136,512ms] [Warning] [pxr.Semantics] pxr.Semantics is deprecated - please use Semantics instead
+Warp 1.13.0 initialized:
+   CUDA Toolkit 12.9, Driver 13.0
+   Devices:
+     "cpu"      : "x86_64"
+     "cuda:0"   : "NVIDIA GeForce RTX 3090" (24 GiB, sm_86, mempool enabled)
+   Kernel cache:
+     /isaac-sim/.cache/warp/1.13.0
+2026-08-10T09:17:10Z [138,640ms] [Warning] [omni.replicator.core.scripts.extension] No material configuration file, adding configuration to material settings directly.
+[144.745s] [ext: isaacsim.core.nodes-5.10.5] startup
+[145.796s] [ext: isaacsim.core.throttling-2.3.5] startup
+[145.835s] [ext: isaacsim.robot.surface_gripper-3.6.2] startup
+[146.073s] [ext: isaacsim.robot.manipulators-3.4.4] startup
+[146.341s] [ext: isaacsim.robot_motion.lula-4.1.3] startup
+[146.434s] [ext: isaacsim.robot_motion.motion_generation-8.2.9] startup
+[146.750s] [ext: isaacsim.cortex.framework-1.0.18] startup
+[146.787s] [ext: isaacsim.cortex.behaviors-2.0.17] startup
+[146.818s] [ext: omni.kit.widget.zoombar-1.0.7] startup
+[146.850s] [ext: omni.kit.browser.core-2.3.18] startup
+[147.072s] [ext: omni.kit.browser.folder.core-2.0.2] startup
+[147.363s] [ext: omni.kit.widget.stage_icons-1.0.8] startup
+[147.388s] [ext: omni.kit.window.stage-2.6.1] startup
+[147.467s] [ext: omni.kit.menu.stage-1.2.7] startup
+[147.511s] [ext: omni.kit.tool.collect-2.2.19] startup
+[147.635s] [ext: isaacsim.examples.browser-0.3.2] startup
+[147.736s] [ext: isaacsim.cortex.examples-0.2.4] startup
+[148.241s] [ext: isaacsim.examples.base-1.3.2] startup
+[148.288s] [ext: isaacsim.examples.extension-2.3.1] startup
+[148.366s] [ext: isaacsim.robot_motion.experimental.motion_generation-6.1.3] startup
+[148.760s] [ext: isaacsim.robot_motion.cumotion-1.3.1] startup
+[149.113s] [ext: isaacsim.robot.experimental.manipulators.examples-0.2.1] startup
+[149.664s] [ext: isaacsim.robot.experimental.wheeled_robots-0.2.11] startup
+[150.717s] [ext: isaacsim.robot.wheeled_robots.nodes-0.1.5] startup
+[151.458s] [ext: isaacsim.examples.interactive-4.16.1] startup
+[151.767s] [ext: omni.kit.search.files-1.0.4] startup
+[151.797s] [ext: omni.kit.widget.calendar-1.0.9] startup
+[151.844s] [ext: omni.kit.widget.extended_searchfield-1.0.31] startup
+[152.223s] [ext: omni.simready.content.browser-0.3.7] startup
+[156.847s] [ext: isaacsim.gui.content_browser-0.4.3] startup
+[156.917s] [ext: omni.kit.selection-0.1.6] startup
+[156.964s] [ext: isaacsim.gui.menu-2.10.5] startup
+[157.286s] [ext: isaacsim.gui.property-1.6.4] startup
+[157.689s] [ext: isaacsim.gui.sensors.icon-2.2.1] startup
+[157.797s] [ext: omni.behavior.scripting.core-110.1.0] startup
+[157.961s] [ext: isaacsim.replicator.behavior-1.5.4] startup
+[157.985s] [ext: isaacsim.replicator.experimental.domain_randomization-1.2.5] startup
+[158.550s] [ext: isaacsim.replicator.domain_randomization-1.2.2] startup
+[159.751s] [ext: isaacsim.replicator.writers-1.5.4] startup
+[160.849s] [ext: isaacsim.robot.policy.examples-5.2.12] startup
+[161.654s] [ext: isaacsim.robot.wheeled_robots-5.2.4] startup
+[161.687s] [ext: omni.kit.numpy.common-0.1.3] startup
+[161.711s] [ext: isaacsim.sensors.camera-1.7.9] startup
+[162.436s] [ext: isaacsim.sensors.experimental.physics-3.0.2] startup
+[162.663s] [ext: omni.sensors.net-1.0.1] startup
+[162.703s] [ext: omni.sensors.nv.common-3.0.0] startup
+[162.862s] [ext: omni.sensors.nv.materials-2.0.0] startup
+[162.913s] [ext: omni.sensors.nv.acoustic-3.0.0] startup
+[162.960s] [ext: omni.sensors.nv.ids-2.0.1] startup
+[162.990s] [ext: omni.sensors.nv.lidar-3.0.0] startup
+[163.051s] [ext: omni.sensors.nv.radar-3.0.0] startup
+[163.097s] [ext: isaacsim.sensors.experimental.rtx-1.4.6] startup
+[170.296s] [ext: isaacsim.sensors.physics.nodes-1.5.3] startup
+[170.405s] [ext: isaacsim.sensors.physx-2.5.5] startup
+[170.580s] [ext: isaacsim.sensors.rtx-15.17.1] startup
+[170.829s] [ext: isaacsim.simulation_app-2.18.4] startup
+[170.894s] [ext: omni.anim.curve.core-1.6.0] startup
+[171.267s] [ext: omni.graph.ui_nodes-2.11.1] startup
+[172.152s] [ext: omni.hydra.scene_api-0.1.3] startup
+[172.209s] [ext: omni.kit.manipulator.camera-110.0.0] startup
+[172.463s] [ext: omni.kit.menu.create-2.0.2] startup
+[172.512s] [ext: omni.kit.property.audio-1.0.16] startup
+[172.574s] [ext: omni.kit.property.camera-1.0.14] startup
+[172.622s] [ext: omni.kit.property.geometry-2.1.2] startup
+[172.758s] [ext: omni.kit.property.light-1.0.14] startup
+2026-08-10T09:17:44Z [172,597ms] [Warning] [omni.usd] Encountered USD Warnings but USD Diagnostics are currently muted. To view USD Warnings, please set the '/persistent/app/usd/muteUsdDiagnostics' setting to false in Preferences page.
+[172.920s] [ext: omni.kit.widget.imageview-1.0.5] startup
+[172.937s] [ext: omni.kit.window.quicksearch-2.4.4] startup
+[173.063s] [ext: omni.kit.property.material-1.14.6] startup
+[173.405s] [ext: omni.kit.property.render-1.2.2] startup
+[173.436s] [ext: omni.kit.property.transform-1.6.9] startup
+[173.725s] [ext: omni.kit.property.bundle-1.5.1] startup
+[173.775s] [ext: omni.kit.ui.actions-1.0.5] startup
+[173.824s] [ext: omni.kit.viewport.menubar.camera-107.0.10] startup
+[174.054s] [ext: omni.kit.viewport.menubar.lighting-107.3.2] startup
+[174.195s] [ext: omni.kit.viewport.menubar.render-110.0.0] startup
+[174.329s] [ext: omni.kit.viewport.menubar.settings-110.0.1] startup
+[174.534s] [ext: omni.kit.window.console-1.1.9] startup
+[174.665s] [ext: omni.kit.window.status_bar-0.1.11] startup
+[174.707s] [ext: omni.kit.window.toolbar-3.0.3] startup
+[174.751s] [ext: omni.ocio-0.1.1] startup
+[174.770s] [ext: omni.replicator.replicator_yaml-2.0.12] startup
+[175.082s] [ext: omni.rtx.window.settings-0.8.0] startup
+[175.230s] [ext: omni.rtx.settings.core-0.7.1] startup
+[175.477s] [ext: omni.usd.metrics.assembler.ui-110.1.1] startup
+[175.668s] [ext: semantics.schema.editor-2.0.2] startup
+[175.796s] [ext: semantics.schema.property-2.0.2] startup
+[175.853s] [ext: omni.kit.menu.common-2.0.2] startup
+[175.891s] [ext: isaacsim.exp.base-6.0.1] startup
+[175.894s] [ext: isaacsim.replicator.behavior.ui-1.2.1] startup
+[175.937s] [ext: isaacsim.replicator.episode_recorder-0.1.4] startup
+[176.287s] [ext: isaacsim.replicator.episode_recorder.ui-0.1.3] startup
+[176.453s] [ext: isaacsim.replicator.grasping-1.1.5] startup
+[188.073s] [ext: isaacsim.replicator.grasping.ui-1.1.3] startup
+[188.236s] [ext: isaacsim.replicator.synthetic_recorder-2.4.5] startup
+[188.354s] [ext: isaacsim.robot_motion.pink-0.1.3] startup
+[189.773s] [ext: isaacsim.replicator.teleop-0.3.6] startup
+[190.487s] [ext: isaacsim.replicator.teleop.ui-0.3.4] startup
+[190.828s] [ext: isaacsim.robot.manipulators.examples-2.0.1] startup
+[190.871s] [ext: isaacsim.robot.manipulators.ui-2.2.1] startup
+[190.962s] [ext: isaacsim.robot.poser-1.1.3] startup
+[191.152s] [ext: isaacsim.robot.poser.ui-1.1.1] startup
+[191.470s] [ext: isaacsim.robot.schema.ui-0.3.5] startup
+[191.950s] [ext: isaacsim.robot.surface_gripper.ui-3.1.4] startup
+[192.011s] [ext: isaacsim.robot.wheeled_robots.ui-2.3.3] startup
+[192.069s] [ext: isaacsim.robot_setup.assembler-3.3.3] startup
+[192.251s] [ext: isaacsim.robot_setup.collision_detector-0.2.1] startup
+[192.398s] [ext: isaacsim.robot_setup.gain_tuner-3.5.3] startup
+[192.976s] [ext: isaacsim.robot_setup.grasp_editor-2.3.3] startup
+[193.145s] [ext: isaacsim.robot_setup.xrdf_editor-3.6.2] startup
+[193.466s] [ext: isaacsim.sensors.camera.ui-0.7.2] startup
+[193.527s] [ext: isaacsim.sensors.physics.examples-1.2.4] startup
+[193.686s] [ext: isaacsim.sensors.physics.ui-1.2.2] startup
+[193.732s] [ext: isaacsim.sensors.physx.examples-2.4.3] startup
+[193.868s] [ext: isaacsim.sensors.physx.ui-2.5.1] startup
+[193.919s] [ext: isaacsim.sensors.rtx.ui-1.5.1] startup
+[193.980s] [ext: isaacsim.util.camera_inspector-1.2.2] startup
+[194.041s] [ext: isaacsim.util.physics-1.2.2] startup
+[194.124s] [ext: omni.anim.asset-110.1.0] startup
+[194.185s] [ext: omni.anim.navigation.core-110.1.4] startup
+[194.294s] [ext: omni.anim.retarget.core-110.1.0] startup
+[194.494s] [ext: omni.kit.mesh.raycast-110.0.0] startup
+[194.543s] [ext: omni.anim.behavior.core-110.1.4] startup
+[194.805s] [ext: omni.behavior.tree.core-110.1.9] startup
+[195.010s] [ext: omni.anim.behavior.tree-110.1.3] startup
+[195.123s] [ext: omni.kit.browser.sample-1.4.9] startup
+[195.168s] [ext: omni.anim.behavior.ui-110.1.4] startup
+[196.127s] [ext: omni.anim.behavior.bundle-110.1.0] startup
+[196.151s] [ext: omni.anim.curve.ui-1.7.0] startup
+[196.268s] [ext: omni.anim.curve.bundle-1.4.0] startup
+[196.269s] [ext: omni.anim.graph.core-110.1.2] startup
+2026-08-10T09:18:07Z [196,262ms] [Warning] [omni.graph.core._impl._registration.register_python_ogn] Python import process in omni.anim.graph.core failed - 'NoneType' object is not subscriptable. Aborting Python node registration
+[196.495s] [ext: omni.curve.creator-110.0.0] startup
+[196.542s] [ext: omni.scene.visualization.core-110.0.0] startup
+[196.646s] [ext: omni.curve.manipulator-110.0.0] startup
+[197.286s] [ext: omni.ramp-110.0.0] startup
+[197.425s] [ext: omni.genproc.core-110.0.0] startup
+[197.601s] [ext: omni.graph.bundle.action-3.10.2] startup
+[197.712s] [ext: omni.kit.widget.graph-2.1.0] startup
+[198.228s] [ext: omni.kit.graph.delegate.default-1.2.5] startup
+[198.247s] [ext: omni.kit.graph.delegate.modern-1.10.15] startup
+[198.397s] [ext: omni.kit.graph.editor.core-1.5.8] startup
+[198.556s] [ext: omni.kit.graph.widget.variables-2.1.1] startup
+[198.634s] [ext: omni.anim.graph.ui-110.1.2] startup
+[199.414s] [ext: omni.anim.graph.bundle-110.1.1] startup
+[199.442s] [ext: omni.anim.navigation.ui-110.1.1] startup
+[199.690s] [ext: omni.anim.navigation.bundle-110.1.0] startup
+[199.716s] [ext: omni.kit.property.skel-1.1.4] startup
+[199.802s] [ext: omni.anim.skelJoint-110.1.0] startup
+[200.024s] [ext: omni.kit.preferences.animation-1.5.0] startup
+[200.115s] [ext: omni.anim.widget.timeline-0.4.0] startup
+[200.414s] [ext: omni.anim.retarget.preview-110.1.0] startup
+context created: omni.anim.retarget.preview-110.1.0 Preview Context 1
+[201.764s] [ext: omni.anim.retarget.ui-110.1.0] startup
+[202.144s] [ext: omni.anim.retarget.bundle-110.1.0] startup
+[202.168s] [ext: omni.anim.shared.core-110.0.0] startup
+[202.566s] [ext: omni.behavior.scripting.ui-110.1.0] startup
+[202.661s] [ext: omni.behavior.scripting.bundle-110.1.0] startup
+[202.663s] [ext: omni.kit.quicklayout-1.0.12] startup
+[202.700s] [ext: omni.kit.window.title-1.1.8] startup
+[202.728s] [ext: omni.behavior.tree.ui-110.1.12] startup
+[204.261s] [ext: omni.behavior.tree.bundle-110.1.0] startup
+[204.283s] [ext: omni.kit.graph.usd.commands-1.3.6] startup
+[204.319s] [ext: omni.graph.window.core-3.10.4] startup
+[205.106s] [ext: omni.graph.window.action-2.10.2] startup
+[205.202s] [ext: omni.graph.window.generic-2.10.2] startup
+[205.312s] [ext: omni.importer.onshape-2.0.3] startup
+[205.535s] [ext: omni.kit.actions.window-1.1.3] startup
+[205.814s] [ext: omni.kit.browser.asset-1.3.16] startup
+[205.947s] [ext: omni.kit.browser.material-1.6.5] startup
+[206.158s] [ext: omni.kit.converter.common-510.1.3] startup
+[206.480s] [ext: omni.services.facilities.base-1.0.5] startup
+[206.507s] [ext: omni.services.core-1.11.0] startup
+[215.975s] [ext: omni.services.transport.client.base-1.2.5] startup
+[216.023s] [ext: omni.services.client-0.5.6] startup
+[216.112s] [ext: omni.services.facilities.monitoring.progress-0.2.4] startup
+[216.233s] [ext: omni.services.transport.client.http_async-1.4.2] startup
+[216.303s] [ext: omni.services.transport.server.base-1.1.2] startup
+[216.330s] [ext: omni.services.transport.server.http-1.3.2] startup
+[217.483s] [ext: omni.services.convert.cad-508.0.4] startup
+[217.812s] [ext: omni.kit.converter.dgn_core-512.3.3] startup
+[218.730s] [ext: omni.kit.converter.dgn-510.1.5] startup
+[218.975s] [ext: omni.kit.converter.gsplat-0.1.14] startup
+[219.297s] [ext: omni.kit.converter.hoops_core-511.3.2] startup
+[219.568s] [ext: omni.kit.converter.hoops-510.3.0] startup
+[219.725s] [ext: omni.kit.converter.jt_core-510.1.1] startup
+[220.111s] [ext: omni.kit.converter.jt-509.1.2] startup
+[220.210s] [ext: omni.kit.core.collection-0.2.4] startup
+[220.318s] [ext: omni.kit.hotkeys.window-1.4.10] startup
+[220.787s] [ext: omni.kit.property.collection-0.2.4] startup
+[220.841s] [ext: omni.kit.property.layer-1.2.6] startup
+[220.997s] [ext: omni.kit.property.physics-110.1.13] startup
+[221.759s] [ext: omni.kit.stage.copypaste-1.2.4] startup
+[221.907s] [ext: omni.mdl.usd_converter-1.0.38] startup
+[222.193s] [ext: omni.kit.stage.mdl_converter-1.0.8] startup
+[222.245s] [ext: omni.kit.stage_column.payload-2.0.5] startup
+[222.433s] [ext: omni.kit.stage_column.variant-1.0.20] startup
+[222.606s] [ext: omni.kit.stagerecorder.core-110.0.14] startup
+[222.709s] [ext: omni.kit.stagerecorder.ui-110.0.2] startup
+[222.911s] [ext: omni.kit.stagerecorder.bundle-110.0.2] startup
+[222.913s] [ext: omni.kit.tool.asset_exporter-5.0.1] startup
+[223.065s] [ext: omni.kit.tool.remove_unused.core-0.1.4] startup
+[223.116s] [ext: omni.kit.widget.material_preview-1.1.3] startup
+[223.257s] [ext: omni.kit.window.material_graph-2.2.0] startup
+[229.193s] [ext: omni.kit.window.material-1.8.0] startup
+[229.991s] [ext: omni.kit.tool.remove_unused.controller-0.2.0] startup
+[230.166s] [ext: omni.kit.ui_test-1.4.4] startup
+[230.488s] [ext: omni.kit.usda_edit-1.1.19] startup
+[231.262s] [ext: omni.kit.widgets.custom-1.1.2] startup
+[232.232s] [ext: omni.kit.variant.editor-107.5.8] startup
+[234.092s] [ext: omni.kit.variant.presenter-107.1.6] startup
+[234.739s] [ext: omni.kit.viewport.bundle-107.0.0] startup
+[234.747s] [ext: omni.kit.viewport.rtx-107.0.0] startup
+[234.754s] [ext: omni.kit.viewport_widgets_manager-1.0.9] startup
+[235.035s] [ext: omni.kit.widget.collection-0.3.3] startup
+[235.631s] [ext: omni.kit.widget.live-2.1.12] startup
+[236.011s] [ext: omni.kit.widget.timeline-107.0.2] startup
+[236.686s] [ext: omni.kit.window.collection-0.3.5] startup
+[236.749s] [ext: omni.kit.window.commands-0.2.9] startup
+[236.822s] [ext: omni.kit.window.script_editor-2.0.7] startup
+[236.967s] [ext: omni.kit.window.usd_paths-1.0.9] startup
+[237.014s] [ext: omni.physics.isaacsimready-110.1.13] startup
+[237.212s] [ext: omni.physics.physx.ui-110.1.13] startup
+[237.747s] [ext: omni.physics.ui-110.1.13] startup
+[237.917s] [ext: omni.asset_validator.ui-1.19.3] startup
+[238.574s] [ext: omni.physx.asset_validator-110.1.13] startup
+[239.037s] [ext: omni.physx.demos-110.1.13] startup
+[240.277s] [ext: omni.physx.vehicle-110.1.13] startup
+[241.187s] [ext: omni.physx.camera-110.1.13] startup
+[241.360s] [ext: omni.physx.cct-110.1.13] startup
+[241.972s] [ext: omni.physx.graph-110.1.13] startup
+[242.816s] [ext: omni.physx.supportui-110.1.13] startup
+[243.213s] [ext: omni.physx.bundle-110.1.13] startup
+[243.215s] [ext: omni.resourcemonitor-107.1.1] startup
+[243.301s] [ext: omni.services.facilities.monitoring.metrics-0.3.1] startup
+[243.670s] [ext: omni.services.convert.asset-510.0.2] startup
+[243.919s] [ext: omni.simready.explorer-1.1.4] startup
+[244.242s] [ext: omni.usd.metrics.assembler.usdgeom-0.1.0] startup
+[244.271s] [ext: omni.kit.converter.cad-209.4.0] startup
+[244.273s] [ext: isaacsim.app.setup-1.12.0] startup
+[244.327s] Isaac Sim Full Streaming Version: 6.0.1-rc.7
+[244.347s] [ext: omni.kit.window.stats-0.1.8] startup
+[244.390s] [ext: omni.kit.profiler.window-2.5.0] startup
+[246.884s] [ext: isaacsim.exp.full-6.0.1] startup
+[246.887s] [ext: omni.kit.livestream.core-10.2.1] startup
+[246.965s] [ext: omni.kit.livestream.webrtc-10.3.2] startup
+[247.056s] [ext: omni.kit.livestream.app-10.1.1] startup
+[247.106s] [ext: isaacsim.exp.full.streaming-6.0.1] startup
+
+Failed to open [/var/run/utmp]
+Active user not found. Using default user [kiosk]Warning: Possible version incompatibility. Attempting to load omni::fabric::IStageReaderWriter with version v0.16 against v0.14.
+Warning: Possible version incompatibility. Attempting to load omni::fabric::IStageReaderWriter with version v0.16 against v0.14.
+Warning: Possible version incompatibility. Attempting to load omni::fabric::IStageReaderWriter with version v0.16 against v0.15.
+[328.784s] [ext: omni.kit.widget.cache_indicator-3.0.12] startup
+2026-08-10T09:20:20Z [328,758ms] [Warning] [omni.kit.widget.cache_indicator.cache_state_menu] Unable to detect Omniverse Cache Server. File /isaac-sim/.nvidia-omniverse/config/omniverse.toml is not found. Consider installing it for better IO performance.
+[329.007s] [ext: isaacsim.sensors.rtx.nodes-0.1.2] startup
+[329.144s] [ext: isaacsim.ros2.core-1.9.4] startup
+[329.510s] Attempting to load system rclpy
+[329.512s] Could not import system rclpy: No module named 'rclpy'
+[329.512s] Attempting to load internal rclpy for ROS Distro: jazzy
+[330.068s] rclpy loaded
+[330.131s] [ext: isaacsim.ros2.nodes-1.18.13] startup
+[331.861s] [ext: isaacsim.ros2.examples-1.2.4] startup
+[331.989s] [ext: isaacsim.ros2.ui-1.6.5] startup
+[332.206s] [ext: isaacsim.ros2.bridge-5.1.2] startup
+2026-08-10T09:20:28Z [336,774ms] [Warning] [omni.kit.material.library.material_library] get_mdl_list_async: mdl_list_cache is not complete
+2026-08-10T09:20:28Z [336,776ms] [Warning] [omni.kit.material.library.material_library] get_mdl_list: mdl_list_cache is not complete
+2026-08-10T09:20:28Z [336,785ms] [Warning] [omni.kit.material.library.material_library] get_mdl_list_async: mdl_list_cache is not complete
+2026-08-10T09:20:28Z [336,787ms] [Warning] [isaacsim.asset.transformer.rules.utils] omni.kit.material.library.get_mdl_list_async returned no ${kit}/${app} entries; using hardcoded built-in MDL list (15 basename(s)).
+[1044.659s] Isaac Sim Full Streaming App is loaded.
+[1044.702s] app ready
+2026-08-10T09:32:23Z [1,051,312ms] [Warning] [omni.kit.imgui_renderer.plugin] _createExtendCursor: No windowing.
+2026-08-10T09:32:23Z [1,051,313ms] [Warning] [omni.kit.imgui_renderer.plugin] _createExtendCursor: No windowing.
+
+==============================================================================
+S4 RADAR PENETRATION SPIKE -- EXEC MODE
+==============================================================================
+  materials=controls  frames=30  warmup=15
+  out=/isaac-sim/.nvidia-omniverse/logs/radar_controls.jsonl
+
+=== MOTION BVH ===
+  /renderer/raytracingMotion/enabled = True
+  /renderer/raytracingMotion/enableHydraEngineMasking = True
+  /renderer/raytracingMotion/enabledForHydraEngines = '0'
+
+created radar /World/radar and lidar /World/lidar
+
+subscribed to update stream; measurement starting
+
+2026-08-10T09:32:28Z [1,056,603ms] [Warning] [carb] Plugin interface for a client: omni.hydratexture.plugin was already released.
+2026-08-10T09:32:28Z [1,056,620ms] [Warning] [carb] Plugin interface for a client: omni.hydratexture.plugin was already released.
+2026-08-10T09:33:14Z [1,103,183ms] [Warning] [omni.rtx] RADAR: GenericModelOutput channel 'FULL' is not supported by RADAR; defaulting auxOutputType to BASIC. Supported channels: NONE, BASIC.
+CUDA error 1 in ../../../source/include/omni/sensors/cuda/CudaHelperMem.h:324:invalid argument (cudaMemcpyAsync((void*)dstPtr, (void*)srcPtr, sizeInBytes, kind, cudaStream)) 
+CUDA error 1 in ../../../source/include/omni/sensors/cuda/CudaHelperMem.h:324:invalid argument (cudaMemcpyAsync((void*)dstPtr, (void*)srcPtr, sizeInBytes, kind, cudaStream)) 
+CUDA error 1 in ../../../source/include/omni/sensors/cuda/CudaHelperMem.h:324:invalid argument (cudaMemcpyAsync((void*)dstPtr, (void*)srcPtr, sizeInBytes, kind, cudaStream)) 
+CUDA error 1 in ../../../source/include/omni/sensors/cuda/CudaHelperMem.h:324:invalid argument (cudaMemcpyAsync((void*)dstPtr, (void*)srcPtr, sizeInBytes, kind, cudaStream)) 
+2026-08-10T09:33:18Z [1,106,341ms] [Error] [carb.cudainterop.plugin] CUDA error 700: cudaErrorIllegalAddress - an illegal memory access was encountered)
+2026-08-10T09:33:18Z [1,106,341ms] [Error] [carb.cudainterop.plugin] Failed to signal external semaphore in CUDA.
+2026-08-10T09:33:18Z [1,106,341ms] [Error] [omni.rtx] Signal external semaphore failed in CUDA submission in command list "Render graph command list (Render queue 0, device 0, frame submission index 0)"
+2026-08-10T09:33:18Z [1,106,342ms] [Error] [carb.scenerenderer-rtx.plugin] Failed to execute RenderGraph on device 0. Error Code: 1
+2026-08-10T09:33:18Z [1,106,343ms] [Error] [omni.usd.multitick.render] multiTickRateRender() returned null (partition 1/2); skipping partition and closing frame
+2026-08-10T09:33:18Z [1,106,342ms] [Warning] [rtx.hydra] Rendering failed.
+2026-08-10T09:33:18Z [1,106,344ms] [Error] [omni.usd.multitick.render] Sensor endFrame() failed after null multiTickRateRender()
+2026-08-10T09:33:18Z [1,106,358ms] [Error] [carb.cudainterop.plugin] CUDA error 700: cudaErrorIllegalAddress - an illegal memory access was encountered)
+2026-08-10T09:33:18Z [1,106,358ms] [Error] [carb.cudainterop.plugin] Failed to allocate CUDA host memory (size: 72806752).
+2026-08-10T09:33:18Z [1,106,359ms] [Error] [carb.cudainterop.plugin] CUDA error 700: cudaErrorIllegalAddress - an illegal memory access was encountered)
+2026-08-10T09:33:18Z [1,106,359ms] [Error] [carb.cudainterop.plugin] Failed to allocate CUDA host memory (size: 62824).
+2026-08-10T09:33:18Z [1,106,366ms] [Error] [carb.cudainterop.plugin] CUDA error 700: cudaErrorIllegalAddress - an illegal memory access was encountered)
+2026-08-10T09:33:18Z [1,106,366ms] [Error] [carb.cudainterop.plugin] Failed to wait on external semaphore in CUDA.
+2026-08-10T09:33:18Z [1,106,366ms] [Error] [omni.rtx] Wait for external semaphore failed in CUDA submission in command list "Render graph command list (Render queue 0, device 0, frame submission index 1)"
+2026-08-10T09:33:18Z [1,106,367ms] [Warning] [rtx.hydra] Rendering failed.
+2026-08-10T09:33:18Z [1,106,367ms] [Error] [omni.usd.multitick.render] multiTickRateRender() returned null (partition 1/2); skipping partition and closing frame
+2026-08-10T09:33:18Z [1,106,368ms] [Error] [omni.usd.multitick.render] Sensor endFrame() failed after null multiTickRateRender()
+2026-08-10T09:33:18Z [1,106,380ms] [Error] [carb.cudainterop.plugin] CUDA error 700: cudaErrorIllegalAddress - an illegal memory access was encountered)
+2026-08-10T09:33:18Z [1,106,380ms] [Error] [carb.cudainterop.plugin] Failed to allocate CUDA host memory (size: 72806752).
+2026-08-10T09:33:18Z [1,106,381ms] [Error] [carb.cudainterop.plugin] CUDA error 700: cudaErrorIllegalAddress - an illegal memory access was encountered)
+2026-08-10T09:33:18Z [1,106,381ms] [Error] [carb.cudainterop.plugin] Failed to allocate CUDA host memory (size: 62824).
+2026-08-10T09:33:18Z [1,106,387ms] [Error] [carb.cudainterop.plugin] CUDA error 700: cudaErrorIllegalAddress - an illegal memory access was encountered)
+2026-08-10T09:33:18Z [1,106,387ms] [Error] [carb.cudainterop.plugin] Failed to create CUDA stream.
+2026-08-10T09:33:18Z [1,106,387ms] [Error] [carb.cudainterop.plugin] CUDA error 700: cudaErrorIllegalAddress - an illegal memory access was encountered)
+2026-08-10T09:33:18Z [1,106,387ms] [Error] [carb.cudainterop.plugin] Failed to wait on external semaphore in CUDA.
+2026-08-10T09:33:18Z [1,106,387ms] [Error] [omni.rtx] Wait for external semaphore failed in CUDA submission in command list "Render graph command list (Render queue 0, device 0, frame submission index 2)"
+2026-08-10T09:33:18Z [1,106,388ms] [Warning] [rtx.hydra] Rendering failed.
+2026-08-10T09:33:18Z [1,106,388ms] [Error] [omni.usd.multitick.render] multiTickRateRender() returned null (partition 1/2); skipping partition and closing frame
+2026-08-10T09:33:18Z [1,106,389ms] [Error] [omni.usd.multitick.render] Sensor endFrame() failed after null multiTickRateRender()
+2026-08-10T09:33:18Z [1,106,400ms] [Error] [carb.cudainterop.plugin] CUDA error 700: cudaErrorIllegalAddress - an illegal memory access was encountered)
+2026-08-10T09:33:18Z [1,106,400ms] [Error] [carb.cudainterop.plugin] Failed to allocate CUDA host memory (size: 72806752).
+2026-08-10T09:33:18Z [1,106,402ms] [Error] [carb.cudainterop.plugin] CUDA error 700: cudaErrorIllegalAddress - an illegal memory access was encountered)
+2026-08-10T09:33:18Z [1,106,402ms] [Error] [carb.cudainterop.plugin] Failed to allocate CUDA host memory (size: 62824).
+2026-08-10T09:33:18Z [1,106,404ms] [Error] [carb.scenerenderer-rtx.plugin] Render Graph on device 0 has failed during recording (Error code: 1). Aborting rendering this frame.
+2026-08-10T09:33:18Z [1,106,404ms] [Warning] [rtx.hydra] Rendering failed.
+2026-08-10T09:33:18Z [1,106,404ms] [Error] [omni.usd.multitick.render] multiTickRateRender() returned null (partition 1/2); skipping partition and closing frame
+2026-08-10T09:33:18Z [1,106,405ms] [Error] [omni.usd.multitick.render] Sensor endFrame() failed after null multiTickRateRender()
+2026-08-10T09:33:18Z [1,106,417ms] [Error] [carb.cudainterop.plugin] CUDA error 700: cudaErrorIllegalAddress - an illegal memory access was encountered)
+2026-08-10T09:33:18Z [1,106,417ms] [Error] [carb.cudainterop.plugin] Failed to allocate CUDA host memory (size: 72806752).
+2026-08-10T09:33:18Z [1,106,418ms] [Error] [carb.cudainterop.plugin] CUDA error 700: cudaErrorIllegalAddress - an illegal memory access was encountered)
+2026-08-10T09:33:18Z [1,106,418ms] [Error] [carb.cudainterop.plugin] Failed to allocate CUDA host memory (size: 62824).
+2026-08-10T09:33:18Z [1,106,420ms] [Error] [carb.scenerenderer-rtx.plugin] Render Graph on device 0 has failed during recording (Error code: 1). Aborting rendering this frame.
+2026-08-10T09:33:18Z [1,106,421ms] [Error] [omni.usd.multitick.render] multiTickRateRender() returned null (partition 1/2); skipping partition and closing frame
+2026-08-10T09:33:18Z [1,106,420ms] [Warning] [rtx.hydra] Rendering failed.
+2026-08-10T09:33:18Z [1,106,422ms] [Error] [omni.usd.multitick.render] Sensor endFrame() failed after null multiTickRateRender()
+2026-08-10T09:33:18Z [1,106,433ms] [Error] [carb.cudainterop.plugin] CUDA error 700: cudaErrorIllegalAddress - an illegal memory access was encountered)
+2026-08-10T09:33:18Z [1,106,434ms] [Error] [carb.cudainterop.plugin] Failed to allocate CUDA host memory (size: 72806752).
+2026-08-10T09:33:18Z [1,106,435ms] [Error] [carb.cudainterop.plugin] CUDA error 700: cudaErrorIllegalAddress - an illegal memory access was encountered)
+2026-08-10T09:33:18Z [1,106,435ms] [Error] [carb.cudainterop.plugin] Failed to allocate CUDA host memory (size: 62824).
+2026-08-10T09:33:18Z [1,106,437ms] [Error] [carb.scenerenderer-rtx.plugin] Render Graph on device 0 has failed during recording (Error code: 1). Aborting rendering this frame.
+2026-08-10T09:33:18Z [1,106,437ms] [Warning] [rtx.hydra] Rendering failed.
+2026-08-10T09:33:18Z [1,106,437ms] [Error] [omni.usd.multitick.render] multiTickRateRender() returned null (partition 1/2); skipping partition and closing frame
+2026-08-10T09:33:18Z [1,106,439ms] [Error] [omni.usd.multitick.render] Sensor endFrame() failed after null multiTickRateRender()
+2026-08-10T09:33:18Z [1,106,450ms] [Error] [carb.cudainterop.plugin] CUDA error 700: cudaErrorIllegalAddress - an illegal memory access was encountered)
+2026-08-10T09:33:18Z [1,106,450ms] [Error] [carb.cudainterop.plugin] Failed to allocate CUDA host memory (size: 72806752).
+2026-08-10T09:33:18Z [1,106,451ms] [Error] [carb.cudainterop.plugin] CUDA error 700: cudaErrorIllegalAddress - an illegal memory access was encountered)
+2026-08-10T09:33:18Z [1,106,451ms] [Error] [carb.cudainterop.plugin] Failed to allocate CUDA host memory (size: 62824).
+2026-08-10T09:33:18Z [1,106,463ms] [Error] [carb.scenerenderer-rtx.plugin] Render Graph on device 0 has failed during recording (Error code: 1). Aborting rendering this frame.
+2026-08-10T09:33:18Z [1,106,463ms] [Warning] [rtx.hydra] Rendering failed.
+2026-08-10T09:33:18Z [1,106,463ms] [Error] [omni.usd.multitick.render] multiTickRateRender() returned null (partition 1/2); skipping partition and closing frame
+2026-08-10T09:33:18Z [1,106,465ms] [Error] [omni.usd.multitick.render] Sensor endFrame() failed after null multiTickRateRender()
+2026-08-10T09:33:21Z [1,109,608ms] [Error] [omni.physx.plugin] PhysX error: prepareGpuNarrowphase GPU error! code 700 
+, FILE /builds/omniverse/physics/physx/source/gpunarrowphase/src/PxgNarrowphaseCore.cpp, LINE 8942
+2026-08-10T09:33:21Z [1,109,608ms] [Error] [omni.physx.plugin] Cuda context manager error, simulation will be stopped and new cuda context manager will be created.
+2026-08-10T09:33:21Z [1,109,610ms] [Error] [omni.physx.plugin] PhysX error: GPU kernel 'bpSignalComplete' failed to launch with error 700!!
+, FILE /builds/omniverse/physics/physx/source/gpubroadphase/src/PxgCudaBroadPhaseSap.cpp, LINE 440
+2026-08-10T09:33:21Z [1,109,610ms] [Error] [omni.physx.plugin] Cuda context manager error, simulation will be stopped and new cuda context manager will be created.
+2026-08-10T09:33:21Z [1,109,712ms] [Error] [omni.physx.plugin] PhysX error: Fetching GPU Narrowphase failed! 700
+, FILE /builds/omniverse/physics/physx/source/gpunarrowphase/src/PxgNarrowphaseCore.cpp, LINE 1759
+2026-08-10T09:33:21Z [1,109,713ms] [Error] [omni.physx.plugin] Cuda context manager error, simulation will be stopped and new cuda context manager will be created.
+2026-08-10T09:33:21Z [1,109,713ms] [Error] [omni.physx.plugin] PhysX error: SynchronizeStreams cuEventRecord failed with error 700
+, FILE /builds/omniverse/physics/physx/source/gpucommon/include/PxgCudaUtils.h, LINE 56
+2026-08-10T09:33:21Z [1,109,714ms] [Error] [omni.physx.plugin] Cuda context manager error, simulation will be stopped and new cuda context manager will be created.
+2026-08-10T09:33:21Z [1,109,714ms] [Error] [omni.physx.plugin] PhysX error: SynchronizeStreams cuStreamWaitEvent failed with error 700
+, FILE /builds/omniverse/physics/physx/source/gpucommon/include/PxgCudaUtils.h, LINE 62
+2026-08-10T09:33:21Z [1,109,714ms] [Error] [omni.physx.plugin] Cuda context manager error, simulation will be stopped and new cuda context manager will be created.
+2026-08-10T09:33:21Z [1,109,716ms] [Error] [omni.physx.plugin] PhysX error: SynchronizeStreams cuEventRecord failed with error 700
+, FILE /builds/omniverse/physics/physx/source/gpucommon/include/PxgCudaUtils.h, LINE 56
+2026-08-10T09:33:21Z [1,109,716ms] [Error] [omni.physx.plugin] Cuda context manager error, simulation will be stopped and new cuda context manager will be created.
+2026-08-10T09:33:21Z [1,109,717ms] [Error] [omni.physx.plugin] PhysX error: SynchronizeStreams cuStreamWaitEvent failed with error 700
+, FILE /builds/omniverse/physics/physx/source/gpucommon/include/PxgCudaUtils.h, LINE 62
+2026-08-10T09:33:21Z [1,109,717ms] [Error] [omni.physx.plugin] Cuda context manager error, simulation will be stopped and new cuda context manager will be created.
+2026-08-10T09:33:21Z [1,109,719ms] [Error] [omni.physx.plugin] PhysX error: SynchronizeStreams cuEventRecord failed with error 700
+, FILE /builds/omniverse/physics/physx/source/gpucommon/include/PxgCudaUtils.h, LINE 78
+2026-08-10T09:33:21Z [1,109,719ms] [Error] [omni.physx.plugin] Cuda context manager error, simulation will be stopped and new cuda context manager will be created.
+2026-08-10T09:33:21Z [1,109,720ms] [Error] [omni.physx.plugin] PhysX error: SynchronizeStreams cuStreamWaitEvent failed with error 700
+, FILE /builds/omniverse/physics/physx/source/gpucommon/include/PxgCudaUtils.h, LINE 84
+2026-08-10T09:33:21Z [1,109,720ms] [Error] [omni.physx.plugin] Cuda context manager error, simulation will be stopped and new cuda context manager will be created.
+2026-08-10T09:33:21Z [1,109,722ms] [Error] [omni.physx.plugin] PhysX error: PhysX Internal CUDA error. Simulation cannot continue! Error code 700!
+, FILE /builds/omniverse/physics/physx/source/physx/src/NpScene.cpp, LINE 3107
+2026-08-10T09:33:21Z [1,109,723ms] [Error] [omni.physx.plugin] Cuda context manager error, simulation will be stopped and new cuda context manager will be created.
+2026-08-10T09:34:23Z [1,172,301ms] [Fatal] [omni.rtx] Waiting on Semaphore 43 for longer than 60 sec: Failure to upload Texture
+2026-08-10T09:34:23Z [1,172,303ms] [Error] [omni.rtx] make sure to wait for cmdlist completion using get[Gpu/Cpu]Revision or waitUntilRevisionDone before calling cmdBegin again. DbgInfo: actualSemaphore: 42 expectedSemaphore: 43
+2026-08-10T09:34:23Z [1,172,303ms] [Fatal] [omni.rtx] Waiting on Semaphore 44 for longer than 60 sec: Failure to upload Texture
+2026-08-10T09:34:24Z [1,172,305ms] [Fatal] [omni.rtx] Waiting on Semaphore 44 for longer than 60 sec: Failure to upload Texture
+2026-08-10T09:34:24Z [1,172,306ms] [Fatal] [omni.rtx] Waiting on Semaphore 44 for longer than 60 sec: Failure to upload Texture
+2026-08-10T09:34:24Z [1,172,308ms] [Fatal] [omni.rtx] Waiting on Semaphore 44 for longer than 60 sec: Failure to upload Texture
+2026-08-10T09:34:24Z [1,172,309ms] [Fatal] [omni.rtx] Waiting on Semaphore 44 for longer than 60 sec: Failure to upload Texture
+2026-08-10T09:34:24Z [1,172,317ms] [Error] [carb.cudainterop.plugin] CUDA error 700: cudaErrorIllegalAddress - an illegal memory access was encountered)
+2026-08-10T09:34:24Z [1,172,318ms] [Error] [carb.cudainterop.plugin] Failed to allocate CUDA host memory (size: 72806752).
+2026-08-10T09:34:24Z [1,172,319ms] [Error] [carb.cudainterop.plugin] CUDA error 700: cudaErrorIllegalAddress - an illegal memory access was encountered)
+2026-08-10T09:34:24Z [1,172,319ms] [Error] [carb.cudainterop.plugin] Failed to allocate CUDA host memory (size: 62824).
+2026-08-10T09:34:24Z [1,172,321ms] [Error] [carb.scenerenderer-rtx.plugin] Render Graph on device 0 has failed during recording (Error code: 1). Aborting rendering this frame.
+2026-08-10T09:34:24Z [1,172,322ms] [Warning] [rtx.hydra] Rendering failed.
+2026-08-10T09:34:24Z [1,172,322ms] [Error] [omni.usd.multitick.render] multiTickRateRender() returned null (partition 1/1); skipping partition and closing frame
+2026-08-10T09:34:24Z [1,172,323ms] [Error] [omni.usd.multitick.render] Sensor endFrame() failed after null multiTickRateRender()
+2026-08-10T09:35:24Z [1,232,330ms] [Error] [omni.rtx] Failed to start frame in pooled data manager. Semaphore wait timed out after 60 seconds.
+2026-08-10T09:35:24Z [1,232,339ms] [Error] [carb.cudainterop.plugin] CUDA error 700: cudaErrorIllegalAddress - an illegal memory access was encountered)
+2026-08-10T09:35:24Z [1,232,339ms] [Error] [carb.cudainterop.plugin] Failed to allocate CUDA host memory (size: 72806752).
+2026-08-10T09:35:24Z [1,232,340ms] [Error] [carb.cudainterop.plugin] CUDA error 700: cudaErrorIllegalAddress - an illegal memory access was encountered)
+2026-08-10T09:35:24Z [1,232,340ms] [Error] [carb.cudainterop.plugin] Failed to allocate CUDA host memory (size: 62824).
+2026-08-10T09:35:24Z [1,232,343ms] [Warning] [rtx.hydra] Rendering failed.
+2026-08-10T09:35:24Z [1,232,342ms] [Error] [carb.scenerenderer-rtx.plugin] Render Graph on device 0 has failed during recording (Error code: 1). Aborting rendering this frame.
+2026-08-10T09:35:24Z [1,232,343ms] [Error] [omni.usd.multitick.render] multiTickRateRender() returned null (partition 1/1); skipping partition and closing frame
+2026-08-10T09:35:24Z [1,232,344ms] [Error] [omni.usd.multitick.render] Sensor endFrame() failed after null multiTickRateRender()
+2026-08-10T09:36:24Z [1,292,351ms] [Error] [omni.rtx] Failed to start frame in pooled data manager. Semaphore wait timed out after 60 seconds.
+2026-08-10T09:36:24Z [1,292,359ms] [Error] [carb.cudainterop.plugin] CUDA error 700: cudaErrorIllegalAddress - an illegal memory access was encountered)
+2026-08-10T09:36:24Z [1,292,360ms] [Error] [carb.cudainterop.plugin] Failed to allocate CUDA host memory (size: 72806752).
+2026-08-10T09:36:24Z [1,292,361ms] [Error] [carb.cudainterop.plugin] CUDA error 700: cudaErrorIllegalAddress - an illegal memory access was encountered)
+2026-08-10T09:36:24Z [1,292,361ms] [Error] [carb.cudainterop.plugin] Failed to allocate CUDA host memory (size: 62824).
+2026-08-10T09:36:24Z [1,292,363ms] [Error] [carb.scenerenderer-rtx.plugin] Render Graph on device 0 has failed during recording (Error code: 1). Aborting rendering this frame.
+2026-08-10T09:36:24Z [1,292,363ms] [Warning] [rtx.hydra] Rendering failed.
+2026-08-10T09:36:24Z [1,292,363ms] [Error] [omni.usd.multitick.render] multiTickRateRender() returned null (partition 1/1); skipping partition and closing frame
+2026-08-10T09:36:24Z [1,292,364ms] [Error] [omni.usd.multitick.render] Sensor endFrame() failed after null multiTickRateRender()
+2026-08-10T09:37:24Z [1,352,371ms] [Error] [omni.rtx] Failed to start frame in pooled data manager. Semaphore wait timed out after 60 seconds.
+2026-08-10T09:37:24Z [1,352,379ms] [Error] [carb.cudainterop.plugin] CUDA error 700: cudaErrorIllegalAddress - an illegal memory access was encountered)
+2026-08-10T09:37:24Z [1,352,380ms] [Error] [carb.cudainterop.plugin] Failed to allocate CUDA host memory (size: 72806752).
+2026-08-10T09:37:24Z [1,352,381ms] [Error] [carb.cudainterop.plugin] CUDA error 700: cudaErrorIllegalAddress - an illegal memory access was encountered)
+2026-08-10T09:37:24Z [1,352,381ms] [Error] [carb.cudainterop.plugin] Failed to allocate CUDA host memory (size: 62824).
+2026-08-10T09:37:24Z [1,352,383ms] [Error] [carb.scenerenderer-rtx.plugin] Render Graph on device 0 has failed during recording (Error code: 1). Aborting rendering this frame.
+2026-08-10T09:37:24Z [1,352,383ms] [Error] [omni.usd.multitick.render] multiTickRateRender() returned null (partition 1/1); skipping partition and closing frame
+2026-08-10T09:37:24Z [1,352,383ms] [Warning] [rtx.hydra] Rendering failed.
+2026-08-10T09:37:24Z [1,352,385ms] [Error] [omni.usd.multitick.render] Sensor endFrame() failed after null multiTickRateRender()
+2026-08-10T09:38:24Z [1,412,392ms] [Error] [omni.rtx] Failed to start frame in pooled data manager. Semaphore wait timed out after 60 seconds.
+2026-08-10T09:38:24Z [1,412,403ms] [Error] [carb.cudainterop.plugin] CUDA error 700: cudaErrorIllegalAddress - an illegal memory access was encountered)
+2026-08-10T09:38:24Z [1,412,403ms] [Error] [carb.cudainterop.plugin] Failed to allocate CUDA host memory (size: 72806752).
+2026-08-10T09:38:24Z [1,412,405ms] [Error] [carb.cudainterop.plugin] CUDA error 700: cudaErrorIllegalAddress - an illegal memory access was encountered)
+2026-08-10T09:38:24Z [1,412,405ms] [Error] [carb.cudainterop.plugin] Failed to allocate CUDA host memory (size: 62824).
+2026-08-10T09:38:24Z [1,412,408ms] [Error] [carb.scenerenderer-rtx.plugin] Render Graph on device 0 has failed during recording (Error code: 1). Aborting rendering this frame.
+2026-08-10T09:38:24Z [1,412,408ms] [Warning] [rtx.hydra] Rendering failed.
+2026-08-10T09:38:24Z [1,412,409ms] [Error] [omni.usd.multitick.render] multiTickRateRender() returned null (partition 1/1); skipping partition and closing frame
+2026-08-10T09:38:24Z [1,412,410ms] [Error] [omni.usd.multitick.render] Sensor endFrame() failed after null multiTickRateRender()
+2026-08-10T09:39:24Z [1,472,419ms] [Error] [omni.rtx] Failed to start frame in pooled data manager. Semaphore wait timed out after 60 seconds.
+2026-08-10T09:39:24Z [1,472,427ms] [Error] [carb.cudainterop.plugin] CUDA error 700: cudaErrorIllegalAddress - an illegal memory access was encountered)
+2026-08-10T09:39:24Z [1,472,427ms] [Error] [carb.cudainterop.plugin] Failed to allocate CUDA host memory (size: 72806752).
+2026-08-10T09:39:24Z [1,472,428ms] [Error] [carb.cudainterop.plugin] CUDA error 700: cudaErrorIllegalAddress - an illegal memory access was encountered)
+2026-08-10T09:39:24Z [1,472,428ms] [Error] [carb.cudainterop.plugin] Failed to allocate CUDA host memory (size: 62824).
+2026-08-10T09:39:24Z [1,472,430ms] [Error] [carb.scenerenderer-rtx.plugin] Render Graph on device 0 has failed during recording (Error code: 1). Aborting rendering this frame.
+2026-08-10T09:39:24Z [1,472,431ms] [Warning] [rtx.hydra] Rendering failed.
+2026-08-10T09:39:24Z [1,472,431ms] [Error] [omni.usd.multitick.render] multiTickRateRender() returned null (partition 1/1); skipping partition and closing frame
+2026-08-10T09:39:24Z [1,472,432ms] [Error] [omni.usd.multitick.render] Sensor endFrame() failed after null multiTickRateRender()
+
+EXIT=124
