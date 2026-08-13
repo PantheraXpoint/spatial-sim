@@ -62,7 +62,10 @@ minutes and determines whether S1 is a checkbox or a full day.
 > branch release, since livestreaming has historically lagged on brand-new
 > drivers. Then open firewall ports: TCP 49100, UDP 47998, TCP 8210.
 
-**Gate:** `make verify-gpu` lists all three RTX 3090s.
+**Gate:** `make verify-gpu` lists all **four** RTX 3090s (`nvidia-smi` indices
+0–3). See CLAUDE.md → Environment facts for which of them may render: the
+rendering set must include index 3, the minor-0 card, or NVENC fails and
+streaming goes black.
 
 > Note the UDP port explicitly when you check. Opening only TCP is the classic
 > cause of "connects, black screen."
@@ -130,9 +133,12 @@ headline is fiction.
 > Build a minimal throwaway scene — no warehouse, just a ground plane, one
 > RTX radar, one RTX lidar, a simple box target, and one flat occluder between
 > them. Use the 6.x `isaacsim.sensors.experimental.rtx` API and enable Motion
-> BVH via the carb settings first. Adapt
-> `standalone_examples/api/isaacsim.sensors.rtx/create_radar_basic.py` rather
-> than writing from scratch — read it first and tell me what it actually does.
+> BVH **before renderer init** — as a `SimulationApp({"enable_motion_bvh": True})`
+> flag, or as kit command-line arguments under `runheadless.sh`. Setting the
+> carb values from Python afterwards is too late and does nothing. Adapt
+> `standalone_examples/api/isaacsim.sensors.**experimental**.rtx/create_radar_basic.py`
+> rather than writing from scratch — read it first and tell me what it actually
+> does.
 > Then answer one question with evidence: does the radar return anything from
 > the target when the occluder is between them, and does the lidar not?
 > Test the occluder with different `omni:simready:nonvisual:*` material
@@ -140,6 +146,15 @@ headline is fiction.
 > `sim/spikes/` and do not integrate it into the main scene.
 
 **Gate:** a yes/no answer with point counts.
+
+> **STATUS 2026-08-12 — CLOSED AS NOT MEASURABLE.** The rig reports `INVALID`:
+> radar runs without error but returns 1–2 detections per frame that do not
+> localize the target and are unchanged when the target is deleted, so there is
+> no valid clear-line-of-sight baseline to subtract an occluded reading from.
+> Lidar in the same rig returns 6.79 M points cleanly. Motion BVH is fine; the
+> earlier "renderer crash" was another user's job occupying the GPU. Full
+> record and the one question that would reopen this:
+> **`sim/spikes/FINDINGS.md`**.
 
 **Interpreting it:** if radar penetrates nothing, the demo's key moment needs a
 different framing — fall back to "radar sees a return where lidar sees only an
@@ -162,8 +177,30 @@ multiple cameras, and **semantic labels already applied** — roughly 60% of the
 scene, pre-built and pre-labelled. Missing semantic labels is the usual reason
 segmentation annotators return empty, so inheriting them is worth a lot.
 
-Fall back to `Isaac/Environments/Simple_Warehouse/full_warehouse.usd`, or
-`small_warehouse_digital_twin.usd` for faster iteration.
+Fall back to `Isaac/Environments/Simple_Warehouse/full_warehouse.usd`.
+**`small_warehouse_digital_twin.usd` does not exist in the 6.0 asset set** —
+verified 404. The real lighter-weight alternatives are `warehouse.usd`,
+`warehouse_multiple_shelves.usd`, and `warehouse_with_forklifts.usd` in that
+same directory.
+
+> **Reconnaissance done headlessly 2026-08-12 — read before the GUI session:**
+>
+> - **You will need network.** The asset root is the online S3 bucket
+>   `https://omniverse-content-production.s3-us-west-2.amazonaws.com/Assets/Isaac/6.0`;
+>   there is no local assets pack in the container.
+> - **The primary resolves** (HTTP 200), at
+>   `Isaac/Samples/Replicator/Stage/full_warehouse_worker_and_anim_cameras.usd`
+>   — note the leading `Isaac/`, which the path above omits.
+> - **Stage:** default prim `/Root`, Z-up, 1.0 m/unit, ~9,000 prims. `/Root`
+>   children: `forklift`, `GroundPlane`, `Lights`, `Warehouse`, `Cameras`.
+>   Five cameras already exist: `Camera_01`, `Camera_02`, `Camera_Worker_Anim`,
+>   `Camera_Forklift_Anim`, `Camera_Shelves_Anim`.
+> - **Semantic labels are NOT already applied to the warehouse.** Only **11**
+>   prims carry semantics, all of them parts of the worker character
+>   (`/Root/Worker/ManRoot/Worker/CC_Base_Body`, `Field_Jacket`,
+>   `Baseball_cap`, …). The shelving, floor, walls and forklift are unlabelled.
+>   Budget for S10 accordingly — the "60% pre-labelled" premise holds for the
+>   *character*, not the environment.
 
 Save as `scenes/observatory_base.usd`.
 
@@ -293,13 +330,23 @@ observations — that contrast *is* the point of this task.
 **[YOU]:** apply semantic labels via Tools → Replicator → Semantics Schema
 Editor. Enable the Synthetic Data Visualizer from the viewport visualizer icon.
 
-**[CC]:** wire the radar per the S4 findings.
+**[CC]:** ~~wire the radar per the S4 findings.~~ **The S4 findings say radar is
+not usable on this host today — see the STATUS block under S4 and
+`sim/spikes/FINDINGS.md`.** Do not plan radar into this task. Semantics is the
+whole of S10 unless S4 is reopened and answered first.
 
-**Gate:** segmentation overlay tags you as `person`; radar returns visible.
+**Gate:** segmentation overlay tags you as `person`. ~~radar returns visible~~ —
+dropped; see above.
 
-> Add radar **last** and toggle Motion BVH off when not demoing it. It raises
-> VRAM and render cost for **all** sensors, so everything slows down after this
-> task lands. That slowdown is expected, not a regression.
+> If radar is ever revived: add it **last** and toggle Motion BVH off when not
+> demoing it. It raises VRAM and render cost for **all** sensors, so everything
+> slows down after that lands. That slowdown is expected, not a regression.
+> Measured caveat: Motion BVH itself is harmless here (lidar + BVH ran clean);
+> it was never the problem.
+>
+> **Semantics is the load-bearing half of this task and it is bigger than the
+> plan assumed** — the warehouse asset ships with only the worker character
+> labelled, not the environment. See the reconnaissance note under S5.
 
 ---
 

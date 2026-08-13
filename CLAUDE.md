@@ -33,7 +33,10 @@ research claim in miniature.
    commit that touches `core/`.
 
 3. **`SimulationApp` must be constructed before any other omni/isaacsim
-   import.** Not after. Not alongside.
+   import.** Not after. Not alongside. **This rule applies only to standalone
+   scripts, which cannot read sensor data on this host — see "Exec mode" below.
+   In exec mode there is no `SimulationApp` and therefore no import-ordering
+   constraint at all.**
 
 4. **Prefer built-in assets and menu examples over new code.** Isaac Examples,
    Robotics Examples, Synthetic Data Visualizer, Semantics Schema Editor. If an
@@ -66,6 +69,57 @@ research claim in miniature.
 
 ---
 
+## Exec mode — the execution model for anything that reads sensor data
+
+**Offscreen capture does not work under `SimulationApp` on this host.** Same
+scene, same GPU, measured both ways:
+
+```
+SimulationApp     camera rgb      0 px   lidar GMO       0 points
+runheadless.sh    camera rgb 32,700 px   lidar GMO 460,800 points
+```
+
+Every annotator stays empty under `SimulationApp` at every render config, GPU
+count, and experience file tried, with no error logged. So:
+
+> **Anything that reads sensor data runs in exec mode**, under the launcher
+> that actually renders:
+> ```
+> ./runheadless.sh --exec /workspace/sim/<script>.py
+> ```
+
+`sim/spikes/_diag_exec.py` is the reference pattern. Three things follow from it:
+
+- **No `SimulationApp`.** Kit is already up. Hard rule 3 does not apply —
+  there is no import-ordering constraint in exec mode at all.
+- **The equivalent constraint is different, and it is real:** the script runs
+  *inside an already-built renderer*, so anything that must precede renderer
+  init — **Motion BVH above all** — has to arrive as a **kit command-line
+  argument** and cannot be set from Python at any point in the script. Setting
+  it later throws no error and does nothing.
+- **Drive frames from the update event stream**, not an `app.update()` loop —
+  calling `update()` from inside an `--exec` script re-enters the main loop.
+  Subscribe with `get_update_event_stream().create_subscription_to_pop(...)`
+  and `post_quit()` when done.
+
+Config comes from **environment variables**, not argv: Kit's
+`--exec SCRIPT ARGS...` makes trailing-argument parsing ambiguous. Write results
+**incrementally and `fsync`'d**, never once at the end — this renderer dies
+mid-run, and a write-at-exit design loses everything.
+
+Results must land in a container-writable path. The logs **volume**
+(`/isaac-sim/.nvidia-omniverse/logs/`) works; `/workspace` is the bind mount,
+owned by uid 1004 while the container runs as **1234**, so writes there fail
+**silently**.
+
+> **Caveat, deliberately kept:** exec mode is confirmed **necessary** for sensor
+> readback. It is not yet proven **sufficient** — see the Motion BVH note under
+> "Environment facts". Plan `sim/` scripts against exec mode anyway: a caveated
+> invariant costs nothing, and S5/S7/S8/S10/S11 written against `SimulationApp`
+> cost a week.
+
+---
+
 ## The API-era trap — read before writing any Isaac code
 
 There are **three** incompatible API eras in circulation. Most web examples and
@@ -87,12 +141,41 @@ migration guide against anything you recall. Specifically in 6.x:
   `RtxLidarDebugDrawPointCloudBuffer` Replicator writer.
 - Data comes from `sensor.get_data("generic-model-output")`, then
   `parse_generic_model_output_data(...)`.
-- Radar needs Motion BVH enabled via carb settings before creation:
-  `/renderer/raytracingMotion/enabled`,
-  `/renderer/raytracingMotion/enableHydraEngineMasking`,
-  `/renderer/raytracingMotion/enabledForHydraEngines`.
+- Radar needs Motion BVH, and it must be on **before renderer init** — the BVH
+  is built there, so setting the carb values from Python afterwards is too late
+  and silently does nothing. Two supported routes, one per execution model:
+  - standalone: `SimulationApp({"enable_motion_bvh": True})`, which expands to
+    the three settings internally;
+  - exec mode: pass all three on the **kit command line**
+    ```
+    --/renderer/raytracingMotion/enabled=true
+    --/renderer/raytracingMotion/enableHydraEngineMasking=true
+    --/renderer/raytracingMotion/enabledForHydraEngines="'0'"
+    ```
+  `Radar._create_prim` raises only on the **first** of the three, so passing
+  that one alone yields a radar that constructs cleanly and returns nothing.
+  Assert all three at runtime; never infer BVH from the absence of an exception.
+  *(Motion BVH itself is fine on this host — measured. The radar on top of it is
+  not; see "Environment facts".)*
 - Non-visual materials (what governs radar penetration) are USD attributes
-  `omni:simready:nonvisual:*`, not the old CSV mapping.
+  `omni:simready:nonvisual:*`, written by
+  `isaacsim.core.experimental.materials.NonVisualMaterial`:
+  ```python
+  mat = NonVisualMaterial(path, bases="steel", coatings="paint", attributes="none")
+  cube.apply_visual_materials(mat)   # yes, "visual" — that is the binding call
+  mat.set_bases("cardboard")          # runtime swap, rewrites the USD attribute
+  ```
+  The attribute prefix comes from the carb setting
+  `/rtx/materialDb/nonVisualMaterialSemantics/prefix`, not a hardcoded string.
+  The 4.5-era CSV *material mapping* is gone, but three CSVs still ship as the
+  authoritative name→index **specification** that `NonVisualMaterial` encodes
+  into those attributes, at
+  `exts/isaacsim.core.experimental.materials/data/specifications/`: **48 bases**,
+  4 coatings (`none`, `paint`, `clearcoat`, `paint_clearcoat`), 5 attributes
+  (`none`, `emissive`, `retroreflective`, `single_sided`,
+  `visually_transparent`). Read the CSVs for the base list rather than guessing
+  names. **`skin` is one of the bases — it is the honest base material for the
+  avatar in S6.**
 
 If you cannot verify an API against current docs, say so rather than guessing.
 
@@ -126,8 +209,48 @@ Ranked by how much time they cost.
   only TCP gives a successful connection and a permanently black screen.
 - `network_mode: host` is **mandatory**. Bridge networking lets signaling
   connect and media never arrive.
-- Multi-GPU: cap at **2** rendering GPUs. GPU 2 is reserved for inference.
-  Multi-GPU does nothing for physics, which is largely CPU-bound.
+- **GPUs: four RTX 3090s, `nvidia-smi` indices 0–3.** (An earlier version of
+  this file said three; the "cap at 2, reserve GPU 2 for inference" split was
+  reasoned from that wrong picture and is re-derived below, not renumbered.)
+
+  Two constraints, in priority order:
+
+  1. **The rendering set must include `nvidia-smi` index 3.** NVENC needs the
+     device with **minor 0** present in the container, and index 3
+     (`0000:c1:00.0`) is that card. Without it every exposed GPU fails
+     `nvEncOpenEncodeSessionEx` and streaming dies with signaling still
+     connected — a permanently black client. This outranks any balancing
+     preference. Re-derive after any driver or hardware change; do **not**
+     assume it holds:
+     ```
+     grep -H 'Device Minor' /proc/driver/nvidia/gpus/*/information
+     ```
+     Confirmed 2026-08-12: smi 0→minor 3, smi 1→minor 1, smi 2→minor 2,
+     **smi 3→minor 0**.
+  2. **Cap rendering at 2 GPUs**, and prefer 1. Rendering scales sublinearly,
+     multi-GPU does nothing for physics (largely CPU-bound), and on this host
+     IOMMU is enabled — Isaac's own probe measures P2P at **11.2 GB/s vs
+     830 GB/s** local, which cost ~30× per frame in practice. NVIDIA documents
+     IOMMU-enabled P2P as unsupported on bare metal, so two rendering GPUs here
+     is a config error, not a tuning knob.
+
+  With four cards that leaves **two** GPUs free for inference, not one.
+- **This is a SHARED machine — check GPU occupancy before believing any
+  crash.** On 2026-08-12 another user's job held ~18.8 GB on GPUs 0, 1 and 3;
+  Isaac got ~5 GB and died with `ERROR_OUT_OF_DEVICE_MEMORY`, which reads
+  exactly like a renderer bug and is not one. First command after any GPU-side
+  failure:
+  ```
+  nvidia-smi --query-compute-apps=pid,used_memory,process_name --format=csv
+  ```
+- **Motion BVH is safe; RTX radar returns nothing usable.** Measured in
+  isolation, exec mode, on an uncontended GPU: lidar + Motion BVH → 6.79 M
+  points, **zero errors**; radar + Motion BVH → no crash, zero errors, but only
+  ~1–2 detections per frame that do not localize a 2 m cube 8 m away and are
+  unchanged by removing the target. So Motion BVH is *not* the hazard the
+  earlier crash suggested. **RTX radar is not usable on this host today** — see
+  `sim/spikes/FINDINGS.md` for what was eliminated and what remains. Nothing
+  else in the project needs Motion BVH; S5–S9 and S11 are unaffected.
 - Isaac Sim **cannot run on macOS**. The MacBook is a thin client plus a
   CPU-side dev machine. 6.x "multi-arch" means Linux ARM, not macOS.
 - Tailscale on the server runs in **userspace mode** from

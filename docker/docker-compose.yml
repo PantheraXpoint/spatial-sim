@@ -54,7 +54,38 @@ services:
               # hardware change -- do NOT assume this mapping holds:
               #   grep -H 'Device Minor' /proc/driver/nvidia/gpus/*/information
               # Verify with:  make encoder-check
-              device_ids: ["0", "3"]
+              # DECIDED 2026-08-12: stay single-GPU, on index 3. Reasoning:
+              #
+              #  1. Index 3 is the DEVICE MINOR 0 card, so NVENC works (see
+              #     above). This constraint outranks every other preference --
+              #     without minor 0 the stream is permanently black. Re-derived
+              #     2026-08-12; this host has FOUR 3090s, indices 0-3:
+              #       smi 0 -> minor 3     smi 2 -> minor 2
+              #       smi 1 -> minor 1     smi 3 -> minor 0   <-- this one
+              #
+              #  2. A second rendering GPU has never been shown to buy anything
+              #     here, and IOMMU-enabled P2P is unsupported on bare metal per
+              #     NVIDIA -- measured 11.2 GB/s vs 830 GB/s locally, ~30x per
+              #     frame. HONEST CAVEAT: that penalty was measured against
+              #     SimulationApp's multi_gpu=True default. It is ASSUMED, NOT
+              #     VERIFIED, to apply under runheadless.sh. The one datum we
+              #     have -- /renderer/multiGpu/enabled = False under
+              #     runheadless.sh -- was read while only ONE GPU was exposed,
+              #     so it says nothing about what that launcher does with two.
+              #     sim/ now runs in exec mode under runheadless.sh, so the
+              #     multi-GPU question is untested there in both directions.
+              #
+              #  3. One fewer variable. Revisit only on a measured need.
+              #
+              # THIS IS A SHARED MACHINE. On 2026-08-12 another user's job held
+              # ~18.8 GB on GPUs 0, 1 and 3, leaving Isaac ~5 GB, and a spike
+              # died with ERROR_OUT_OF_DEVICE_MEMORY that read exactly like a
+              # renderer bug. CHECK OCCUPANCY BEFORE BLAMING THE CODE:
+              #   nvidia-smi --query-compute-apps=pid,used_memory,process_name --format=csv
+              # Headless capture runs do not need NVENC, so for those any free
+              # card will do -- point this at that index for the duration, then
+              # put it back.
+              device_ids: ["3"]
               capabilities: [gpu]
 
     environment:
