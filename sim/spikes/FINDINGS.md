@@ -1,6 +1,242 @@
 # S4 — radar spike findings
 
-## CLOSING VERDICT — 2026-08-12
+## THE GMO COORDINATE BUG — 2026-08-14, and it supersedes the verdict below
+
+**The GMO fields are spherical, in degrees and metres. The spike read them as
+Cartesian metres. That single mistake produces every anomaly in this file, for
+both sensors, and it is arithmetically sufficient — nothing else is needed to
+explain the numbers.**
+
+Established by reading only; no run was made.
+
+### What the fields actually are
+
+From the shipped `GenericModelOutput` structure documentation (`BasicElements`,
+per-element arrays of length `numElements`):
+
+| Field | When `coordsType == SPHERICAL` | When `CARTESIAN` |
+|---|---|---|
+| `x` | **azimuth, degrees**, [-180, 180] | x, metres |
+| `y` | **elevation, degrees** | y, metres |
+| `z` | **distance, metres** | z, metres |
+| `scalar` | lidar: normalized intensity · **radar: RCS in dBsm** | same |
+| `flags` | `ElementFlags` bitmask; `VALID` bit marks a usable element | same |
+
+and the two defaults that matter:
+
+```
+coordsType        default = CoordsType::SPHERICAL
+frameOfReference  default = FrameOfReference::SENSOR
+```
+
+So the buffer is **spherical by default**, and **sensor-local by default**. The
+annotator `IsaacExtractRTXSensorPointCloud` exists precisely because of this: it
+"performs spherical-to-Cartesian conversion when the GenericModelOutput buffer
+contains spherical coordinates, and outputs a sensor-to-world transform matrix."
+Reading `generic-model-output` raw, as this spike does, opts out of both steps.
+
+Sources: [GenericModelOutput structure](https://docs.isaacsim.omniverse.nvidia.com/6.0.0/py/docs/source/generic_model_output/generic_model_output.html),
+[RTX Sensor Annotators](https://docs.isaacsim.omniverse.nvidia.com/6.0.0/sensors/isaacsim_sensors_rtx_annotators.html).
+
+### The masks were therefore nonsense, and guaranteed zero
+
+`_sample()` in `radar_penetration_exec.py` applies, to every sensor:
+
+```python
+tmask = (x > 6.0) & (x < 10.5) & (np.abs(y) < 2.5) & (np.abs(z) < 2.5)
+wmask = (x > 3.0) & (x < 5.0)
+```
+
+Decoded correctly, that reads: *azimuth between 6° and 10.5°, elevation within
+±2.5°, and **range under 2.5 m***.
+
+- The target sits at `x = 8, y = 0` — dead ahead, **azimuth 0°**. It can never
+  satisfy `azimuth > 6°`.
+- Independently, **`|z| < 2.5` accepts only returns closer than 2.5 metres.**
+  Nothing in the scene is inside 2.5 m except ground directly beneath the
+  sensor, which is at elevation steeper than −20° and so fails `|y| < 2.5`.
+
+**`target_points == 0` was structurally guaranteed, in every condition, for
+every material, for both sensors, before a single ray was cast.** Two
+independent guarantees, either one sufficient. No occluder was ever being
+measured.
+
+`wmask` is worse than wrong, it is *informative*: it selects a fixed **2° wedge
+of azimuth** and nothing else — no range bound at all. A rotary lidar puts
+essentially the same number of returns into a fixed angular wedge every
+revolution regardless of what is in it, which is exactly the observed
+signature:
+
+| Condition | occluder | lidar total pts | lidar `wall_points` |
+|---|---|---|---|
+| `no_occluder_moving` | 1,000 m away | 6,786,180 | **76,326** |
+| `no_occluder_static` | 1,000 m away | 6,767,949 | **76,350** |
+| `no_target` | at 4 m | 9,119,172 | **76,332** |
+| `empty` | 1,000 m away | 6,768,801 | **76,317** |
+
+Totals swing by 35% as geometry changes; the "wall" count moves by **33 points
+out of 76,000 — 0.04%** — *including* the row where the wall is a kilometre
+away. That was read in the previous session as "the lidar cloud is not in the
+frame the spike assumes". It is better than that: it is a **solid-angle count**,
+constant by construction, carrying no occlusion information whatsoever.
+
+(The wedge holds 1.12% of the cloud where 2°/360° predicts 0.56% — a factor of
+two, which multi-echo returns or a sub-360° scan would account for. The absolute
+number is not the point; the near-constancy is.)
+
+### Decoding the radar numbers — it was measuring, and it found the wall
+
+Re-read the four control rows as (azimuth°, elevation°, **range m**):
+
+| Condition | scene | azimuth | elevation | **range** |
+|---|---|---|---|---|
+| `no_occluder_static` | ground + target @ 8 m | −0.2845° | 0.0009° | **6.1551 m** |
+| `empty` | ground only | −0.2845° | 0.0009° | **6.1551 m** |
+| `no_target` | ground + **wall @ 4 m** | −0.1477° | 0.0006° | **3.9002 m** |
+
+The wall is a cube centred at `x = 4.0` with `WALL_SCALE` x-component `0.1`. Its
+near face is at **3.90 m** or 3.95 m depending on whether `scales` is read as
+full extent or half-extent. The radar reports **3.9002 m**.
+
+**The radar localizes the wall to within a millimetre. It was never broken.**
+
+What it does *not* do is see the 2 m steel cube in clear line of sight: the
+target-present and empty scenes return the identical 6.1551 m. So the honest
+statement is not "radar returns nothing interpretable" but:
+
+> The radar returns **one detection per frame — the single strongest return.**
+> With the wall present, that is the wall, at the correct range. With only a
+> ground plane, it is a fixed 6.155 m clutter return. A 2 m steel cube at 6–7 m
+> never outranks that clutter return, so it is never the one detection emitted.
+
+That reframes the open question from *"what do these fields mean"* — answered —
+to a bounded, specific one: **why only one return per frame.** That is a
+property of the radar profile (returns-per-beam, detection threshold, RCS or
+Doppler gating), and it lives in the `OmniSensorGenericRadarWpmDmatAPI` schema,
+which has not been read.
+
+Two supporting details:
+
+- **`scalar` = 11.5 for radar is RCS in dBsm** — a large, entirely plausible
+  radar cross-section for a 12 m × 4 m concrete wall. It was recorded in this
+  file as an uninterpreted "wall intensity". Lidar's 2 × 10⁻⁴ is a *normalized*
+  intensity, so its smallness is likewise expected, not a symptom.
+- The moving condition's 72 detections spread to azimuth 18° and elevation 10°
+  at ranges 5.5–6.7 m. The target is at azimuth 0°, range 7.5–8.5 m, so those
+  are still not the target. With Motion BVH on and the target **teleported**
+  each frame by `set_world_poses`, the implied velocities are non-physical;
+  motion-induced ghosts are the natural reading. Not established.
+
+### Answering the three questions directly
+
+**1. What frame are x/y/z in, and is a transform missing?**
+Spherical (azimuth°, elevation°, range m) by default, in the **sensor's own
+frame** by default. Two conversions are missing, not one: spherical→Cartesian,
+*then* sensor→world. The spike does neither. Here the sensor sits at the origin
+with identity orientation, so the second conversion is nearly free — but it will
+not be for any real sensor station in `config/sensors.yaml`.
+
+**2. What is the 30-detections-with-zero-variance signature?**
+**None of the offered options.** Not a sentinel, not a header misread, not a
+wrong stride or offset, not uninitialised memory. The buffer was parsed
+correctly and the values are real measurements; they were interpreted in the
+wrong coordinate system. Zero variance across 30 frames is the *expected*
+result of a deterministic renderer pointed at a static scene: the same single
+strongest return, every frame.
+
+And the premise "identical between the target scene and the empty scene" — while
+literally true of those two rows — concealed the decisive third row: introducing
+the wall moves the value to 3.9002 m. **It does change when the scene changes.**
+This file previously asserted it did not, and that assertion was what made
+"uninitialised memory" look plausible. Withdrawn.
+
+**3. One bug or two?**
+**One bug, one root cause, both sensors.** `_sample()` is shared; both sensors
+emit the same buffer format with the same defaults. Lidar's zero-in-box is the
+`|range| < 2.5 m` clause; radar's is the same clause plus the azimuth clause.
+The previous entry — "both sensors returning geometrically implausible
+coordinates points at a shared cause — most likely the GMO frame/convention" —
+had the right instinct and the wrong severity: it is not implausible data, it is
+correctly-shaped data measured with the wrong ruler.
+
+### Two further defects in the same function, found while reading
+
+Neither caused the observed numbers; both would corrupt a corrected run.
+
+1. **`flags` is never checked.** `ElementFlags` carries a `VALID` bit. The spike
+   consumes all `numElements` entries unconditionally, so invalid elements are
+   counted as detections.
+2. **`rv_ms` is never read.** `aux_output_level="BASIC"` was set specifically to
+   populate radial velocity in `auxiliaryData`, and radial velocity is the exact
+   quantity that would confirm or kill the Doppler-gating hypothesis for the
+   static target. It is being requested and discarded.
+
+### Why this is a Layer-1 finding and not a spike leftover
+
+`core/observation.py` maps `generic-model-output → "points"`, and the contract
+says `points  (N, 3) float  metres`. **Nothing in Isaac hands you that.** Any
+consumer of this annotator owes three steps before the contract is satisfied:
+
+| # | Step | How it fails silently if skipped |
+|---|---|---|
+| 1 | Check `coordsType`; convert spherical→Cartesian | Degrees are read as metres. Plausible-looking numbers, wrong everywhere. |
+| 2 | Check `frameOfReference`; apply sensor→world | Every station's cloud sits at the origin, mutually overlapping. |
+| 3 | Mask on `flags & VALID` | Invalid elements counted as returns. |
+
+Concretely: **S11's `sim/observation_adapter.py` must do all three, or emit
+`points` that violate the Layer-3 contract while passing every type check** —
+`(N, 3) float` is satisfied by degrees just as well as by metres. That is the
+failure class this project keeps meeting, arriving one layer up.
+
+S8's debug draw is *probably* safe — `attach_writer("draw-point-cloud")` and
+`IsaacExtractRTXSensorPointCloud` do the conversion internally — but "probably"
+is doing real work in that sentence and it has not been verified. S10 reads the
+same buffer and is exposed.
+
+**Prefer `IsaacExtractRTXSensorPointCloud` over raw `generic-model-output`**
+wherever a point cloud in metres is what is wanted. It performs step 1 and hands
+back the matrix for step 2. Raw GMO is for when the auxiliary channels are
+needed.
+
+### What this does to S4's status
+
+S4 is **still not answered, and the reason has changed.** It is no longer "the
+radar returns nothing interpretable" — that was the measurement instrument
+misreading a working sensor. It is now:
+
+- the spike's classification masks are wrong and must be rewritten in spherical
+  coordinates (or against the extracted Cartesian cloud);
+- the radar emits one return per frame, and until that is understood or
+  configured away there is no target detection to compare against an occluded
+  one — with or without correct masks.
+
+The first is a fix. The second is a question with a named place to look. **A
+re-run is required to close S4, and per the standing instruction it is not being
+made here.** Reading has taken this as far as reading goes.
+
+**What the fix costs:** rewriting `_sample()`'s two masks against
+(azimuth, elevation, range) — the target subtends about ±7° of azimuth at 8 m,
+so `|az| < 10°`, `|el| < 10°`, `6 < range < 10.5` is the direct translation —
+plus the `flags & VALID` mask. The controls, the material sweep, `SPIKE_SENSORS`
+and `extents_xyz` all stand unchanged.
+
+> **Note for CLAUDE.md, not applied here per instruction.** The "Environment
+> facts" bullet reading *"RTX radar returns nothing usable … only ~1–2
+> detections per frame that do not localize a 2 m cube 8 m away and are
+> unchanged by removing the target"* is now known to be wrong in its diagnosis.
+> The radar localizes a wall to the millimetre. The API-era section is also
+> worth extending with the spherical/sensor-frame defaults, which are exactly
+> the kind of thing that section exists to catch.
+
+---
+
+## CLOSING VERDICT — 2026-08-12 (superseded above)
+
+> **Superseded 2026-08-14.** The paragraph below is accurate about what was
+> *observed* and wrong about what it *meant*. Specifically: "do not localize",
+> "sit at implausible coordinates", "unchanged when the target is deleted" and
+> "the field usage is not the bug either" are all artifacts of reading spherical
+> coordinates as Cartesian. Kept unedited as the record of the wrong turn.
 
 S4 asked one question: **does RTX radar return something from a target that an
 occluder hides from lidar, and which `omni:simready:nonvisual:*` materials does
@@ -333,22 +569,29 @@ Read it carefully — every line is evidence:
   contain these points**, and widening one until it did would be exactly the
   "find a framing that sounds like success" the task warned against.
 
-**The field usage is not the bug either.** The shipped example
+**The field usage is not the bug either.** ~~The shipped example
 `inspect_radar_gmo.py` reads detections as `gmo.x[i]`, `gmo.y[i]`, `gmo.z[i]` —
-identical to this spike. So either the WpmDmat model needs configuration this
-scene does not provide, or these fields carry something other than Cartesian
-metres for radar. **That is the one open question left in S4**, and it is
-answerable by reading, not by more 20-minute runs.
+identical to this spike.~~ **WRONG — 2026-08-14. The field usage *is* the bug.**
+Reading the same field *names* is not reading them with the same *meaning*:
+`x`/`y`/`z` are azimuth°, elevation° and range-in-metres unless `coordsType` says
+otherwise, and it defaults to `SPHERICAL`. See the top of this file. The second
+half of the sentence — "these fields carry something other than Cartesian metres
+for radar" — was the correct guess, and it is true of lidar too.
 
-### Lidar has the same localisation problem, separately
+### Lidar has the same localisation problem — same cause, not a separate one
 
 Run 1 returned 6.79 M points and **0 inside the target box**, with 76,3xx points
 at `x ∈ (3,5)` in *every* condition including the one where the occluder is
-1,000 m away. So the lidar cloud is also not in the frame the spike assumes.
-Both sensors returning geometrically implausible coordinates points at a shared
-cause — most likely the GMO frame/convention — rather than two separate bugs.
-`extents_xyz` is now recorded per condition so the next run diagnoses this in
-one shot instead of inferring it from a zero.
+1,000 m away.
+
+**Resolved 2026-08-14.** Not "the cloud is in the wrong frame": the box is in
+the wrong *coordinate system*. `|z| < 2.5` is a 2.5-metre **range** gate, and
+`x ∈ (3,5)` is a 2-degree **azimuth** wedge — which is why its count is constant
+to 0.04% while the total cloud size swings 35%. One bug, both sensors. Full
+derivation at the top of this file.
+
+`extents_xyz` did its job exactly as intended: the extents were what made the
+spherical reading legible. Recording them was the right call.
 
 ---
 
@@ -519,10 +762,12 @@ Viewport check, once this is demoable:
 
 ## What is ready to run
 
-`radar_penetration_exec.py` runs end to end under `runheadless.sh --exec` and
-will produce the yes/no with point counts the moment the radar returns
-interpretable detections. The measurement design below is unchanged and is the
-part worth keeping.
+`radar_penetration_exec.py` runs end to end under `runheadless.sh --exec`.
+**It is not ready to run as written** — `_sample()` classifies spherical
+coordinates as if they were Cartesian metres, so every `target_points` is zero
+by construction (see the top of this file). Fix the two masks and the `VALID`
+check first; that is a ten-line change. The measurement *design* below is
+unaffected and is the part worth keeping.
 
 It is written so a broken rig reports itself rather than quietly emitting a
 number:
@@ -554,7 +799,7 @@ number:
 
 | File | Purpose |
 |---|---|
-| `radar_penetration_exec.py` | **The live spike.** Exec mode. Runs clean. `SPIKE_SENSORS=both\|lidar\|radar`, `extents_xyz` per condition. Blocked only on what the radar detections mean. |
+| `radar_penetration_exec.py` | **The live spike.** Exec mode. Runs clean. `SPIKE_SENSORS=both\|lidar\|radar`, `extents_xyz` per condition. **`_sample()` has the spherical/Cartesian bug — fix before the next run.** |
 | `radar_penetration.py` | Original `SimulationApp` version. Superseded — kept only for the measurement design and its comments. Cannot capture on this host. |
 | `_diag_render_path.py` | Throwaway. Reproduces the `SimulationApp` failure; per-frame orchestrator histogram; `--start-orchestrator`, `--force-async`. |
 | `_diag_exec.py` | Throwaway. The launcher bisect that landed. **Reference pattern for exec mode** (cited from CLAUDE.md). |
@@ -568,18 +813,26 @@ number:
 
 ## IF S4 IS EVER REOPENED
 
-It is closed as of 2026-08-12. If it is picked up again, the entire remaining
-question is **what the GMO x/y/z fields mean for these sensors**, because both
-radar and lidar return coordinates that do not match the scene. Answer it by
-reading, not by running:
+**Step 1 below is done — 2026-08-14, by reading.** The fields are spherical and
+sensor-local, the masks were wrong, and both sensors are affected. See the top
+of this file. What remains:
 
-1. `exts/isaacsim.sensors.experimental.rtx/.../parse_generic_model_output_data`
-   — what frame and units the buffer is in, and whether radar and lidar share a
-   convention.
-2. The WpmDmat radar model's configuration surface — whether the default
-   profile has a minimum range, a Doppler gate, or an RCS threshold that a bare
-   cube in an empty scene never clears.
-3. Only then re-run. `SPIKE_SENSORS` and `extents_xyz` are already in place, and
+1. ~~What frame and units the buffer is in, and whether radar and lidar share a
+   convention.~~ **Answered.** Azimuth°, elevation°, range m; `coordsType`
+   defaults to `SPHERICAL`, `frameOfReference` to `SENSOR`; both sensors share
+   it. Prefer `IsaacExtractRTXSensorPointCloud`, which converts and hands back
+   the sensor→world matrix.
+2. **Fix `_sample()`** — rewrite both masks in spherical coordinates (target
+   subtends ~±7° azimuth at 8 m, so `|az| < 10°`, `|el| < 10°`,
+   `6 < range < 10.5`), and mask on `flags & VALID`.
+3. The WpmDmat radar model's configuration surface — **now the live question**,
+   sharpened: the radar emits exactly **one return per frame**, and it is the
+   strongest one, so the wall wins and the target never appears. Read
+   `OmniSensorGenericRadarWpmDmatAPI` for returns-per-beam, detection
+   threshold, RCS gating and minimum range. Also read `rv_ms`, which
+   `aux_output_level="BASIC"` is already populating and the spike discards — it
+   settles the Doppler-gating question directly.
+4. Only then re-run. `SPIKE_SENSORS` and `extents_xyz` are already in place, and
    `--controls-only` validates the rig in one condition.
 
 Do **not** widen the target box to make points fall inside it. The controls
@@ -587,6 +840,22 @@ exist precisely to stop that.
 
 ### Practical notes for any future run
 
+- **Check `nvidia-smi` before a GUI or streaming session too, not only before a
+  timed run.** The existing rule in CLAUDE.md is written around long headless
+  runs, and that is too narrow. On the evening of **2026-08-13** all four GPUs
+  were held by another user at **17–19 GB each with load average 11**, and an
+  interactive session was simply unusable — not crashed, not erroring, just
+  unresponsive enough to waste the session. An interactive session is the *most*
+  contention-sensitive thing on this host, because the symptom is latency rather
+  than a log line, and there is nothing to grep afterwards. One command, before
+  connecting:
+  ```
+  nvidia-smi --query-compute-apps=pid,used_memory,process_name --format=csv
+  uptime
+  ```
+  If the cards are full, the session is not worth starting. Two GPUs are
+  nominally free for inference (see CLAUDE.md), but "free" is a scheduling
+  convention on a shared machine, not a guarantee — verify, do not assume.
 - **Startup was ~1,000 s** with Motion BVH on (vs ~270 s without) — a one-time
   shader-permutation compile. The cache volume should now be warm, so expect
   faster; but budget the container `timeout` at **2,400 s minimum**. The
@@ -612,11 +881,29 @@ exist precisely to stop that.
   including the honest note that the IOMMU penalty is unverified under
   `runheadless.sh`.
 
+### Landed 2026-08-14
+
+- **The GMO coordinate bug found and documented** (top of this file). Reading
+  only, no run. It is one bug, it explains both sensors, and it invalidates
+  every `target_points` and `wall_points` number this spike has ever produced.
+- The Layer-1 consequence recorded for S8/S10/S11: three conversion steps stand
+  between `generic-model-output` and the `points  (N, 3) float  metres` that
+  `core/observation.py` promises.
+
 ### Still not done
 
-- **The radar question itself. No penetration data exists.** Closed as not
-  measurable today, not as answered.
-- The GMO frame/units question above — the one thing that would reopen it.
+- **The radar question itself. No penetration data exists.** Not measurable from
+  the runs made so far — but the reason is now a known, fixable defect in the
+  measurement rig plus one bounded question about the radar profile, not an
+  unexplained sensor.
+- ~~The GMO frame/units question above — the one thing that would reopen it.~~
+  **Answered 2026-08-14.** It reopens S4 as a fixable task.
+- **Why the radar emits one return per frame.** The live question. Read
+  `OmniSensorGenericRadarWpmDmatAPI` and `rv_ms` before running anything.
+- **Fixing `_sample()`'s masks and re-running.** Required to close S4. Not done
+  here: this pass was reading-only by instruction.
+- Whether `attach_writer("draw-point-cloud")` (S8) really does the spherical
+  conversion internally. Believed yes, not verified.
 - The launcher-diff root cause (deliberately never opened).
 - A `verbose` Kit log.
 - Whether the 2026-08-10 CUDA-700 crash was contention. Most likely, not
