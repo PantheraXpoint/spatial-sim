@@ -179,6 +179,14 @@ the shared suite that `MockObservationSource` and the coming
 mock-only attribute it stops being a contract and becomes a second set of mock
 tests. Mock-specific behaviour goes in `tests/test_mock_source.py`.
 
+**Return real values from `sensor_ids` and `time` before wiring anything
+else** (this will bite S11). `isinstance(src, ObservationSource)` calls
+`hasattr` on every protocol member, `hasattr` evaluates a property, and a
+property raising anything but `AttributeError` propagates. A half-built
+adapter whose `sensor_ids` raises `NotImplementedError` therefore dies *inside*
+`test_satisfies_the_protocol` with that error instead of failing readably —
+and both are answerable from the constructor, with no simulator involved.
+
 ---
 
 ## Before every commit

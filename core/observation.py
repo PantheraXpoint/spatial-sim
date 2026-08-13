@@ -85,6 +85,22 @@ LENGTH_UNIT: Final[str] = "metre"
 #: `inf` is the legal value for "this ray hit nothing". NaN never is.
 DEPTH_CONVENTION: Final[str] = "euclidean_range_from_sensor_origin"
 
+#: What the `semantic` payload key holds: CLASS ids. One id per category,
+#: shared by every instance of it -- two people are both id 1 -- and every id
+#: that appears in the map has a name in `semantic_labels`.
+#:
+#: Isaac's `semantic_segmentation` annotator is class-based already. Habitat's
+#: semantic sensor returns INSTANCE ids: two chairs get two ids, and turning
+#: them into categories needs `sim.semantic_scene`, per dataset. An adapter
+#: that skipped that step would hand over a map that looks right, segments
+#: correctly, and quietly means something else.
+#:
+#: The completeness half is what makes this checkable, and it is checked --
+#: see `test_every_semantic_id_in_the_map_has_a_name` in tests/contract.py.
+#: Raw instance ids fail it immediately: thousands of ids against a mapping of
+#: a few dozen categories.
+SEMANTIC_ID_CONVENTION: Final[str] = "class_ids_with_complete_label_mapping"
+
 
 # --- What is inside `data` ---------------------------------------------------
 # The payload types stay loose -- an array library is an implementation detail
@@ -108,6 +124,22 @@ ANNOTATOR_DATA_KEYS: dict[str, str] = {
     # Layer 3 is the point cloud, not the buffer.
     "generic-model-output": "points",
 }
+
+# THE SHAPE AND DTYPE BEHIND EACH KEY. The array *library* is the source's
+# business; these are not. W and H are the sensor's declared `resolution`.
+#
+#   rgb        (H, W, 3) uint8    THREE channels. Both Isaac's rgb annotator
+#                                 and Habitat's color sensor hand you (H, W, 4)
+#                                 RGBA, so both adapters slice the alpha off.
+#                                 Nobody reading only the key name would know
+#                                 to, which is why it is written here.
+#   depth      (H, W)   float     metres, per DEPTH_CONVENTION. `inf` for a
+#                                 ray that hit nothing; never NaN.
+#   semantic   (H, W)   integer   class ids, per SEMANTIC_ID_CONVENTION.
+#   points     (N, 3)   float     metres. N varies tick to tick -- that is the
+#                                 signal, not a defect.
+#
+# Enforced by tests/contract.py, which is where a source finds out.
 
 # STILL NOT PINNED DOWN -- found while building core/memory/ (M5) against
 # these keys, and left here because this is where the next adapter author
@@ -176,6 +208,29 @@ class Observation:
     intrinsics: dict[str, Any] | None = None
     data: dict[str, Any] = field(default_factory=dict)
 
+    #: What the mount did to arrive at this reading, if it did anything.
+    #:
+    #: `MountType.AVATAR` is documented -- in CLAUDE.md, in `MountType` above,
+    #: and in `core.memory.interfaces.Evidence` -- as producing embodied
+    #: EXPERIENCE rather than allocentric state, on the grounds that an
+    #: experience has an action before it and a consequence after it. Until
+    #: this field existed the contract could represent neither, so every
+    #: consumer was told it held experience and handed a reading indis-
+    #: tinguishable from state. A documented claim with no representation is
+    #: the gap; this closes it.
+    #:
+    #: Deliberately untyped and optional. What an action IS depends on the
+    #: simulator -- a keyboard event here, a discrete `move_forward` in
+    #: Habitat, a velocity command on a real robot -- and inventing a taxonomy
+    #: before there is code that consumes one would be guessing. It stays
+    #: `Any` until something in Layer 4 needs it to be more.
+    #:
+    #: A FIXED sensor must leave this None. Infrastructure does not act, and a
+    #: source that stamps the avatar's action onto a ceiling camera has
+    #: destroyed the distinction the field exists to preserve. Checked by
+    #: `test_a_fixed_sensor_never_carries_an_action` in tests/contract.py.
+    action: Any | None = None
+
     def summary(self) -> dict[str, Any]:
         """
         Small, printable, array-free description. This is what the inspector
@@ -188,6 +243,15 @@ class Observation:
             "mount": self.mount.value,
             "position": tuple(round(v, 3) for v in self.pose.position),
         }
+        if self.action is not None:
+            # Same discipline as the payload below: printable or named, never
+            # dragged along whole, because `action` is Any and could be a
+            # tensor as easily as a string.
+            out["action"] = (
+                self.action
+                if isinstance(self.action, (str, int, float, bool))
+                else type(self.action).__name__
+            )
         for key, value in self.data.items():
             if hasattr(value, "shape"):
                 out[f"{key}_shape"] = tuple(value.shape)

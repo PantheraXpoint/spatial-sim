@@ -196,6 +196,16 @@ class ObservationSourceContract:
                     got = np.asarray(obs.data[key]).shape
                     assert got == shape, f"{obs.sensor_id}.{key}: {got} != {shape}"
 
+            if "rgb" in obs.data:
+                # Three channels and uint8, per the payload table in
+                # core/observation.py. Isaac's rgb annotator and Habitat's
+                # color sensor both hand over (H, W, 4) RGBA; the alpha comes
+                # off in the adapter, not in whatever reads this next.
+                rgb = np.asarray(obs.data["rgb"])
+                assert rgb.dtype == np.uint8, (
+                    f"{obs.sensor_id}.rgb is {rgb.dtype}, not uint8"
+                )
+
     def test_depth_is_a_metric_range_and_not_a_normalised_buffer(self, source):
         """
         `depth` is euclidean metres from the sensor origin -- see
@@ -420,6 +430,65 @@ class ObservationSourceContract:
                 f"Segmentation returns empty when the avatar carries no "
                 f"semantic class."
             )
+
+    def test_every_semantic_id_in_the_map_has_a_name(self, source):
+        """
+        SEMANTIC_ID_CONVENTION: `semantic` holds class ids and every id in it
+        is named in `semantic_labels`.
+
+        This is the assertion that separates class ids from instance ids
+        without the contract having to see the scene. Habitat's semantic
+        sensor returns instance ids -- two chairs, two ids -- and an adapter
+        that forwarded them raw would arrive here with thousands of ids and a
+        mapping of a few dozen categories. Completeness is checkable; "these
+        are the right kind of id" is not.
+
+        Keys are coerced to int rather than compared directly: Isaac's
+        id_to_labels spells them as strings and nests the class name a level
+        down. The contract is that the id is NAMED, not that every source
+        spells its mapping the same way.
+        """
+        for obs in source.step(self.STEP_DT):
+            if "semantic" not in obs.data:
+                continue
+            labels = obs.data.get("semantic_labels")
+            assert labels, (
+                f"{obs.sensor_id}: a class-id map with no label mapping is "
+                f"unreadable -- no consumer can tell 1 from 2."
+            )
+            present = {int(i) for i in np.unique(np.asarray(obs.data["semantic"]))}
+            named = set()
+            for key in labels:
+                try:
+                    named.add(int(key))
+                except (TypeError, ValueError):
+                    continue
+            missing = present - named
+            assert not missing, (
+                f"{obs.sensor_id}: {len(missing)} id(s) in the semantic map "
+                f"have no label -- {sorted(missing)[:8]}. Either the mapping "
+                f"is incomplete, or these are instance ids and the adapter "
+                f"owes a class lookup (SEMANTIC_ID_CONVENTION)."
+            )
+
+    def test_a_fixed_sensor_never_carries_an_action(self, source):
+        """
+        The other half of what `Observation.action` is for. Infrastructure
+        does not act: a ceiling camera has no action before its reading and no
+        consequence after it, which is the entire reason FIXED is state and
+        AVATAR is experience.
+
+        A source that stamps the avatar's action onto every reading in the
+        tick would make the two indistinguishable again, in the exact way the
+        field was added to prevent.
+        """
+        for obs in source.step(self.STEP_DT):
+            if obs.mount is MountType.FIXED:
+                assert obs.action is None, (
+                    f"{obs.sensor_id} is fixed infrastructure but reports "
+                    f"action {obs.action!r}. Fixed sensors observe; they do "
+                    f"not act."
+                )
 
     def test_no_modality_is_a_surprise(self, source):
         for obs in source.step(self.STEP_DT):

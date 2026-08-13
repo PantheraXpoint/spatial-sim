@@ -36,6 +36,41 @@ def test_summary_is_array_free():
     assert "points" not in summary
 
 
+def test_a_reading_carries_no_action_unless_one_is_given():
+    """
+    Optional, and absent by default. Every source that predates the field --
+    and every fixed sensor forever -- reports None without doing anything.
+    """
+    pose = Pose((0.0, 0.0, 0.0), (1.0, 0.0, 0.0, 0.0))
+    obs = Observation("F", 0.0, Modality.RGB, MountType.FIXED, pose)
+    assert obs.action is None
+    assert "action" not in obs.summary()
+
+
+def test_an_action_reaches_the_summary_without_breaking_its_promise():
+    """
+    `action` is Any, so it could be a tensor as easily as a string. The
+    summary stays printable either way -- the inspector panel and the logs
+    call this on every reading.
+    """
+    pose = Pose((0.0, 0.0, 0.0), (1.0, 0.0, 0.0, 0.0))
+    walked = Observation(
+        "A", 0.0, Modality.RGB, MountType.AVATAR, pose, action="move_forward"
+    )
+    assert walked.summary()["action"] == "move_forward"
+
+    class _Tensor:
+        shape = (7,)
+
+    heavy = Observation(
+        "A", 0.0, Modality.RGB, MountType.AVATAR, pose, action=_Tensor()
+    )
+    summary = heavy.summary()
+    assert summary["action"] == "_Tensor"
+    for key, value in summary.items():
+        assert not hasattr(value, "shape"), f"{key} is still an array"
+
+
 def test_fixed_and_avatar_observations_are_distinguishable():
     """
     Fusion code has to know whether a reading is allocentric state or embodied
