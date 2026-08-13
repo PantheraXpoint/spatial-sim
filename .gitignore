@@ -18,3 +18,4 @@ scenes/*.usda
 .DS_Store
 .idea/
 .vscode/
+!sim/spikes/logs/*.log
