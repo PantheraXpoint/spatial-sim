@@ -159,10 +159,8 @@ migration guide against anything you recall. Specifically in 6.x:
   Both conventions are settable per prim
   (`omni:sensor:WpmDmat:elementsCoordsType`, `...:outputFrameOfReference`), so
   read them from the buffer header rather than assuming.
-  **`VALID` does not mean "real".** With an empty scene the radar emits one
-  element per frame at exactly `az 0°, el 0°, range 100 m`, flagged VALID. It is
-  a no-detection placeholder; range-gating on `maxRangeM` (200) will not catch
-  it.
+  **But `VALID` does not mean "real"** — see failure mode 2 above before you
+  rely on it.
 - Radar needs Motion BVH, and it must be on **before renderer init** — the BVH
   is built there, so setting the carb values from Python afterwards is too late
   and silently does nothing. Two supported routes, one per execution model:
@@ -212,13 +210,33 @@ Ranked by how much time they cost.
    through it, cameras render nothing, radar returns nothing, segmentation has
    nothing to label. *Every sensor reading stays constant and nothing warns
    you.* This is the most likely failure of the entire design.
-2. **RTX sensor without its own viewport.** It silently does not simulate.
-3. **Missing semantic label.** Segmentation and bbox annotators return empty.
-4. **Dynamic instead of kinematic avatar.** Ragdolls, trips on shelves, falls
+2. **Trusting `flags & VALID` to mean "a real return". It does not.** With
+   nothing in front of it, the RTX radar emits one element per frame at
+   **exactly `azimuth 0°, elevation 0°, range 100.000 m`** — a round number with
+   zero variance, and no geometry anywhere near it. It is a no-detection
+   placeholder, and **it carries the `VALID` bit** (`ElementFlags.VALID == 64`).
+   Measured 2026-08-14; see `sim/spikes/FINDINGS.md`.
+
+   Nothing catches this on the way out. It passes the validity mask by
+   definition. It passes range-gating, because `maxRangeM` defaults to **200**
+   and 100 is comfortably inside. It passes `(N, 3) float` typing. **So an
+   adapter that filters on VALID and calls the rest real publishes a phantom
+   point 100 m dead ahead on every frame the scene is empty** — and an empty
+   scene is precisely when a sensor *should* be reporting nothing, so the bug
+   shows up as "the sensor always sees something", which reads like a working
+   sensor.
+
+   **This one is aimed at S11.** `sim/observation_adapter.py` is the code that
+   will hit it. Drop the sentinel explicitly — it is identifiable by its exact
+   `(0, 0, 100.0)` triple — rather than assuming any single flag or range bound
+   will do it for you.
+3. **RTX sensor without its own viewport.** It silently does not simulate.
+4. **Missing semantic label.** Segmentation and bbox annotators return empty.
+5. **Dynamic instead of kinematic avatar.** Ragdolls, trips on shelves, falls
    through floors.
-5. **pip install into system python instead of `./python.sh`.** Package
+6. **pip install into system python instead of `./python.sh`.** Package
    installs fine, Isaac Sim cannot see it.
-6. **Cache volumes mapped to 4.5-era paths.** Docker creates them happily; they
+7. **Cache volumes mapped to 4.5-era paths.** Docker creates them happily; they
    cache nothing; every restart costs ~10 minutes.
 
 ---
@@ -286,12 +304,27 @@ Ranked by how much time they cost.
   So: **radar is usable for geometry, unproven for material penetration.** See
   `sim/spikes/FINDINGS.md`. Nothing else in the project needs Motion BVH; S5–S9
   and S11 are unaffected.
-- **Only one sim container at a time.** `network_mode: host` is mandatory (see
-  above), and it means a second container dies binding Kit's `0.0.0.0:8011`
-  with `[Errno 98] address already in use`. Putting them on different GPUs does
-  not help — the collision is the port. Also: an exec-mode container does **not
-  exit when the script prints `DONE`**; it lingers holding GPU memory until
-  `docker stop`.
+- **Exactly one sim container may run at a time, host-wide.** This follows from
+  `network_mode: host` being mandatory (two bullets up): every Kit instance
+  binds the same `0.0.0.0:8011`, so the second one dies with
+
+  ```
+  [Errno 98] error while attempting to bind on address ('0.0.0.0', 8011)
+  ```
+
+  **Different GPUs do not help — the collision is the port, not the card.** This
+  is a project-level constraint, not a spike detail: `make stream` and a
+  headless `--exec` run contend exactly the same way, so a streaming session
+  blocks every capture run and vice versa. Sequence them; there is no
+  concurrency to buy here. (Fixing it would mean giving up host networking,
+  which costs UDP media and a working stream — see the black-screen bullet
+  above. Not a trade worth making.)
+
+  Corollary: **an exec-mode container does not exit when the script prints
+  `DONE`.** It called `post_quit()` and was still up 12 minutes later holding
+  ~1.6 GB of GPU memory. `docker stop` it after every run, or the next launch
+  fails on a port held by a container you thought had finished — and starts on a
+  card that `nvidia-smi` showed as free a moment earlier.
 - Isaac Sim **cannot run on macOS**. The MacBook is a thin client plus a
   CPU-side dev machine. 6.x "multi-arch" means Linux ARM, not macOS.
 - Tailscale on the server runs in **userspace mode** from
