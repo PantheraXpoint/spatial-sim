@@ -1,5 +1,192 @@
 # S4 — radar spike findings
 
+## S4 MEASURED — 2026-08-14, and the answer is NO with one large caveat
+
+The coordinate bug diagnosed below (by reading only) was fixed and the sweep
+was run. Both sensors work. Both localise geometry to the millimetre. The
+occlusion question is answered; the *material* question is not, and the reason
+is a third bug that only became visible once the first two were gone.
+
+### The answer
+
+**Does RTX radar see through what stops lidar? NO — for all six materials
+tested. But the material comparison is vacuous, so treat this as "the wall is
+opaque to both", not as a result about materials.**
+
+| condition | radar valid | radar @target | radar @wall | lidar valid | lidar @target |
+|---|---:|---:|---:|---:|---:|
+| clear LOS, target moving | 72 | **72** | 0 | 6,786,324 | **980,196** |
+| clear LOS, target static | 60 | **60** | 0 | 6,787,338 | **974,100** |
+| wall @4 m, no target | 30 | 0 | **30** | 9,119,304 | 0 |
+| empty (ground only) | 30 | 0 | 0 | 5,984,826 | 0 |
+| steel \| none \| none | 30 | **0** | 30 | 9,119,676 | **0** |
+| concrete \| none \| none | 30 | **0** | 30 | 9,120,129 | **0** |
+| cardboard \| none \| none | 30 | **0** | 30 | 9,120,144 | **0** |
+| plastic \| none \| none | 30 | **0** | 30 | 9,120,387 | **0** |
+| clear_glass \| none \| none | 30 | **0** | 30 | 9,120,996 | **0** |
+| fabric \| none \| none | 30 | **0** | 30 | 9,119,562 | **0** |
+
+30 frames per condition, 15 discarded as warm-up. Radar and lidar ran as
+separate processes (both sensors at once still dies on `cudaErrorIllegalAddress`
+and that was not retested). Exhibits: `logs/s4fix_radar_smoke.jsonl`,
+`logs/s4fix_lidar_smoke.jsonl`, `logs/s4fix_lidar_ctl2.jsonl`.
+
+### The caveat that matters more than the answer
+
+**The non-visual material swap moved neither sensor's return.** Radar reports
+`scalar` as RCS in dBsm, and across all six materials it is:
+
+```
+steel        10.160172      plastic       10.160171
+concrete     10.160171      clear_glass   10.160171
+cardboard    10.160172      fabric        10.160172
+```
+
+Identical to seven significant figures. Lidar's wall-face intensity is likewise
+flat at 0.0000403 across all six. **The sweep measured the same wall six times.**
+Whether `NonVisualMaterial.set_bases()` never reached the renderer, or the
+WpmDmat radar model ignores `omni:simready:nonvisual:*` altogether, is not
+established and is the next thing to find out.
+
+The spike already had a guard for exactly this — and it did not fire, because it
+read *lidar* intensity only and the material run was radar-only, so it printed
+`INCONCLUSIVE` and let `ANSWER: NO` through underneath it. That guard now checks
+every sensor present, and radar's RCS is the right quantity for it.
+
+### What the sensors actually did — both were working the whole time
+
+Radar, clear line of sight, target oscillating ±0.5 m:
+
+```
+az[-17.978, 17.978]deg  el[0.000, 10.239]deg  range[5.501, 6.686]m
+world x[5.500, 6.501] y[-1.898, 1.940] z[1.000, 2.110]   rv_ms[-9.270, 9.270]
+```
+
+World x spans **5.500 to 6.501** — the 4 m cube's near face (centre 8 ± 0.5,
+half-extent 2) tracked to the millimetre, with 70 of 72 returns carrying
+non-zero radial velocity. Static, it collapses to x = 6.001. With the wall up,
+every return is at x = **3.900**, the wall's near face. The radar was never
+broken and has been localising geometry correctly in every run this file
+records.
+
+Lidar sees **974,100** points on the target with a clear line of sight and
+**0** behind any wall — where the old code reported 0 in both cases.
+
+### The empty scene returns a sentinel, and it is flagged VALID
+
+With nothing in the scene but the ground plane, the radar emits 30 detections
+in 30 frames at **exactly** `az 0.000°, el 0.000°, range 100.000 m` — a round
+number, zero variance, no geometry there. That is a no-detection placeholder,
+not a measurement.
+
+**It carries `flags = 64`, the VALID bit.** So `flags & VALID` does *not* mean
+"this is a real return", and a consumer that trusts it — S11's observation
+adapter above all — will publish a phantom point at 100 m every frame the scene
+is empty. Range-gating against `maxRangeM` (200 m by default) will not catch it
+either, since 100 is comfortably inside.
+
+This is the one place the earlier "sentinel" guess was right. It was not right
+about the 6.155 m constant, which was the target.
+
+### Why "one return per frame" is a sensitivity ceiling, not just an oddity
+
+Measured, it is 1–2.4 detections per frame and it does vary with the scene. The
+structural point stands: the radar reports only its strongest few returns, so a
+weak return from *behind* a wall can never outrank the wall's own echo. **With
+the default configuration the sweep can only detect penetration if the wall's
+return disappears entirely.** Any future material result has to clear that bar
+before it means anything.
+
+### The radar's config surface — read from the shipped schema
+
+`OmniSensorGenericRadarWpmDmatAPI` (`isaacsim.sensors.experimental.rtx/.../sensor_checker/generatedSchema.usda`),
+and its `OmniSensorGenericRadarWpmDmatScanCfgAPI:s001` sub-schema. The schema
+confirms the two defaults this file's diagnosis rests on, for the radar
+specifically:
+
+```
+omni:sensor:WpmDmat:elementsCoordsType   = "SPHERICAL"   (allowed: CARTESIAN, SPHERICAL)
+omni:sensor:WpmDmat:outputFrameOfReference = "SENSOR"    (allowed: SENSOR, WORLD, CUSTOM)
+```
+
+Levers for the detection count, none of which were needed to answer the
+occlusion question and all of which are now reachable via `SPIKE_RADAR_ATTRS`:
+
+| attribute | default | why it matters |
+|---|---|---|
+| `WpmDmat:cfarMode` | `"2D"` | `"4D"` adds angular CFAR — the most likely single lever |
+| `scan:s001:cfarOffset` | `1` | threshold multiplier; lower = more detections |
+| `scan:s001:cfarRnT/VnT/AznT/ElnT` | `1` each | CFAR test cells per dimension |
+| `scan:s001:cfarMinVal` | `7e-17` | minimum bin energy to consider |
+| `scan:s001:azBins` / `elBins` | `12` / `2` | **2 elevation bins over ±20°** — elevation is effectively unresolved, which is why every return reports el ≈ 0 |
+| `scan:s001:rcsTuningCoefficients` | `[-12, 150, 0]` | scales returned RCS |
+| `scan:s001:debugForceDetection` | `0` | forces a synthetic detection at `debugForceRange`/`Az`/`El`/`V` — an end-to-end readback validator that needs no scene physics |
+
+`maxRangeM = 200`, `maxAzAngDeg = 66`, `maxElAngDeg = 20`, `rangeResM = 0.4`:
+the target at 8 m, azimuth 0°, elevation 0° is comfortably inside the field of
+view, so FOV was never the limiter.
+
+Attribute names are the full USD paths, and NVIDIA's own `test_radar_sensor.py`
+passes them the same way:
+`Radar(path, attributes={"omni:sensor:WpmDmat:outputFrameOfReference": "WORLD"})`.
+
+### The second bug: `no_target` and `empty` still contained the target
+
+Only visible once the decode was correct. `_condition(moving=True)` oscillated
+the target about the literal `TARGET_X`, so `no_target` — whose entire job is to
+remove the target — pushed it to 1 km and then teleported it straight back to
+x ≈ 8 on **every collected frame**. `empty` then inherited it at the last sine
+phase.
+
+The signature was unmistakable once the units were right: `empty` reported the
+target's near face at **6.155 m**, which is exactly `8.154 − 2` for phase
+`i = 29` of the oscillation. Both control conditions were invalid.
+
+Fixed by oscillating about wherever the target is currently parked
+(`SCENE["target_base"]`, set through `_park_target`). After the fix `no_target`
+and `empty` both report 0 target points for both sensors, and `empty` drops to
+the 100 m sentinel.
+
+### The third bug: the wall box swallowed the floor
+
+The replacement wall mask is a box, but the ground plane runs straight through
+it, so it counted a ~559k-point strip of *floor* whether the wall stood at 4 m
+or a kilometre away — making the discrimination gate unpassable by
+construction. Excluding `z < 0.20 m` fixes it. Demonstrated on real data, which
+is the check the gate now enforces before any answer is printed:
+
+```
+Wall-mask discrimination (box x (3.5, 4.5), |y|<12.5, z (0.2, 5.6)):
+  lidar  wall @4m ->  4113504 pts | wall @1km ->        0 pts   DISCRIMINATES
+```
+
+Against the mask it replaces, which counted 76,317–76,350 points in *every*
+condition — a 0.04% spread while the cloud itself swung 35%.
+
+### Two environment facts, both cheap and both non-obvious
+
+- **Two sim containers cannot run at once.** `network_mode: host` is mandatory
+  for streaming, and it makes the second container die on
+  `[Errno 98] address already in use` binding Kit's `0.0.0.0:8011`. Separate
+  GPUs do not help; the collision is the port, not the card. Runs are
+  sequential, full stop.
+- **The exec-mode container does not exit when the script does.** It printed
+  `DONE`, called `post_quit()`, and was still up 12 minutes later holding
+  ~1.6 GB of GPU memory. `docker stop` it after each run or the next run starts
+  on a card that is not as free as `nvidia-smi` suggested a moment earlier.
+
+### Verification before the run, not after
+
+`_to_world()` was checked on CPU against known geometry before any GPU time was
+spent — the test execs the real source text out of the script rather than
+reimplementing it. All checks pass: az 0°/el 0°/r 8 m → world (8, 0, 1); the
+ground sweep at el −5°…−89° lands on z = 0 to 1e-6 at every angle; VALID
+decodes 64/0/65 → true/false/true; CARTESIAN+WORLD passes through untouched;
+and a densely sampled wall face gives 1,560 in-box points at 4 m against 0 at
+1 km.
+
+---
+
 ## THE GMO COORDINATE BUG — 2026-08-14, and it supersedes the verdict below
 
 **The GMO fields are spherical, in degrees and metres. The spike read them as
@@ -200,6 +387,17 @@ needed.
 
 ### What this does to S4's status
 
+> **Resolved 2026-08-14 by the run recorded at the top of this file.** The two
+> items below were both correct as diagnoses. The first was a fix and is done.
+> The second turned out to be a *sensitivity ceiling* rather than a blocker: the
+> radar does detect the target (72 and 60 returns in the two clear-line-of-sight
+> controls), so there was a baseline to compare against after all — but because
+> it reports only its strongest returns, it cannot see a weak return past a
+> wall's echo. The occlusion question is answered; the material question is
+> blocked by a *third* bug, the inert material swap.
+>
+> The CLAUDE.md note below has now been applied.
+
 S4 is **still not answered, and the reason has changed.** It is no longer "the
 radar returns nothing interpretable" — that was the measurement instrument
 misreading a working sensor. It is now:
@@ -220,13 +418,13 @@ so `|az| < 10°`, `|el| < 10°`, `6 < range < 10.5` is the direct translation �
 plus the `flags & VALID` mask. The controls, the material sweep, `SPIKE_SENSORS`
 and `extents_xyz` all stand unchanged.
 
-> **Note for CLAUDE.md, not applied here per instruction.** The "Environment
-> facts" bullet reading *"RTX radar returns nothing usable … only ~1–2
-> detections per frame that do not localize a 2 m cube 8 m away and are
-> unchanged by removing the target"* is now known to be wrong in its diagnosis.
-> The radar localizes a wall to the millimetre. The API-era section is also
-> worth extending with the spherical/sensor-frame defaults, which are exactly
-> the kind of thing that section exists to catch.
+> **Note for CLAUDE.md — APPLIED 2026-08-14.** The "Environment facts" bullet
+> reading *"RTX radar returns nothing usable … only ~1–2 detections per frame
+> that do not localize a 2 m cube 8 m away and are unchanged by removing the
+> target"* was wrong in its diagnosis. The radar localizes a wall to the
+> millimetre and tracks the cube's near face across ±0.5 m of motion. The bullet
+> has been replaced and the spherical/sensor-frame defaults added to the API-era
+> section, which is exactly the kind of trap that section exists to catch.
 
 ---
 
@@ -799,7 +997,10 @@ number:
 
 | File | Purpose |
 |---|---|
-| `radar_penetration_exec.py` | **The live spike.** Exec mode. Runs clean. `SPIKE_SENSORS=both\|lidar\|radar`, `extents_xyz` per condition. **`_sample()` has the spherical/Cartesian bug — fix before the next run.** |
+| `radar_penetration_exec.py` | **The live spike.** Exec mode. Runs clean and correct as of 2026-08-14: `_to_world()` decodes spherical→Cartesian and sensor→world from the buffer header, masks are world-metre boxes, `flags & VALID` applied, `rv_ms` kept. `SPIKE_SENSORS=both\|lidar\|radar`, `SPIKE_RADAR_ATTRS` for radar prim attributes. |
+| `logs/s4fix_radar_smoke.jsonl` | **The S4 radar result.** Controls + six materials, correct decode. Shows the flat RCS that makes the material sweep vacuous. |
+| `logs/s4fix_lidar_smoke.jsonl` | Same sweep, lidar. 974k target points with LOS, 0 behind every wall. |
+| `logs/s4fix_lidar_ctl2.jsonl` | Controls after the wall-box ground fix. The 4,113,504-vs-0 discrimination exhibit. |
 | `radar_penetration.py` | Original `SimulationApp` version. Superseded — kept only for the measurement design and its comments. Cannot capture on this host. |
 | `_diag_render_path.py` | Throwaway. Reproduces the `SimulationApp` failure; per-frame orchestrator histogram; `--start-orchestrator`, `--force-async`. |
 | `_diag_exec.py` | Throwaway. The launcher bisect that landed. **Reference pattern for exec mode** (cited from CLAUDE.md). |
@@ -812,6 +1013,23 @@ number:
 ---
 
 ## IF S4 IS EVER REOPENED
+
+> **Steps 1–4 are all done — 2026-08-14.** Read the top of this file for the
+> measured result. What is left is one question, and it is not about the radar:
+>
+> **Why does swapping the occluder's non-visual material change nothing?** Radar
+> RCS off the wall face is 10.16017 dBsm for steel, concrete, cardboard,
+> plastic, clear_glass and fabric alike. Either `NonVisualMaterial.set_bases()`
+> is not reaching the renderer, or the WpmDmat model ignores
+> `omni:simready:nonvisual:*`. Until that is settled, no material result from
+> this rig means anything. Two ways in: check the USD attributes actually
+> written on `/World/occluder/material` after a `set_bases()` call, and check
+> whether the radar's own docs tie RCS to those attributes at all.
+>
+> Second, smaller: with the default `cfarMode="2D"` the radar reports only its
+> strongest returns, so a penetrating return can never outrank the wall's echo.
+> Try `SPIKE_RADAR_ATTRS='{"omni:sensor:WpmDmat:cfarMode": "4D"}'` before
+> trusting a negative.
 
 **Step 1 below is done — 2026-08-14, by reading.** The fields are spherical and
 sensor-local, the masks were wrong, and both sensors are affected. See the top

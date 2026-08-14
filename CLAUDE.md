@@ -141,6 +141,28 @@ migration guide against anything you recall. Specifically in 6.x:
   `RtxLidarDebugDrawPointCloudBuffer` Replicator writer.
 - Data comes from `sensor.get_data("generic-model-output")`, then
   `parse_generic_model_output_data(...)`.
+- **That buffer is NOT a point cloud, and the defaults are the trap.** Its
+  per-element `x`/`y`/`z` are **azimuth degrees, elevation degrees, range
+  metres** — because `elementsCoordsType` defaults to `SPHERICAL` — and they are
+  **sensor-local**, because `frameOfReference` defaults to `SENSOR`. Both
+  defaults are in the schema (`OmniSensorGenericRadarWpmDmatAPI`) and in
+  NVIDIA's own `test_radar_sensor.py`, which decodes them as
+  `cos(radians(gmo.x)), sin(radians(gmo.x)), sin(radians(gmo.y))` against
+  `gmo.z` as range. Read as Cartesian metres they look entirely plausible and
+  are silently wrong — this cost S4 a week. Three steps stand between the buffer
+  and metric world points:
+  1. check `elementsCoordsType`, convert spherical→Cartesian;
+  2. check `frameOfReference`, apply the sensor pose;
+  3. mask on `flags & VALID` (`ElementFlags.VALID == 64`).
+  `IsaacExtractRTXSensorPointCloud` does 1 and 2 for you and hands back the
+  sensor→world matrix — **prefer it whenever you want a metric cloud.**
+  Both conventions are settable per prim
+  (`omni:sensor:WpmDmat:elementsCoordsType`, `...:outputFrameOfReference`), so
+  read them from the buffer header rather than assuming.
+  **`VALID` does not mean "real".** With an empty scene the radar emits one
+  element per frame at exactly `az 0°, el 0°, range 100 m`, flagged VALID. It is
+  a no-detection placeholder; range-gating on `maxRangeM` (200) will not catch
+  it.
 - Radar needs Motion BVH, and it must be on **before renderer init** — the BVH
   is built there, so setting the carb values from Python afterwards is too late
   and silently does nothing. Two supported routes, one per execution model:
@@ -243,14 +265,33 @@ Ranked by how much time they cost.
   ```
   nvidia-smi --query-compute-apps=pid,used_memory,process_name --format=csv
   ```
-- **Motion BVH is safe; RTX radar returns nothing usable.** Measured in
-  isolation, exec mode, on an uncontended GPU: lidar + Motion BVH → 6.79 M
-  points, **zero errors**; radar + Motion BVH → no crash, zero errors, but only
-  ~1–2 detections per frame that do not localize a 2 m cube 8 m away and are
-  unchanged by removing the target. So Motion BVH is *not* the hazard the
-  earlier crash suggested. **RTX radar is not usable on this host today** — see
-  `sim/spikes/FINDINGS.md` for what was eliminated and what remains. Nothing
-  else in the project needs Motion BVH; S5–S9 and S11 are unaffected.
+- **Motion BVH is safe, and RTX radar works.** Measured in exec mode on an
+  uncontended GPU: lidar + Motion BVH → 6.79 M points, **zero errors**; radar +
+  Motion BVH → zero errors and correct geometry. *(An earlier version of this
+  bullet said the radar "returns nothing usable" and does "not localize a 2 m
+  cube 8 m away". That was wrong — it was the spike reading a spherical buffer
+  as Cartesian metres. Corrected 2026-08-14, measured both ways.)* With the
+  decode fixed the radar puts every return on the wall's near face at
+  **3.900 m** — the true face is 3.90 — and tracks the target cube's near face
+  across **5.500–6.501 m** as it oscillates ±0.5 m, with `rv_ms` ±9.27 m/s.
+  Two real limits remain, neither a defect in the sensor:
+  - it reports only its **strongest** returns (1–2 per frame under the default
+    `cfarMode="2D"`), so a weak return behind an occluder never outranks the
+    occluder's own echo;
+  - **swapping the occluder's non-visual material changes nothing** — RCS is
+    10.16017 dBsm for steel, concrete, cardboard, plastic, clear_glass and
+    fabric alike. Any material claim from this rig is vacuous until that is
+    explained.
+
+  So: **radar is usable for geometry, unproven for material penetration.** See
+  `sim/spikes/FINDINGS.md`. Nothing else in the project needs Motion BVH; S5–S9
+  and S11 are unaffected.
+- **Only one sim container at a time.** `network_mode: host` is mandatory (see
+  above), and it means a second container dies binding Kit's `0.0.0.0:8011`
+  with `[Errno 98] address already in use`. Putting them on different GPUs does
+  not help — the collision is the port. Also: an exec-mode container does **not
+  exit when the script prints `DONE`**; it lingers holding GPU memory until
+  `docker stop`.
 - Isaac Sim **cannot run on macOS**. The MacBook is a thin client plus a
   CPU-side dev machine. 6.x "multi-arch" means Linux ARM, not macOS.
 - Tailscale on the server runs in **userspace mode** from
