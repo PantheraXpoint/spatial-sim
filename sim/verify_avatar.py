@@ -9,12 +9,18 @@ while the demo is broken, and vice versa.
 
 What it checks, and why each one is here (each fails silently in the sim):
 
-    structure   the Xform, the body, both cameras, in the right places
-    visible     purpose != guide, visibility != invisible. THIS is what RTX
-                lidar/radar/cameras need: they trace render geometry, not
-                colliders. NVIDIA's own character-controller demo ships a
-                purpose="guide" capsule, which looks fine in the stage tree and
-                is invisible to every sensor in the project.
+    structure   the Xform, the collision capsule, both cameras, the visible
+                body, in the right places
+    visible     the CHARACTER renders (purpose default, not invisible, and is a
+                rigged mesh rather than a capsule) while the CAPSULE does not.
+                THIS is what RTX lidar/radar/cameras need: they trace render
+                geometry, not colliders. NVIDIA's own character-controller demo
+                ships a purpose="guide" capsule, which looks fine in the stage
+                tree and is invisible to every sensor in the project.
+    follow      the character is a sibling of the capsule (USD visibility is
+                pruning, so it cannot be a child of a hidden prim), so the graph
+                has to carry it. If that wiring breaks, the body stands still
+                while the capsule walks off with the cameras, in silence.
     physics     a collision representation exists, and it is kinematic rather
                 than dynamic -- accepting either the character controller or a
                 literal kinematic rigid body, and rejecting a dynamic one
@@ -42,6 +48,7 @@ Exits non-zero on any failure.
 
 from __future__ import annotations
 
+import os
 import sys
 
 from isaacsim import SimulationApp  # noqa: I001  -- must be first (hard rule 3)
@@ -94,6 +101,22 @@ class Checks:
         print("=" * 78, flush=True)
 
 
+def _labels_on(prim: Usd.Prim) -> list[str]:
+    """Semantic labels directly on a prim, in the 6.x UsdSemantics schema.
+
+    Direct only -- not inherited. Whether the annotators resolve inherited
+    labels is exactly the thing this is meant to pin down, so assuming it here
+    would defeat the check.
+    """
+    labels: list[str] = []
+    for schema in prim.GetAppliedSchemas():
+        if schema.startswith("SemanticsLabelsAPI:"):
+            attr = prim.GetAttribute(f"semantics:labels:{schema.split(':', 1)[-1]}")
+            if attr and attr.Get():
+                labels.extend(list(attr.Get()))
+    return labels
+
+
 def verify(stage: Usd.Stage, cfg: dict) -> Checks:
     c = Checks()
     avatar_path = cfg["prim_path"]
@@ -131,8 +154,14 @@ def verify(stage: Usd.Stage, cfg: dict) -> Checks:
         "body purpose is 'default', not 'guide'",
         f"purpose={purpose} (guide/proxy geometry is invisible to RTX sensors)",
     )
-    vis = img.ComputeVisibility()
-    c.check(vis != UsdGeom.Tokens.invisible, "body is visible", f"visibility={vis}")
+    # The capsule is collision only and must NOT render, or the demo shows a
+    # plastic pill wrapped around the character. Checked as a positive
+    # assertion rather than left to the eye.
+    c.check(
+        img.ComputeVisibility() == UsdGeom.Tokens.invisible,
+        "collision capsule does not render",
+        f"visibility={img.ComputeVisibility()}",
+    )
 
     capsule = UsdGeom.Capsule(body)
     c.check(
@@ -170,18 +199,77 @@ def verify(stage: Usd.Stage, cfg: dict) -> Checks:
             f"upAxis={cct.GetUpAxisAttr().Get()} up={up_axis}",
         )
 
+    # --- the visible body --------------------------------------------------
+    # Everything above is about the thing that COLLIDES. This is the thing
+    # sensors actually see: RTX lidar, radar and cameras trace render geometry,
+    # so an avatar whose only renderable prim is hidden is invisible to the
+    # whole observatory while looking perfect in the stage tree.
+    char_path = f"{avatar_path}/character"
+    char = stage.GetPrimAtPath(char_path)
+    if c.check(char.IsValid(), f"{char_path} exists", str(char.GetTypeName())):
+        cimg = UsdGeom.Imageable(char)
+        c.check(
+            cimg.ComputeVisibility() != UsdGeom.Tokens.invisible,
+            "visible body is visible",
+            f"visibility={cimg.ComputeVisibility()}",
+        )
+        c.check(
+            cimg.ComputePurpose() == UsdGeom.Tokens.default_,
+            "visible body purpose is 'default', not 'guide'",
+            f"purpose={cimg.ComputePurpose()}",
+        )
+        subtree = list(Usd.PrimRange(char))
+        meshes = [x for x in subtree if x.IsA(UsdGeom.Mesh)]
+        skels = [x for x in subtree if x.GetTypeName() == "Skeleton"]
+        # "Is it a character rather than the capsule?" -- asserted on the two
+        # things a rigged human has and a capsule cannot: skinned Meshes and a
+        # Skeleton. A capsule is an analytic Gprim with neither.
+        c.check(
+            len(meshes) > 0 and len(skels) > 0,
+            "visible body is a rigged character, not a capsule",
+            f"{len(meshes)} Mesh prims, {len(skels)} Skeleton prims, "
+            f"{len(subtree)} prims total",
+        )
+        c.check(
+            not any(x.IsA(UsdGeom.Capsule) for x in subtree),
+            "no capsule geometry inside the visible body",
+            f"{char_path} subtree",
+        )
+        # It must stand roughly where the capsule does, or it is decoration
+        # floating somewhere else in the warehouse.
+        bbox = UsdGeom.BBoxCache(Usd.TimeCode.Default(), [UsdGeom.Tokens.default_])
+        rng = bbox.ComputeWorldBound(char).ComputeAlignedRange()
+        h = rng.GetSize()[2]
+        c.check(1.2 <= h <= 2.6, "visible body is human-sized", f"height {h:.3f} m")
+        body_t = UsdGeom.XformCache().GetLocalToWorldTransform(body).ExtractTranslation()
+        centre = rng.GetMidpoint()
+        offset = ((centre[0] - body_t[0]) ** 2 + (centre[1] - body_t[1]) ** 2) ** 0.5
+        c.check(
+            offset < 0.75,
+            "visible body is co-located with the collision capsule",
+            f"horizontal offset {offset:.3f} m",
+        )
+        labels = _labels_on(char)
+        c.check(
+            str(cfg["semantic_class"]) in labels,
+            f"visible body semantic label reads {str(cfg['semantic_class'])!r}",
+            f"labels={labels}",
+        )
+        unlabelled = [m.GetPath().name for m in meshes if str(cfg["semantic_class"]) not in _labels_on(m)]
+        c.check(
+            not unlabelled,
+            "every visible mesh carries the label",
+            f"{len(meshes) - len(unlabelled)}/{len(meshes)} meshes labelled"
+            + (f"; missing: {unlabelled[:4]}" if unlabelled else ""),
+        )
+
     # --- semantics ---------------------------------------------------------
-    tax = [s for s in body.GetAppliedSchemas() if s.startswith("SemanticsLabelsAPI:")]
-    labels: list[str] = []
-    for s in tax:
-        attr = body.GetAttribute(f"semantics:labels:{s.split(':', 1)[-1]}")
-        if attr and attr.Get():
-            labels.extend(list(attr.Get()))
     want = str(cfg["semantic_class"])
     c.check(
-        want in labels,
+        want in _labels_on(body),
         f"semantic label reads {want!r}",
-        f"applied={tax} labels={labels}",
+        f"applied={[s for s in body.GetAppliedSchemas() if 'Semantic' in s]} "
+        f"labels={_labels_on(body)}",
     )
 
     # --- cameras -----------------------------------------------------------
@@ -222,6 +310,37 @@ def verify(stage: Usd.Stage, cfg: dict) -> Checks:
             setup_v == "Auto",
             "controller binds its own WASD controls",
             f"setupControls={setup_v!r}",
+        )
+
+    # The character is a sibling of the capsule, so it only moves because the
+    # graph copies the capsule's translate onto it. If that wiring is wrong the
+    # avatar's body stands still in the warehouse while the collision capsule
+    # walks off with the cameras -- and nothing errors.
+    def _node_with(attr_name: str, value: str):
+        for prim in Usd.PrimRange(stage.GetPrimAtPath(avatar_path)):
+            a = prim.GetAttribute(attr_name)
+            if a and str(a.Get()) == value:
+                yield prim
+
+    readers = [n for n in _node_with("inputs:primPath", body_path)
+               if str(n.GetAttribute("node:type").Get()) == "omni.graph.nodes.ReadPrimAttribute"]
+    writers = [n for n in _node_with("inputs:primPath", char_path)
+               if str(n.GetAttribute("node:type").Get()) == "omni.graph.nodes.WritePrimAttribute"]
+    c.check(len(readers) == 1, "graph reads the capsule's transform", f"found {len(readers)}")
+    c.check(len(writers) == 1, "graph writes the visible body's transform", f"found {len(writers)}")
+    if readers and writers:
+        r_name = readers[0].GetAttribute("inputs:name")
+        w_name = writers[0].GetAttribute("inputs:name")
+        c.check(
+            str(r_name.Get()) == "xformOp:translate" and str(w_name.Get()) == "xformOp:translate",
+            "the follow copies xformOp:translate",
+            f"read {r_name.Get()!r} -> write {w_name.Get()!r}",
+        )
+        conns = writers[0].GetAttribute("inputs:value").GetConnections()
+        c.check(
+            any(str(x).startswith(readers[0].GetPath().pathString) for x in conns),
+            "the follow's value input is actually connected to the reader",
+            f"connections={[str(x) for x in conns]}",
         )
 
     # --- non-visual material ----------------------------------------------
@@ -297,5 +416,10 @@ def _advise_launch_flag() -> None:
 
 if __name__ == "__main__":
     code = main()
-    _APP.close()
-    sys.exit(code)
+    # Same reason as sim/avatar.py: SimulationApp.close() can abort with
+    # "Destroying busy TaskGroup!" during teardown, which would report a
+    # PASSING verification as a non-zero exit. This script's exit code is the
+    # gate, so it must mean what the checks said and nothing else.
+    sys.stdout.flush()
+    sys.stderr.flush()
+    os._exit(code)

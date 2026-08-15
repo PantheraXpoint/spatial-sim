@@ -5,10 +5,13 @@ Structure built (all paths under the REAL stage root ``/Root`` -- there is no
 
     /Root/Avatar                    Xform, identity, never moves
       +-- Looks/avatar_skin         UsdPreviewSurface + non-visual "skin"
-      +-- body_mesh                 Capsule -- THE body. PhysX moves this one.
+      +-- body_mesh                 Capsule -- collision. PhysX moves this one.
+      |     |                       INVISIBLE: it collides, it does not render.
       |     +-- cam_first_person    eye height, looks along +X
       |     +-- cam_third_person    3 m behind, 1.6 m up, pitched down 25 deg
-      +-- Controls                  OmniGraph: activates the character controller
+      +-- character                 what you SEE: the warehouse's rigged Worker,
+      |     +-- rig                 referenced. Follows body_mesh via the graph.
+      +-- Controls                  OmniGraph: character controller + the follow
 
 Why the cameras hang off ``body_mesh`` and not off ``/Root/Avatar``
 -------------------------------------------------------------------
@@ -43,11 +46,13 @@ Two consequences, both deliberate:
     it here would park a static capsule inside the character controller's own
     actor and fight it. The CCT is the collision representation.
   * What ray-based sensors bounce off is **render** geometry, not colliders --
-    RTX lidar and radar trace the same BVH the renderer does. The capsule is
-    therefore kept visible with default purpose. NVIDIA's own CCT demo sets
-    ``purpose = "guide"`` on its capsule, which would make the avatar
-    invisible to every sensor in the project while looking perfectly fine in
-    the stage tree. ``verify_avatar.py`` checks for it.
+    RTX lidar and radar trace the same BVH the renderer does. So the avatar
+    needs a visible mesh for its own sake, and that is ``character``, not the
+    capsule. The capsule is hidden with ``visibility = "invisible"`` and keeps
+    ``purpose = "default"``; NVIDIA's own CCT demo hides its capsule with
+    ``purpose = "guide"`` instead, which is inherited and would take the
+    character down with it. ``verify_avatar.py`` asserts both halves: the
+    capsule does not render, and the character does.
 
 Execution model
 ---------------
@@ -101,6 +106,7 @@ else:
     _APP = None
 
 import argparse  # noqa: E402
+import os  # noqa: E402
 import sys  # noqa: E402
 from pathlib import Path  # noqa: E402
 
@@ -134,6 +140,8 @@ def _paths(avatar_path: str) -> dict[str, str]:
     return {
         "avatar": avatar_path,
         "body": f"{avatar_path}/body_mesh",
+        "character": f"{avatar_path}/character",
+        "rig": f"{avatar_path}/character/rig",
         "cam_fp": f"{avatar_path}/body_mesh/cam_first_person",
         "cam_tp": f"{avatar_path}/body_mesh/cam_third_person",
         "looks": f"{avatar_path}/Looks",
@@ -156,6 +164,7 @@ def add_avatar(
     *,
     config: dict | None = None,
     spawn_xy: tuple[float, float] | None = None,
+    worker_asset: str | None = None,
 ) -> dict[str, str]:
     """Add the avatar to an already-open stage and return its prim paths.
 
@@ -169,6 +178,10 @@ def add_avatar(
             semantics helpers resolve against the current stage.
         config: The ``avatar`` block of config/scene.yaml. Read from disk if
             not given.
+        worker_asset: USD asset the visible body is referenced from -- the same
+            rigged character ``/Root/Worker`` payloads, read off the stage by
+            :func:`read_base_facts` rather than written out here. Without it the
+            avatar is a bare (invisible) collision capsule.
         spawn_xy: Ground position. Defaults to wherever the warehouse's own
             Worker character is standing -- a spot a human-sized capsule is
             known to fit, read from the stage instead of guessed. A guessed
@@ -232,10 +245,16 @@ def add_avatar(
     capsule.AddScaleOp().Set(Gf.Vec3f(1.0))
 
     body_prim = capsule.GetPrim()
-    # Explicit, because the shipped CCT demo sets purpose="guide" here and that
-    # would make the avatar invisible to every RTX sensor in the project.
+    # Purpose stays "default" -- the shipped CCT demo sets "guide" here, and
+    # guide is inherited, so it would silently take the character down with it.
     capsule.CreatePurposeAttr(UsdGeom.Tokens.default_)
-    capsule.MakeVisible()
+    # ...but the capsule itself must not RENDER, or you see a plastic pill
+    # around the character. This is the one property of the capsule that
+    # changed when the body became a human: geometry, pose and the character
+    # controller are all untouched. Physics ignores visibility (NVIDIA's own
+    # demo hides its capsule too, via purpose), so the collision behaviour that
+    # passed the S6 gates is exactly as it was.
+    capsule.CreateVisibilityAttr(UsdGeom.Tokens.invisible)
 
     # --- physics: character controller, NOT a rigid body -------------------
     # See the module docstring. activate() re-applies this at play time and
@@ -282,10 +301,129 @@ def add_avatar(
     _camera(stage, p["cam_fp"], Gf.Vec3d(radius, 0.0, eye), pitch=0.0, focal=18.0)
     _camera(stage, p["cam_tp"], Gf.Vec3d(-3.0, 0.0, 1.6), pitch=25.0, focal=24.0)
 
+    # --- the visible body --------------------------------------------------
+    if worker_asset:
+        _add_character(stage, p, worker_asset, spawn=spawn, half=half, label=str(cfg["semantic_class"]))
+    else:
+        print("  ! no character asset given -- the avatar has no visible body", flush=True)
+
     # --- controls ----------------------------------------------------------
-    _build_controls_graph(p["graph"], p["body"], speed=cfg["move_speed"])
+    _build_controls_graph(
+        p["graph"],
+        p["body"],
+        character_path=p["character"] if worker_asset else None,
+        speed=cfg["move_speed"],
+    )
 
     return p
+
+
+# Yaw that turns the asset to face +X, the direction W drives and the cameras
+# look. Derived from the rig, not guessed: in the Worker's own frame the ankle
+# joint sits at y=+5.46 cm and the toe joint at y=-8.92 cm, so the toes lead
+# towards -Y and the character faces -Y. Rotating +90 deg about Z sends -Y to
+# +X. (Arms spread along +/-X in the rest pose, which is consistent.)
+_CHARACTER_YAW_DEG = 90.0
+
+# A human is between these, in metres. Used to decide whether Kit's metrics
+# assembler already resolved the asset's centimetre units for us -- see
+# _add_character. Wide on purpose: this is a units check, not a height check.
+_HUMAN_MIN_M, _HUMAN_MAX_M = 1.2, 2.6
+
+
+def _add_character(
+    stage: Usd.Stage,
+    p: dict[str, str],
+    asset: str,
+    *,
+    spawn: Gf.Vec3d,
+    half: float,
+    label: str,
+) -> None:
+    """Reference the warehouse's own rigged Worker as the avatar's visible body.
+
+    Reused rather than authored (hard rule 4): this is the same asset, read off
+    the stage, that ``/Root/Worker`` already payloads. Its ``SkelAnimation``
+    comes along -- it cannot be separated from the asset -- and that is the
+    better outcome, not a compromise: with the animation switched off the
+    skeleton falls back to its bind pose, which is a **T-pose** (measured:
+    hand-to-hand 138.9 cm, hands at shoulder height). The clip is also
+    effectively in place -- the root joint moves 1.0 x 1.3 x 0.0 cm across all
+    582 frames, i.e. sway, not locomotion -- so it cannot walk the mesh off the
+    capsule.
+
+    Structure, and why it is not simply a child of the capsule::
+
+        character   Xform   <- OmniGraph copies the capsule's translate here
+          rig       Xform   <- constant feet offset, yaw, unit scale
+            (referenced Worker)
+
+    USD ``visibility`` is *pruning*: an invisible prim hides every descendant,
+    and ``purpose`` inherits the same way. So the capsule cannot both host the
+    character and be hidden. The character is therefore a sibling that follows
+    the capsule through the graph, one frame behind -- 1.7 cm at 1 m/s, which
+    is not visible, and irrelevant to the sensors since the capsule does not
+    render at all.
+    """
+    # Followed by the graph. Its translate is overwritten every tick, so the
+    # value authored here only matters before the first Play.
+    char = UsdGeom.Xform.Define(stage, p["character"])
+    char.AddTranslateOp().Set(spawn)
+
+    rig = UsdGeom.Xform.Define(stage, p["rig"])
+    rig.GetPrim().GetReferences().AddReference(asset)
+    # Author the full op order explicitly. Kit's metrics assembler inserts its
+    # own `xformOp:scale:unitsResolve` when a referenced asset's metersPerUnit
+    # differs from the stage's, and silently doubling up with it would make the
+    # character 100x too small. Owning the order makes the outcome ours.
+    t_op = rig.AddTranslateOp()
+    r_op = rig.AddRotateXYZOp()
+    s_op = rig.AddScaleOp()
+    t_op.Set(Gf.Vec3d(0.0, 0.0, -half))  # capsule centre -> the soles of the feet
+    r_op.Set(Gf.Vec3f(0.0, 0.0, _CHARACTER_YAW_DEG))
+    s_op.Set(Gf.Vec3f(1.0, 1.0, 1.0))
+
+    stage.Load(Sdf.Path(p["rig"]))
+
+    # Measure rather than assume which units survived composition.
+    bbox = UsdGeom.BBoxCache(Usd.TimeCode.Default(), [UsdGeom.Tokens.default_])
+    height = bbox.ComputeWorldBound(rig.GetPrim()).ComputeAlignedRange().GetSize()[2]
+    if _HUMAN_MIN_M <= height <= _HUMAN_MAX_M:
+        print(f"  character height {height:.3f} m -- units already resolved, scale 1.0", flush=True)
+    elif _HUMAN_MIN_M * 100 <= height <= _HUMAN_MAX_M * 100:
+        s_op.Set(Gf.Vec3f(0.01, 0.01, 0.01))
+        print(f"  character height {height:.1f} cm -- applying 0.01 unit scale", flush=True)
+    else:
+        raise RuntimeError(
+            f"referenced character measures {height} on the up axis, which is neither "
+            f"metres nor centimetres for a human. Refusing to guess a scale."
+        )
+
+    meshes = [x for x in Usd.PrimRange(rig.GetPrim()) if x.IsA(UsdGeom.Mesh)]
+    # Fresh cache, not the one above: BBoxCache memoises, so reusing it here
+    # would re-print the pre-scale number and read as though nothing happened.
+    final = (
+        UsdGeom.BBoxCache(Usd.TimeCode.Default(), [UsdGeom.Tokens.default_])
+        .ComputeWorldBound(rig.GetPrim())
+        .ComputeAlignedRange()
+    )
+    print(
+        f"  character: {len(meshes)} meshes, world height {final.GetSize()[2]:.3f} m, "
+        f"feet at z={final.GetMin()[2]:.3f} m",
+        flush=True,
+    )
+
+    # Semantics on the geometry that actually renders. The label on the capsule
+    # stays too, but the capsule no longer renders, and segmentation labels what
+    # is rendered. Labelled on every mesh as well as the root because whether
+    # the 6.x annotators resolve INHERITED labels is not something to find out
+    # by getting an empty segmentation buffer in S10.
+    add_labels(char.GetPrim(), labels=label, taxonomy="class")
+    for m in meshes:
+        add_labels(m, labels=label, taxonomy="class")
+
+    UsdGeom.Imageable(char).CreatePurposeAttr(UsdGeom.Tokens.default_)
+    UsdGeom.Imageable(char).CreateVisibilityAttr(UsdGeom.Tokens.inherited)
 
 
 def _camera(stage: Usd.Stage, path: str, translate: Gf.Vec3d, *, pitch: float, focal: float) -> None:
@@ -339,6 +477,7 @@ def read_base_facts(base: Path) -> dict:
         "up_axis": root.GetInfo("upAxis") if root.HasInfo("upAxis") else None,
         "meters_per_unit": root.GetInfo("metersPerUnit") if root.HasInfo("metersPerUnit") else None,
         "worker_xy": None,
+        "worker_asset": None,
         "gravity": None,
     }
 
@@ -357,6 +496,17 @@ def read_base_facts(base: Path) -> dict:
         if default is not None:
             t = default.ExtractTranslation()
             facts["worker_xy"] = (float(t[0]), float(t[1]))
+    # The character asset the avatar borrows its body from. Read from the arc
+    # the stage already declares -- never typed out from memory (hard rule 1
+    # is about prim paths, but an asset URL recalled wrongly fails the same
+    # way: it resolves to nothing and the avatar is simply not there).
+    if worker is not None:
+        items = list(worker.payloadList.prependedItems) + list(worker.payloadList.appendedItems)
+        refs = list(worker.referenceList.prependedItems) + list(worker.referenceList.appendedItems)
+        for item in items + refs:
+            if item.assetPath:
+                facts["worker_asset"] = item.assetPath
+                break
 
     scene = layer.GetPrimAtPath("/PhysicsScene")
     if scene is not None:
@@ -367,7 +517,9 @@ def read_base_facts(base: Path) -> dict:
     return facts
 
 
-def _build_controls_graph(graph_path: str, body_path: str, *, speed: float) -> None:
+def _build_controls_graph(
+    graph_path: str, body_path: str, *, character_path: str | None, speed: float
+) -> None:
     """Wire the shipped character-controller node to the avatar's capsule.
 
     The whole graph is three nodes because ``setupControls="Auto"`` makes the
@@ -390,6 +542,38 @@ def _build_controls_graph(graph_path: str, body_path: str, *, speed: float) -> N
             flush=True,
         )
 
+    # The visible character is a sibling of the capsule, not a child of it,
+    # because USD visibility prunes -- see _add_character. So it has to be
+    # carried along explicitly. This is the Omnigraph Keyboard example's own
+    # pattern (OnTick -> ReadPrimAttribute -> WritePrimAttribute); that sample
+    # drives a cube's `size`, this drives a character's `xformOp:translate`.
+    # Both prims are children of the identity /Root/Avatar, so their local
+    # translate IS their world translate and the copy needs no maths. The
+    # constant offset from capsule-centre to feet lives on the rig prim's own
+    # transform, so it survives every write.
+    follow_nodes: list = []
+    follow_values: list = []
+    follow_connects: list = []
+    if character_path:
+        follow_nodes = [
+            ("follow_tick", "omni.graph.action.OnTick"),
+            ("read_body", "omni.graph.nodes.ReadPrimAttribute"),
+            ("write_character", "omni.graph.nodes.WritePrimAttribute"),
+        ]
+        follow_values = [
+            ("follow_tick.inputs:onlyPlayback", True),
+            ("read_body.inputs:name", "xformOp:translate"),
+            ("read_body.inputs:primPath", body_path),
+            ("read_body.inputs:usePath", True),
+            ("write_character.inputs:name", "xformOp:translate"),
+            ("write_character.inputs:primPath", character_path),
+            ("write_character.inputs:usePath", True),
+        ]
+        follow_connects = [
+            ("follow_tick.outputs:tick", "write_character.inputs:execIn"),
+            ("read_body.outputs:value", "write_character.inputs:value"),
+        ]
+
     keys = og.Controller.Keys
     og.Controller.edit(
         {"graph_path": graph_path, "evaluator_name": "execution"},
@@ -398,7 +582,8 @@ def _build_controls_graph(graph_path: str, body_path: str, *, speed: float) -> N
                 ("on_play", "omni.graph.action.OnStageEvent"),
                 ("on_stop", "omni.graph.action.OnStageEvent"),
                 ("cct", "omni.physx.cct.OgnCharacterController"),
-            ],
+            ]
+            + follow_nodes,
             keys.SET_VALUES: [
                 ("on_play.inputs:eventName", "Simulation Start Play"),
                 ("on_play.inputs:onlyPlayback", True),
@@ -412,11 +597,13 @@ def _build_controls_graph(graph_path: str, body_path: str, *, speed: float) -> N
                 # active viewport and recentres the OS cursor every frame,
                 # which is wrong over a livestream. The cameras are parented
                 # instead, so switching view is rebinding the viewport.
-            ],
+            ]
+            + follow_values,
             keys.CONNECT: [
                 ("on_play.outputs:execOut", "cct.inputs:activate"),
                 ("on_stop.outputs:execOut", "cct.inputs:deactivate"),
-            ],
+            ]
+            + follow_connects,
         },
     )
 
@@ -482,6 +669,9 @@ def main(argv: list[str] | None = None) -> int:
             print("  ! no Worker transform in the base layer -- spawning at origin", flush=True)
             spawn_xy = (0.0, 0.0)
     print(f"spawn      : {spawn_xy}", flush=True)
+    print(f"character  : {facts['worker_asset']}", flush=True)
+    if not facts["worker_asset"]:
+        print("  ! /Root/Worker declares no asset -- avatar will have no visible body", flush=True)
 
     # An EMPTY stage, deliberately. See read_base_facts(): composing the
     # warehouse here and then enabling a physics extension puts PhysX into a
@@ -507,7 +697,7 @@ def main(argv: list[str] | None = None) -> int:
             stage.RemovePrim(prim.GetPath())
     UsdGeom.Xform.Define(stage, ROOT)
 
-    paths = add_avatar(stage, spawn_xy=spawn_xy)
+    paths = add_avatar(stage, spawn_xy=spawn_xy, worker_asset=facts["worker_asset"])
 
     for _ in range(5):
         _APP.update()
@@ -527,5 +717,14 @@ def main(argv: list[str] | None = None) -> int:
 
 if __name__ == "__main__":
     code = main()
-    _APP.close()
-    sys.exit(code)
+    # Do NOT hand the exit code to Kit's teardown. SimulationApp.close() races
+    # with its own task group on this host and aborts with
+    #   "Destroying busy TaskGroup!"  ->  Fatal Python error: Aborted
+    # *after* the stage is authored, saved and closed -- turning a completely
+    # successful build into exit 1. It is a SIGABRT, so it cannot be caught.
+    # Everything this script produces is already on disk by now, so leave on
+    # our own terms. A real failure still surfaces: an exception in main()
+    # propagates and never reaches this line.
+    sys.stdout.flush()
+    sys.stderr.flush()
+    os._exit(code)
