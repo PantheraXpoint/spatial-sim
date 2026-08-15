@@ -11,22 +11,27 @@
 
 sensors:
 
-  # --- INFRA-01: warehouse ceiling, ~6-7 m -----------------------------------
+  # --- INFRA-01: warehouse WALL, 2.6 m ---------------------------------------
   # All three modalities co-located under one Xform so they share a pose.
+  # Wall rather than ceiling because a rotary lidar's elevation band is only
+  # -15..+10 deg: measured from the ceiling it returned 418,235 points and none
+  # on the avatar. The full derivation lives with the station in scene.yaml.
+  # CONFIRMED: /Root/Infrastructure/INFRA_01 is authored by sim/sensor_factory.py
+  # from that station entry, so these paths exist at runtime.
   - id: INFRA_01_CAM
     modality: rgbd
     mount: fixed
-    parent: /World/Infrastructure/INFRA_01
-    prim_path: /World/Infrastructure/INFRA_01/cam_01
+    parent: /Root/Infrastructure/INFRA_01
+    prim_path: /Root/Infrastructure/INFRA_01/cam_01
     resolution: [1280, 720]
     annotators: [rgb, distance_to_camera, semantic_segmentation]
-    notes: "Sees the top of the avatar's head. Ceiling viewpoint."
+    notes: "Wall viewpoint at 2.6 m, looking down the aisle at the avatar."
 
   - id: INFRA_01_LIDAR
     modality: lidar
     mount: fixed
-    parent: /World/Infrastructure/INFRA_01
-    prim_path: /World/Infrastructure/INFRA_01/lidar_01
+    parent: /Root/Infrastructure/INFRA_01
+    prim_path: /Root/Infrastructure/INFRA_01/lidar_01
     config: Example_Rotary
     annotators: [generic-model-output]
     notes: "M5 money shot. Expect points ON the avatar plus an occlusion
@@ -35,14 +40,25 @@ sensors:
   - id: INFRA_01_RADAR
     modality: radar
     mount: fixed
-    parent: /World/Infrastructure/INFRA_01
-    prim_path: /World/Infrastructure/INFRA_01/radar_01
+    parent: /Root/Infrastructure/INFRA_01
+    prim_path: /Root/Infrastructure/INFRA_01/radar_01
     config: Example_Radar
     annotators: [generic-model-output]
     notes: "Requires Motion BVH -- raises render cost for ALL sensors.
             Add last, toggle off when not demoing."
 
   # --- INFRA-02: factory wall, ~3 m ------------------------------------------
+  # NOT INSTANTIATED IN ISAAC, and deliberately still here. `second_building`
+  # has no asset, so /World/Infrastructure/INFRA_02 is not on the stage and
+  # sim/sensor_factory.py skips these three automatically -- the same way it
+  # skips BOT_*. Nothing invents a path and no GUI time is spent on them.
+  #
+  # They stay because INFRA_02 is the EXPERIMENTAL CONTROL for Layers 3-4: a
+  # station 60 m away that must never see the avatar. core/mock_source.py,
+  # tests/test_memory.py and tests/contract.py are all built on it -- a change
+  # detector that fires here is firing on its own noise. Deleting these
+  # entries fails 7 tests and removes the guard, which is a steeper price than
+  # the stage-side clutter of three specs that resolve to nothing.
   - id: INFRA_02_CAM
     modality: rgbd
     mount: fixed

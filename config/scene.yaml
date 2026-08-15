@@ -81,11 +81,55 @@ robots:
 # Nothing is inferred from which sensors happen to be present, so adding a lidar
 # somewhere never creates a silent obligation to add a radar next to it.
 stations:
+  # WALL, not ceiling, and the height is a measured constraint rather than a
+  # preference. A rotary lidar's vertical FOV is a narrow band: Example_Rotary
+  # sweeps elevations -15..+10 deg (Example_Rotary_BEAMS.json, in
+  # omni.sensors.nv.common). A mount at height h therefore only sees an avatar
+  # whose centre is at z=0.9 when the horizontal distance d satisfies
+  #     d >= (h - 0.9) / tan(15 deg)
+  # A ceiling mount fails this badly: measured at 8.70 m directly overhead the
+  # lidar returned 418,235 points and NOT ONE on the avatar, silently. At 6.50 m
+  # -- the position this entry used to hold -- the avatar would have to stand
+  # 20.9 m away.
+  #
+  # Pose derived from the stage, not chosen: /Root/Warehouse/SM_WallA_6M15 is a
+  # real wall (z span 0.00..3.10, centre 5.36, 6.60), and this sits 0.35 m off
+  # its face at 2.60 m, which is 6.66 m from where the avatar spawns. Required
+  # distance at 2.60 m is 6.34 m, so the torso and head are in band with margin;
+  # the feet clip below about 15 deg, which is what a real wall-mounted lidar
+  # does too.
+  #
+  # station_type stays `multimodal`: camera, lidar and radar share this one
+  # pose, which is the claim -- three modalities, one viewpoint, one event.
   - id: INFRA_01
-    prim_path: /World/Infrastructure/INFRA_01
+    prim_path: /Root/Infrastructure/INFRA_01
+    # TWO POSES, on purpose, because two consumers need different things and
+    # one field cannot serve both:
+    #
+    #   position       the MOCK's world (core/mock_source.py, Layer 3). A
+    #                  synthetic space with a circular avatar circuit and no
+    #                  occlusion, against which the memory module's
+    #                  signal-to-noise margin is calibrated. Changing it moves
+    #                  the probe object relative to the station and retunes
+    #                  tests/test_memory.py by accident -- measured: shifting
+    #                  this to the stage pose dropped that margin from 10.8x
+    #                  to 9.4x and failed the guard.
+    #   stage_position the CONFIRMED pose in the Isaac stage, used by
+    #                  sim/sensor_factory.py. Physical, and constrained.
+    #
+    # They are not yet the same number and that divergence is deliberate rather
+    # than settled: making the mock mirror the warehouse means recalibrating
+    # the Layer 3/4 fixtures, which is a decision of its own and not a
+    # side-effect of placing a sensor.
     position: [5.0, 0.0, 6.5]
-    mount: ceiling
+    stage_position: [4.910, 6.610, 2.60]
+    mount: wall
     station_type: multimodal
+  # INFRA_02 is NOT built on this stage: `second_building` below still has a
+  # null asset, so its prim path does not exist and sim/sensor_factory.py skips
+  # it. It stays declared because it is the experimental control the memory
+  # module is tested against -- a station 60 m away that must never see the
+  # avatar. Give it a real prim_path when the second environment lands.
   - id: INFRA_02
     prim_path: /World/Infrastructure/INFRA_02
     position: [62.0, 3.0, 3.0]

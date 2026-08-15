@@ -23,24 +23,34 @@ mid-run and a write-at-exit design loses everything.
 Environment
 -----------
     SF_STAGE     stage to open   (default: /workspace/sim/observatory_avatar.usd)
-    SF_MODE      camera | lidar  (default: camera)
+    SF_MODE      station | camera | lidar   (default: station -- everything)
     SF_FRAMES    frames to sample (default: 120)
     SF_OUT       results directory (default: /isaac-sim/.nvidia-omniverse/logs)
 
-Provisional placement
----------------------
-``config/sensors.yaml`` still carries ``/World/...`` placeholders for INFRA_*
-and BOT_*, and those Xforms do not exist on the stage. Until a human confirms
-real paths in the GUI, this module can place ONE camera at a derived pose --
-see :func:`derive_provisional_pose`, which reads the ceiling height off the
-warehouse's bounding box and the aisle position off the Worker's own transform.
-Derived from the stage, not invented, and named so nobody mistakes it for a
-confirmed station: it lands under ``/Root/_Provisional/``.
+Where the sensors go
+--------------------
+Stations come from ``config/scene.yaml`` and sensors hang off them at the paths
+``config/sensors.yaml`` declares. :func:`create_stations` authors the station
+Xform at its declared position -- that is not an invented path, it is the
+contract being made real, and it runs first because nothing under a station
+resolves until it exists. Sensors whose parent is still absent (BOT_*, pending
+S9) are logged and skipped.
+
+The station pose is deliberately NOT authored into the stage: sim/avatar.py
+rebuilds observatory_avatar.usd from the base, so anything written there by
+hand is lost on the next rebuild. Config is the durable place for it.
+
+INFRA_01 is a WALL mount at 2.60 m, not a ceiling mount, and that is a measured
+constraint. Example_Rotary sweeps elevations -15..+10 deg only; from the ceiling
+directly above the avatar the lidar returned 418,235 points and none on the
+body, silently. :meth:`Run.setup` recomputes and logs that geometry every run
+rather than trusting the comment.
 """
 
 from __future__ import annotations
 
 import json
+import math
 import os
 import sys
 import traceback
@@ -52,6 +62,7 @@ import omni.kit.app
 import omni.replicator.core as rep
 import omni.timeline
 import omni.usd
+import yaml
 from isaacsim.core.experimental.utils.app import enable_extension
 from pxr import Gf, Usd, UsdGeom
 
@@ -76,6 +87,12 @@ AVATAR = f"{ROOT}/Avatar"
 # Whether the lidar emits it too is one of the questions this script answers.
 SENTINEL = (0.0, 0.0, 100.0)
 VALID = 64  # ElementFlags.VALID
+
+# Example_Rotary's vertical field of view, read from the shipped profile
+# Example_Rotary_BEAMS.json in omni.sensors.nv.common: 128 emitters spanning
+# elevations -15.0 to +10.0 deg, nearRangeM 1.0. This is the whole reason
+# INFRA_01 is a wall mount and not a ceiling mount.
+LIDAR_EL_MIN_DEG, LIDAR_EL_MAX_DEG = -15.0, 10.0
 
 
 # ---------------------------------------------------------------------------
@@ -111,6 +128,18 @@ def load_registry() -> SensorRegistry:
     return SensorRegistry.from_yaml(str(REPO / "config" / "sensors.yaml"))
 
 
+def load_stations() -> list[dict]:
+    """Station declarations, straight out of config/scene.yaml.
+
+    The station pose lives in config rather than in the USD on purpose: the
+    stage this runs against is rebuilt from sim/avatar.py, so anything authored
+    into it by hand would be lost on the next rebuild. The factory recreates
+    the stations every run from the contract instead.
+    """
+    with open(REPO / "config" / "scene.yaml", encoding="utf-8") as fh:
+        return yaml.safe_load(fh).get("stations") or []
+
+
 def resolvable(stage: Usd.Stage, spec: SensorSpec) -> bool:
     """Is this spec's parent Xform actually on the stage?
 
@@ -137,54 +166,134 @@ def audit_registry(stage: Usd.Stage, registry: SensorRegistry) -> dict:
     }
 
 
-def derive_provisional_pose(stage: Usd.Stage, drop: float = 0.6) -> tuple[Gf.Vec3d, dict]:
-    """A ceiling-height pose above an aisle, DERIVED, not chosen by taste.
+def create_stations(stage: Usd.Stage) -> dict[str, list[float]]:
+    """Author each declared station Xform at its declared position.
 
-    Ceiling height comes from the warehouse's own world bounding box. The
-    horizontal position comes from where the Worker character stands -- a spot
-    a human-sized body demonstrably fits, which is the definition of an aisle
-    here, and the same reasoning sim/avatar.py uses for the spawn point. The
-    avatar spawns there too, so this camera is guaranteed to have the avatar
-    under it on frame one.
-
-    Returns the pose and the evidence behind it, so the report can show the
-    derivation rather than assert the number.
+    Not an invented path (hard rule 1): the path is declared in
+    config/scene.yaml, which is the contract a human signs off, and this
+    function is what makes it exist. Sensors hang off these, so this runs
+    first or nothing under them resolves.
     """
+    made: dict[str, list[float]] = {}
+    for st in load_stations():
+        # stage_position is the confirmed pose in the Isaac stage; `position`
+        # is the mock's synthetic world and is only a fallback. See the note
+        # on INFRA_01 in config/scene.yaml for why they differ.
+        path = st.get("prim_path")
+        pos = st.get("stage_position") or st.get("position")
+        if not path or pos is None:
+            continue
+        xf = UsdGeom.Xform.Define(stage, path)
+        existing = xf.GetPrim().GetAttribute("xformOp:translate")
+        (existing or xf.AddTranslateOp()).Set(Gf.Vec3d(*[float(v) for v in pos]))
+        made[path] = [float(v) for v in pos]
+    return made
+
+
+def look_at_rotate_xyz(eye: Gf.Vec3d, target: Gf.Vec3d) -> Gf.Vec3f:
+    """rotateXYZ that aims a USD camera from `eye` at `target`, +Z up.
+
+    A USD camera looks down its own -Z with +Y up. Composing Rx then Rz gives a
+    forward of (-sin(rz), cos(rz)) horizontally and a downward pitch of
+    (90 - rx), so rx = 90 - depression and rz = azimuth - 90.
+    """
+    d = Gf.Vec3d(target[0] - eye[0], target[1] - eye[1], target[2] - eye[2])
+    horiz = math.hypot(d[0], d[1])
+    azimuth = math.degrees(math.atan2(d[1], d[0]))
+    depression = math.degrees(math.atan2(-d[2], horiz)) if horiz > 1e-9 else 90.0
+    return Gf.Vec3f(90.0 - depression, 0.0, azimuth - 90.0)
+
+
+def avatar_target(stage: Usd.Stage) -> Gf.Vec3d:
+    """Where the sensors should point: the middle of the avatar's body."""
     cache = UsdGeom.BBoxCache(Usd.TimeCode.Default(), [UsdGeom.Tokens.default_])
-    warehouse = stage.GetPrimAtPath(f"{ROOT}/Warehouse")
-    rng = cache.ComputeWorldBound(warehouse).ComputeAlignedRange()
-    ceiling_z = float(rng.GetMax()[2])
-
-    worker = stage.GetPrimAtPath(f"{ROOT}/Worker")
-    t = UsdGeom.XformCache().GetLocalToWorldTransform(worker).ExtractTranslation()
-
-    pose = Gf.Vec3d(float(t[0]), float(t[1]), ceiling_z - drop)
-    evidence = {
-        "warehouse_bbox_min": [float(v) for v in rng.GetMin()],
-        "warehouse_bbox_max": [float(v) for v in rng.GetMax()],
-        "ceiling_z": ceiling_z,
-        "drop_below_ceiling_m": drop,
-        "aisle_xy_from": f"{ROOT}/Worker",
-        "aisle_xy": [float(t[0]), float(t[1])],
-        "pose": [float(v) for v in pose],
-    }
-    return pose, evidence
+    char = stage.GetPrimAtPath(f"{AVATAR}/character")
+    if char.IsValid():
+        r = cache.ComputeWorldBound(char).ComputeAlignedRange()
+        mid = r.GetMidpoint()
+        return Gf.Vec3d(float(mid[0]), float(mid[1]), float(mid[2]))
+    return Gf.Vec3d(0.0, 0.0, 0.9)
 
 
-def create_camera(stage: Usd.Stage, path: str, pose: Gf.Vec3d, resolution: tuple[int, int]):
-    """A downward-looking camera at `pose`, plus its render product.
+def create_camera(stage: Usd.Stage, path: str, *, resolution, look_at: Gf.Vec3d | None):
+    """A camera at its registry path, aimed at `look_at`, plus its render product.
 
-    No rotation is authored on purpose: a USD camera looks along its own -Z,
-    which in this Z-up stage is already straight down at the floor.
+    No translate op is authored: the camera hangs off its station Xform, which
+    already carries the world pose. That is what "three modalities share one
+    pose" means in practice -- one transform, not three that can drift apart.
     """
     cam = UsdGeom.Camera.Define(stage, path)
-    if not cam.GetPrim().GetAttribute("xformOp:translate"):
-        cam.AddTranslateOp().Set(pose)
-    else:
-        cam.GetPrim().GetAttribute("xformOp:translate").Set(pose)
+    prim = cam.GetPrim()
+    if look_at is not None:
+        eye = UsdGeom.XformCache().GetLocalToWorldTransform(prim).ExtractTranslation()
+        rot = look_at_rotate_xyz(Gf.Vec3d(float(eye[0]), float(eye[1]), float(eye[2])), look_at)
+        (prim.GetAttribute("xformOp:rotateXYZ") or cam.AddRotateXYZOp()).Set(rot)
     cam.CreateClippingRangeAttr(Gf.Vec2f(0.05, 1_000_000.0))
-    cam.CreateFocalLengthAttr(14.0)  # wide, so a ceiling camera sees an aisle
+    cam.CreateFocalLengthAttr(18.0)
     return cam, rep.create.render_product(path, resolution=tuple(resolution))
+
+
+def create_registry_sensors(
+    stage: Usd.Stage, registry: SensorRegistry, *, modalities=None, attach_annotators: bool = True
+) -> dict[str, dict]:
+    """Instantiate every registry sensor whose parent Xform exists.
+
+    Returns one record per created sensor. Anything unresolvable is logged and
+    skipped -- never guessed into existence.
+    """
+    target = avatar_target(stage)
+    made: dict[str, dict] = {}
+    for spec in registry:
+        if modalities and spec.modality not in modalities:
+            continue
+        if not resolvable(stage, spec):
+            log(f"skip {spec.sensor_id}: parent {spec.parent} is not on the stage")
+            continue
+        if spec.modality is Modality.RADAR:
+            log(f"skip {spec.sensor_id}: radar needs the three Motion BVH kit flags")
+            continue
+
+        if spec.modality is Modality.LIDAR:
+            enable_extension("isaacsim.sensors.rtx.nodes")
+            from isaacsim.sensors.experimental.rtx import Lidar, LidarSensor
+
+            lidar = Lidar.create(
+                spec.prim_path, config=spec.config, translations=np.array([[0.0, 0.0, 0.0]])
+            )
+            sensor = LidarSensor(lidar, annotators=["generic-model-output"])
+            draw = "attached"
+            try:
+                # 6.x debug draw. NOT the RtxLidarDebugDrawPointCloudBuffer
+                # replicator writer that 5.x examples reach for.
+                sensor.attach_writer("draw-point-cloud")
+            except Exception as exc:
+                draw = f"failed: {exc!r}"
+            log(f"{spec.sensor_id} -> {spec.prim_path} (lidar {spec.config}, draw {draw})")
+            made[spec.sensor_id] = {
+                "prim_path": spec.prim_path, "kind": "lidar", "sensor": sensor,
+                "draw_writer": draw, "annotators": {},
+            }
+            continue
+
+        _, rp = create_camera(
+            stage, spec.prim_path, resolution=spec.resolution or (1280, 720), look_at=target
+        )
+        anns = {}
+        if attach_annotators:
+            for name in spec.annotators:
+                params = {"colorize": False} if name == "semantic_segmentation" else None
+                ann = (
+                    rep.AnnotatorRegistry.get_annotator(name, init_params=params)
+                    if params else rep.AnnotatorRegistry.get_annotator(name)
+                )
+                ann.attach([rp])
+                anns[name] = ann
+        log(f"{spec.sensor_id} -> {spec.prim_path} (camera, annotators {list(anns)})")
+        made[spec.sensor_id] = {
+            "prim_path": spec.prim_path, "kind": "camera", "sensor": None,
+            "render_product": rp, "annotators": anns,
+        }
+    return made
 
 
 # ---------------------------------------------------------------------------
@@ -277,15 +386,16 @@ class Run:
     def setup(self) -> None:
         stage = self.ctx.get_stage()
         registry = load_registry()
+
+        stations = create_stations(stage)
+        for path, pos in stations.items():
+            log(f"station {path} at {[round(v, 3) for v in pos]}")
+        self.results.write(event="stations", stations=stations)
+
         audit = audit_registry(stage, registry)
         log(f"registry: {len(registry)} sensors, {len(audit['ready'])} resolvable")
         self.results.write(event="registry_audit", **audit)
 
-        pose, evidence = derive_provisional_pose(stage)
-        log(f"provisional pose {evidence['pose']} (ceiling {evidence['ceiling_z']:.2f})")
-        self.results.write(event="provisional_pose", **evidence)
-
-        # The avatar's world bounds, for "did anything land on the body".
         cache = UsdGeom.BBoxCache(Usd.TimeCode.Default(), [UsdGeom.Tokens.default_])
         char = stage.GetPrimAtPath(f"{AVATAR}/character")
         if char.IsValid():
@@ -293,226 +403,147 @@ class Run:
             self.state["avatar_lo"], self.state["avatar_hi"] = r.GetMin(), r.GetMax()
             self.results.write(
                 event="avatar_bbox",
-                min=[float(v) for v in r.GetMin()],
-                max=[float(v) for v in r.GetMax()],
+                min=[float(v) for v in r.GetMin()], max=[float(v) for v in r.GetMax()],
             )
-        else:
-            log("! no avatar on this stage -- nothing to hit")
+        target = avatar_target(stage)
+        self.state["target"] = target
 
-        UsdGeom.Xform.Define(stage, PROVISIONAL)
+        # THE geometry check this pose has to pass, computed rather than hoped:
+        # a rotary lidar only sees what falls inside its elevation band.
+        for path, pos in stations.items():
+            for label, z in (("head", 1.86), ("centre", float(target[2])), ("feet", 0.0)):
+                dx, dy = target[0] - pos[0], target[1] - pos[1]
+                d = math.hypot(dx, dy)
+                dep = math.degrees(math.atan2(pos[2] - z, d)) if d > 1e-9 else 90.0
+                # Elevation as the sensor sees it: a point below the sensor has
+                # negative elevation, so elevation = -depression.
+                elev = -dep
+                inband = LIDAR_EL_MIN_DEG <= elev <= LIDAR_EL_MAX_DEG
+                log(f"  {path} -> avatar {label}: d={d:.2f} m elevation={elev:+.2f} deg "
+                    f"{'IN BAND' if inband else 'OUT OF BAND'}")
+                self.results.write(
+                    event="band_check", station=path, point=label,
+                    distance_m=d, elevation_deg=elev, in_band=bool(inband),
+                    band_deg=[LIDAR_EL_MIN_DEG, LIDAR_EL_MAX_DEG],
+                )
+
+        mods = None
         if MODE == "camera":
-            self._setup_camera(stage, registry, pose)
+            mods = {Modality.RGB, Modality.RGBD, Modality.DEPTH, Modality.SEMANTIC}
         elif MODE == "lidar":
-            self._setup_lidar(stage, registry, pose)
-        else:
-            raise ValueError(f"SF_MODE={MODE!r} is not camera or lidar")
+            mods = {Modality.LIDAR}
+        # MODE == "station" -> everything the registry offers
+
+        made = create_registry_sensors(stage, registry, modalities=mods)
+        self.state["made"] = made
+        self.results.write(
+            event="sensors_created",
+            sensors={k: {"prim_path": v["prim_path"], "kind": v["kind"]} for k, v in made.items()},
+        )
+        if not made:
+            raise RuntimeError("no sensors were created -- nothing to sample")
 
         omni.timeline.get_timeline_interface().play()
 
-    def _setup_camera(self, stage, registry, pose) -> None:
-        spec = next(iter(registry.by_modality(Modality.RGBD)), None)
-        if spec is None:
-            raise RuntimeError("no rgbd sensor in the registry")
-        path = f"{PROVISIONAL}/{spec.sensor_id}"
-        log(f"PROVISIONAL camera for {spec.sensor_id} at {path} (registry path {spec.prim_path} is unresolvable)")
-        _, rp = create_camera(stage, path, pose, spec.resolution or (1280, 720))
-
-        self.state["rgb"] = rep.AnnotatorRegistry.get_annotator("rgb")
-        self.state["rgb"].attach([rp])
-        seg = rep.AnnotatorRegistry.get_annotator(
-            "semantic_segmentation", init_params={"colorize": False}
-        )
-        seg.attach([rp])
-        self.state["seg"] = seg
-        self.results.write(
-            event="camera_created", sensor_id=spec.sensor_id, prim_path=path,
-            registry_prim_path=spec.prim_path, resolution=list(spec.resolution or (1280, 720)),
-            annotators=spec.annotators,
-        )
-
-    def _setup_lidar(self, stage, registry, pose) -> None:
-        enable_extension("isaacsim.sensors.rtx.nodes")
-        from isaacsim.sensors.experimental.rtx import Lidar, LidarSensor  # noqa: E402
-
-        spec = next(iter(registry.by_modality(Modality.LIDAR)), None)
-        if spec is None:
-            raise RuntimeError("no lidar in the registry")
-
-        # A rotary lidar's vertical FOV is a narrow BAND, not a hemisphere.
-        # Example_Rotary_BEAMS.json (shipped in omni.sensors.nv.common) sweeps
-        # elevations -15.0 deg to +10.0 deg with nearRangeM 1.0. A ceiling mount
-        # directly above the avatar looks at it from 90 deg of depression, which
-        # is six times outside the band -- the sensor returns hundreds of
-        # thousands of floor points and not one on the body, with no error.
-        # SF_LIDAR_POSE overrides the ceiling pose so a pose that respects the
-        # band can be measured rather than argued about.
-        override = os.environ.get("SF_LIDAR_POSE")
-        if override:
-            pose = Gf.Vec3d(*[float(v) for v in override.split(",")])
-            log(f"SF_LIDAR_POSE override -> {[float(v) for v in pose]}")
-
-        path = f"{PROVISIONAL}/{spec.sensor_id}"
-        log(f"PROVISIONAL lidar for {spec.sensor_id} at {path}, config={spec.config}")
-        lidar = Lidar.create(path, config=spec.config, translations=np.array([[pose[0], pose[1], pose[2]]]))
-        sensor = LidarSensor(lidar, annotators=["generic-model-output"])
-        # 6.x debug draw. NOT the RtxLidarDebugDrawPointCloudBuffer replicator
-        # writer that 5.x examples reach for. Guarded: the writer draws into a
-        # viewport, and this run is headless -- if it cannot attach here that
-        # says nothing about the GUI, and it must not take the capture down
-        # with it.
-        try:
-            sensor.attach_writer("draw-point-cloud")
-            self.state["draw_writer"] = "attached"
-        except Exception as exc:
-            self.state["draw_writer"] = f"failed: {exc!r}"
-        log(f"draw-point-cloud writer: {self.state['draw_writer']}")
-        self.state["lidar"] = sensor
-        self.state["lidar_path"] = path
-
-        # CONTROL: an identical lidar in empty space, far above everything, so
-        # nothing is within range. "No sentinel in the warehouse" would prove
-        # nothing on its own -- in a warehouse every ray hits something.
-        ctrl_path = f"{PROVISIONAL}/LIDAR_CONTROL_EMPTY"
-        ctrl = Lidar.create(ctrl_path, config=spec.config, translations=np.array([[0.0, 0.0, 1000.0]]))
-        self.state["control"] = LidarSensor(ctrl, annotators=["generic-model-output"])
-        self.state["control_path"] = ctrl_path
-        log(f"control lidar at {ctrl_path} (z=1000 m, nothing in range)")
-        self.results.write(
-            event="lidar_created", sensor_id=spec.sensor_id, prim_path=path,
-            registry_prim_path=spec.prim_path, config=spec.config,
-            control_prim_path=ctrl_path, pose=[float(v) for v in pose],
-        )
-
     # -- sampling ---------------------------------------------------------
-    def sample(self) -> None:
-        if MODE == "camera":
-            self._sample_camera()
-        else:
-            self._sample_lidar()
-
-    def _sample_camera(self) -> None:
+    def _sample_camera(self, sensor_id: str, rec: dict) -> None:
         st = self.state
-        arr = np.asarray(st["rgb"].get_data())
-        nonzero = int((arr != 0).sum()) if arr.size else 0
-        st["best_rgb"] = max(st.get("best_rgb", 0), nonzero)
-        st["rgb_shape"] = list(arr.shape) if arr.size else None
+        anns = rec["annotators"]
+        best = st.setdefault("cam", {})
+        slot = best.setdefault(sensor_id, {"rgb": 0, "person": 0})
 
-        seg = st["seg"].get_data()
-        labels = None
-        n_person = 0
-        if isinstance(seg, dict) and seg.get("data") is not None:
-            data = np.asarray(seg["data"])
-            info = seg.get("info") or {}
-            labels = info.get("idToLabels")
-            st["seg_shape"] = list(data.shape)
-            if labels:
-                person_ids = [
-                    int(k) for k, v in labels.items()
-                    if "person" in json.dumps(v).lower()
-                ]
-                if person_ids:
-                    n_person = int(np.isin(data, person_ids).sum())
-                st["labels"] = labels
-        st["best_person_px"] = max(st.get("best_person_px", 0), n_person)
+        rgb_ann = anns.get("rgb")
+        if rgb_ann is not None:
+            arr = np.asarray(rgb_ann.get_data())
+            nonzero = int((arr != 0).sum()) if arr.size else 0
+            if nonzero > slot["rgb"]:
+                slot["rgb"] = nonzero
+                slot["shape"] = list(arr.shape)
+                if arr.size and arr.ndim == 3:
+                    st.setdefault("frames", {})[sensor_id] = arr.copy()
 
-        if self.sampled % 20 == 0 or n_person:
-            self.results.write(
-                event="camera_frame", frame=self.frame, rgb_nonzero=nonzero,
-                rgb_shape=st.get("rgb_shape"), seg_shape=st.get("seg_shape"),
-                person_px=n_person, n_labels=len(labels) if labels else 0,
-            )
+        seg_ann = anns.get("semantic_segmentation")
+        if seg_ann is not None:
+            seg = seg_ann.get_data()
+            if isinstance(seg, dict) and seg.get("data") is not None:
+                data = np.asarray(seg["data"])
+                labels = (seg.get("info") or {}).get("idToLabels")
+                if labels:
+                    ids = [int(k) for k, v in labels.items() if "person" in json.dumps(v).lower()]
+                    if ids:
+                        slot["person"] = max(slot["person"], int(np.isin(data, ids).sum()))
+                    slot["labels"] = labels
 
-    def _sample_lidar(self) -> None:
+    def _sample_lidar(self, sensor_id: str, rec: dict) -> None:
         from isaacsim.sensors.experimental.rtx import parse_generic_model_output_data
 
         st = self.state
         stage = self.ctx.get_stage()
-        cache = UsdGeom.XformCache()
+        try:
+            buf, _ = rec["sensor"].get_data("generic-model-output")
+        except Exception:
+            return
+        if buf is None:
+            return
+        gmo = parse_generic_model_output_data(buf)
+        if gmo is None:
+            return
+        if not st.get("gmo_introspected"):
+            st["gmo_introspected"] = True
+            header = {}
+            for f in ("elementsCoordsType", "frameOfReference", "maxRangeM"):
+                try:
+                    header[f] = float(getattr(gmo, f))
+                except Exception:
+                    header[f] = "<unavailable>"
+            self.results.write(event="gmo_header", which=sensor_id, header=header)
+            log(f"gmo header: {header}")
 
-        for key, path_key in (("lidar", "lidar_path"), ("control", "control_path")):
-            sensor = st.get(key)
-            if sensor is None:
-                continue
-            try:
-                buf, _ = sensor.get_data("generic-model-output")
-            except Exception:
-                continue
-            if buf is None:
-                continue
-            gmo = parse_generic_model_output_data(buf)
-            if gmo is None:
-                continue
-            # Report what the buffer actually offers once, rather than assuming
-            # field names -- the conventions here are settable per prim and the
-            # defaults are the documented trap.
-            if not st.get("gmo_introspected"):
-                st["gmo_introspected"] = True
-                fields = [a for a in dir(gmo) if not a.startswith("_")]
-                # The conventions and the FOV, read off the buffer rather than
-                # assumed: both coordinate type and frame of reference are
-                # settable per prim, and the elevation band is what decides
-                # whether a given mount can see the avatar at all.
-                header = {}
-                for f in ("elementsCoordsType", "frameOfReference", "minElRad", "maxElRad",
-                          "minAzRad", "maxAzRad", "maxRangeM", "numRows", "numCols"):
-                    try:
-                        header[f] = float(getattr(gmo, f))
-                    except Exception:
-                        try:
-                            header[f] = str(getattr(gmo, f))
-                        except Exception:
-                            header[f] = "<unavailable>"
-                self.results.write(event="gmo_fields", which=key, fields=fields, header=header)
-                log(f"gmo header: {header}")
-            m = cache.GetLocalToWorldTransform(stage.GetPrimAtPath(st[path_key]))
-            dec = decode_gmo(gmo, m)
-            pts = dec.pop("_points", None)
+        m = UsdGeom.XformCache().GetLocalToWorldTransform(stage.GetPrimAtPath(rec["prim_path"]))
+        dec = decode_gmo(gmo, m)
+        pts = dec.pop("_points", None)
+        best = st.setdefault("lidar", {}).setdefault(sensor_id, {"real": 0, "avatar_hits": 0})
+        if dec.get("real", 0) >= best.get("real", 0):
+            best.update(dec)
+        best["sentinel_total"] = best.get("sentinel_total", 0) + dec.get("sentinel_hits", 0)
+        if pts is not None and "avatar_lo" in st:
+            best["avatar_hits"] = max(
+                best.get("avatar_hits", 0), count_in_box(pts, st["avatar_lo"], st["avatar_hi"])
+            )
 
-            best = st.setdefault(f"{key}_best", {"real": 0})
-            if dec.get("real", 0) >= best.get("real", 0):
-                st[f"{key}_best"] = dict(dec)
-            st[f"{key}_sentinel_total"] = st.get(f"{key}_sentinel_total", 0) + dec.get("sentinel_hits", 0)
-
-            if pts is not None and key == "lidar" and "avatar_lo" in st:
-                hits = count_in_box(pts, st["avatar_lo"], st["avatar_hi"])
-                st["avatar_hits_best"] = max(st.get("avatar_hits_best", 0), hits)
-                if self.sampled % 20 == 0:
-                    self.results.write(
-                        event="lidar_frame", frame=self.frame, which=key,
-                        avatar_hits=hits, **{k: v for k, v in dec.items()},
-                    )
-            elif self.sampled % 20 == 0:
-                self.results.write(event="lidar_frame", frame=self.frame, which=key, **dec)
+    def sample(self) -> None:
+        for sensor_id, rec in self.state.get("made", {}).items():
+            if rec["kind"] == "camera":
+                self._sample_camera(sensor_id, rec)
+            else:
+                self._sample_lidar(sensor_id, rec)
 
     # -- finish -----------------------------------------------------------
     def finish(self) -> None:
         st = self.state
-        if MODE == "camera":
-            summary = {
-                "mode": "camera",
-                "frames": self.sampled,
-                "rgb_max_nonzero_px": st.get("best_rgb", 0),
-                "rgb_shape": st.get("rgb_shape"),
-                "seg_shape": st.get("seg_shape"),
-                "person_px_max": st.get("best_person_px", 0),
-                "idToLabels": st.get("labels"),
-            }
-        else:
-            summary = {
-                "mode": "lidar",
-                "frames": self.sampled,
-                "warehouse_lidar_best": st.get("lidar_best"),
-                "control_lidar_best": st.get("control_best"),
-                "warehouse_sentinel_total": st.get("lidar_sentinel_total", 0),
-                "control_sentinel_total": st.get("control_sentinel_total", 0),
-                "avatar_hits_max": st.get("avatar_hits_best", 0),
-                "avatar_bbox": [
-                    [float(v) for v in st["avatar_lo"]],
-                    [float(v) for v in st["avatar_hi"]],
-                ] if "avatar_lo" in st else None,
-            }
+        summary = {
+            "mode": MODE,
+            "frames": self.sampled,
+            "cameras": st.get("cam", {}),
+            "lidar": st.get("lidar", {}),
+            "avatar_bbox": [
+                [float(v) for v in st["avatar_lo"]], [float(v) for v in st["avatar_hi"]]
+            ] if "avatar_lo" in st else None,
+        }
+        # The framing PNG: the whole point is that a human can judge the shot
+        # from an image viewer instead of opening Isaac Sim.
+        for sensor_id, arr in st.get("frames", {}).items():
+            path = OUT_DIR / f"framing_{sensor_id}.png"
+            try:
+                from PIL import Image
+
+                Image.fromarray(np.asarray(arr)[:, :, :3].astype(np.uint8)).save(path)
+                log(f"framing PNG -> {path}")
+                summary.setdefault("png", []).append(str(path))
+            except Exception as exc:
+                log(f"! could not write {path}: {exc!r}")
         self.results.write(event="summary", **summary)
-        log("SUMMARY " + json.dumps(summary, default=str)[:2000])
+        log("SUMMARY " + json.dumps(summary, default=str)[:3000])
         log("DONE")
 
     # -- the update pump --------------------------------------------------

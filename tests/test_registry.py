@@ -98,8 +98,11 @@ def test_infra_stations_are_colocated(registry):
     poses would confound modality with viewpoint, which would quietly
     invalidate the comparison the demo is built to make.
     """
-    for station in ("/World/Infrastructure/INFRA_01",
-                    "/World/Infrastructure/INFRA_02"):
+    # Paths come from the declarations, not from literals here. They used to be
+    # spelled out, and went stale the moment S7 confirmed INFRA_01's real path
+    # -- a test asserting co-location at a prim path that does not exist is
+    # worse than no test.
+    for station in [s.prim_path for s in registry.stations]:
         sensors = registry.by_station(station)
         modalities = {s.modality for s in sensors}
         assert Modality.LIDAR in modalities, f"{station} missing lidar"

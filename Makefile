@@ -63,6 +63,16 @@ stream: ## Launch headless streaming. -v shows shader warm-up progress.
 	$(COMPOSE) run --rm --service-ports sim ./runheadless.sh -v \
 		--enable omni.physx.cct
 
+gui: ## Stream the observatory with every sensor built and every panel bound.
+	@# Same launcher as `stream`, plus sim/gui_viewports.py, which opens
+	@# observatory_avatar.usd, authors the stations from config/scene.yaml,
+	@# creates the registry's sensors and binds one viewport per camera. It
+	@# does NOT press Play. Dock the panels, save the layout, THEN Play --
+	@# never re-dock while an RTX lidar sim is running.
+	$(COMPOSE) run --rm --service-ports sim ./runheadless.sh -v \
+		--enable omni.physx.cct \
+		--exec /workspace/sim/gui_viewports.py
+
 encoder-check: ## Confirm NVENC can actually OPEN A SESSION. Run before make stream.
 	@# Not `ldconfig -p | grep libnvidia-encode` -- that passes whenever the
 	@# library is mounted, which is always, and it reported healthy through a
@@ -80,5 +90,5 @@ down:
 clean-cache: ## Nuke Isaac cache volumes. Next start costs ~10 min.
 	$(COMPOSE) down -v
 
-.PHONY: help dev-build dev test test-local check check-local lint verify ci verify-gpu compat \
+.PHONY: help dev-build dev test test-local check check-local lint verify ci verify-gpu compat gui \
         sim-build sim stream encoder-check ports down clean-cache
