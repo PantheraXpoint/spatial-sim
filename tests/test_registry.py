@@ -4,8 +4,10 @@ If they ever can't run there, the layer boundary has leaked.
 """
 
 import textwrap
+from pathlib import Path
 
 import pytest
+import yaml
 
 from core.observation import Modality, MountType
 from core.registry import (
@@ -134,9 +136,16 @@ def test_avatar_is_the_only_moving_mount(registry):
     """
     The whole design rests on exactly one moving entity. If a second appears,
     the 'fixed infrastructure vs. mobile agent' contrast stops being clean.
+
+    The path is read from scene.yaml rather than written out here. It used to
+    be the literal '/World/Avatar', which made this test fail when S6 corrected
+    the stage root to '/Root' -- a green test asserting a prim path that does
+    not exist is worse than no test, and duplicating the path in two files is
+    what let them disagree.
     """
     avatar_parents = {s.parent for s in registry.by_mount(MountType.AVATAR)}
-    assert avatar_parents == {"/World/Avatar"}
+    declared = yaml.safe_load(Path(SCENE_PATH).read_text())["avatar"]["prim_path"]
+    assert avatar_parents == {declared}
 
 
 def test_duplicate_ids_rejected():

@@ -102,18 +102,23 @@ sensors:
   # --- Avatar cameras --------------------------------------------------------
   # The ONLY moving mount in the scene, and therefore the only possible source
   # of embodied experience rather than allocentric state.
+  # CONFIRMED against the built stage (S6), not placeholders like the entries
+  # above: the stage root is /Root, and both cameras hang off the capsule
+  # rather than off the Avatar Xform because PhysX moves the capsule -- cameras
+  # parented to the Xform would stay put while the body walked away. They are
+  # still descendants of /Root/Avatar. See sim/avatar.py.
   - id: AVATAR_CAM_FP
     modality: rgb
     mount: avatar
-    parent: /World/Avatar
-    prim_path: /World/Avatar/cam_first_person
+    parent: /Root/Avatar
+    prim_path: /Root/Avatar/body_mesh/cam_first_person
     resolution: [1280, 720]
     annotators: [rgb]
 
   - id: AVATAR_CAM_TP
     modality: rgb
     mount: avatar
-    parent: /World/Avatar
-    prim_path: /World/Avatar/cam_third_person
+    parent: /Root/Avatar
+    prim_path: /Root/Avatar/body_mesh/cam_third_person
     resolution: [1280, 720]
     annotators: [rgb]

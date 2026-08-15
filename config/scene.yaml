@@ -23,14 +23,35 @@ environments:
     offset: [60.0, 0.0, 0.0]
 
 avatar:
-  prim_path: /World/Avatar
+  # CONFIRMED against the stage, not guessed: the saved stage's default prim is
+  # /Root and its children are forklift, GroundPlane, Lights, Warehouse,
+  # Cameras, Worker. There is no /World. (GUI 2026-08-15; re-readable with
+  # sim/verify_avatar.py.)
+  prim_path: /Root/Avatar
   # ALL FOUR of these are load-bearing. Miss any one and sensors silently do
   # not react to you, with no error message anywhere.
+  #
+  # `kinematic` is now delivered by PhysX's CHARACTER CONTROLLER rather than by
+  # UsdPhysics.RigidBodyAPI(kinematicEnabled=true), and that is not a rename.
+  # A kinematic rigid body is moved to its target pose unconditionally and is
+  # never depenetrated, so it walks straight through shelving -- it cannot pass
+  # the S6 visual gate. A CCT is built on a kinematic actor (no ragdoll, no
+  # falling through floors: the property this flag was asking for) AND does
+  # collide-and-slide against static geometry. See sim/avatar.py.
   kinematic: true            # dynamic bodies ragdoll and fall through floors
+  # The CCT *is* the collision representation, so the capsule carries no
+  # UsdPhysics.CollisionAPI: CollisionAPI without a rigid body means STATIC
+  # geometry, which would sit inside the controller and fight it. Separately,
+  # what ray sensors bounce off is RENDER geometry, not colliders -- so the
+  # body must stay visible with default purpose, which is the check that
+  # actually protects the sensors.
   collision_mesh: true       # ray-based sensors need geometry to bounce off
   semantic_class: person     # or segmentation/bbox annotators return nothing
   height: 1.75
+  radius: 0.30               # capsule radius; cylinder = height - 2*radius
   eye_height: 1.65
+  # The character-controller OmniGraph node types speed as an int in units/s
+  # and this stage is 1.0 m/unit, so this rounds to 1 m/s at runtime.
   move_speed: 1.4            # m/s, roughly human walking pace
 
 robots:

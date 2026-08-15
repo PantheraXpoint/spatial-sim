@@ -55,7 +55,13 @@ sim: ## Interactive shell in the sim container
 	$(COMPOSE) run --rm --service-ports sim bash
 
 stream: ## Launch headless streaming. -v shows shader warm-up progress.
-	$(COMPOSE) run --rm --service-ports sim ./runheadless.sh -v
+	@# --enable omni.physx.cct: the avatar's controls are an OmniGraph node
+	@# from that extension, and NO shipped .kit experience enables it
+	@# (checked across /isaac-sim/apps/*.kit). Without this flag the node type
+	@# is unregistered when the stage opens, the graph loads "fine", and
+	@# pressing Play moves nothing -- with no error that names the cause.
+	$(COMPOSE) run --rm --service-ports sim ./runheadless.sh -v \
+		--enable omni.physx.cct
 
 encoder-check: ## Confirm NVENC can actually OPEN A SESSION. Run before make stream.
 	@# Not `ldconfig -p | grep libnvidia-encode` -- that passes whenever the

@@ -14,6 +14,14 @@ scenes/*.usd
 scenes/*.usda
 !scenes/.gitkeep
 
+# DERIVED: sim/avatar.py + sim/observatory_base.usd -> this, deterministically.
+# The base stage IS committed (it is the S5 artifact and cannot be regenerated
+# without a GUI session); this one can be rebuilt in a minute, so it is not.
+# Tune the avatar through config/scene.yaml, not by hand-editing this file --
+# the moment you hand-edit it, it stops being an artifact and this line is
+# wrong.
+sim/observatory_avatar.usd
+
 *.log
 .DS_Store
 .idea/
