@@ -1,0 +1,13 @@
+[sensor_factory] stage=/workspace/sim/observatory_avatar.usd mode=lidar frames=120
+[sensor_factory] results -> /out/sensor_factory_lidar.jsonl
+[sensor_factory] open_stage ok=True err=None
+[sensor_factory] subscribed to the update stream
+[sensor_factory] stage loaded after 6 frames
+[sensor_factory] registry: 11 sensors, 2 resolvable
+[sensor_factory] provisional pose [-1.7482341145302978, 6.762879371643072, 8.700001081840897] (ceiling 9.30)
+[sensor_factory] PROVISIONAL lidar for INFRA_01_LIDAR at /Root/_Provisional/INFRA_01_LIDAR, config=Example_Rotary
+[sensor_factory] draw-point-cloud writer: attached
+[sensor_factory] control lidar at /Root/_Provisional/LIDAR_CONTROL_EMPTY (z=1000 m, nothing in range)
+[sensor_factory] gmo fields: ['auxType', 'azimuthOffset', 'channelId', 'cycleCnt', 'echoId', 'elementsCoordsType', 'emitterId', 'filledAuxMembers', 'flags', 'frameEnd', 'frameId', 'frameOfReference', 'frameStart', 'hitNormals', 'idsFilledAuxMembers', 'idsVelocities', 'magicNumber', 'majorVersion', 'matId', 'materialId', 'maxAzRad', 'maxElRad', 'maxRangeM', 'maxVelMps', 'minAzRad', 'minElRad', 'minVelMps', 'minorVersion', 'modality', 'modelToAppTransform', 'motionCompensationState', 'numCols', 'numElements', 'numRows', 'numSamplesPerSgw', 'numSgws', 'objId', 'objectId', 'originX', 'originY', 'originZ', 'outputType', 'patchVersion', 'rv_ms', 'scalar', 'scanComplete', 'scanIdx', 'sensorID', 'sizeInBytes', 'tickId', 'tickStates', 'timeOffSetNs', 'timeOffsetNs', 'timestampNs', 'velocities', 'x', 'y', 'z']
+[sensor_factory] SUMMARY {"mode": "lidar", "frames": 120, "warehouse_lidar_best": {"numElements": 418235, "valid": 418235, "sentinel_hits": 0, "sentinel_and_valid": 0, "real": 418235, "range_min": 1.0000078678131104, "range_max": 39.822998046875, "world_z_min": -0.008327166878503434, "world_z_max": 9.000658387930335}, "control_lidar_best": {"numElements": 0}, "warehouse_sentinel_total": 0, "control_sentinel_total": 0, "avatar_hits_max": 0, "avatar_bbox": [[-1.9928200046017073, 5.781042082797828, -0.07445602138811297], [-1.5118305401024152, 7.744721009243099, 1.8645286154479843]]}
+[sensor_factory] DONE
