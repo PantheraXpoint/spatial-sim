@@ -176,12 +176,18 @@ def create_stations(stage: Usd.Stage) -> dict[str, list[float]]:
     """
     made: dict[str, list[float]] = {}
     for st in load_stations():
-        # stage_position is the confirmed pose in the Isaac stage; `position`
-        # is the mock's synthetic world and is only a fallback. See the note
-        # on INFRA_01 in config/scene.yaml for why they differ.
-        path = st.get("prim_path")
-        pos = st.get("stage_position") or st.get("position")
+        # `stage_position` is the confirmed pose in the Isaac stage, and its
+        # PRESENCE is what marks a station as belonging on this stage at all.
+        # `position` alone is a Layer 3 declaration for the mock's synthetic
+        # world -- INFRA_02 has one and lives 60 m away in a second building
+        # that does not exist here. Falling back to it built
+        # /World/Infrastructure/INFRA_02 out of thin air, complete with a
+        # /World root this stage does not have and two sensors staring at
+        # nothing from 56-96 m. Declared is not the same as sited.
+        path, pos = st.get("prim_path"), st.get("stage_position")
         if not path or pos is None:
+            log(f"station {st.get('id')} declared but not sited on this stage "
+                f"(no stage_position) -- skipped")
             continue
         xf = UsdGeom.Xform.Define(stage, path)
         existing = xf.GetPrim().GetAttribute("xformOp:translate")
