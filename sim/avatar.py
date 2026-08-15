@@ -7,7 +7,7 @@ Structure built (all paths under the REAL stage root ``/Root`` -- there is no
       +-- Looks/avatar_skin         UsdPreviewSurface + non-visual "skin"
       +-- body_mesh                 Capsule -- collision. PhysX moves this one.
       |     |                       INVISIBLE: it collides, it does not render.
-      |     +-- cam_first_person    eye height, looks along +X
+      |     +-- cam_first_person    eye height, looks along travel
       |     +-- cam_third_person    3 m behind, 1.6 m up, pitched down 25 deg
       +-- character                 what you SEE: the warehouse's rigged Worker,
       |     +-- rig                 referenced. Follows body_mesh via the graph.
@@ -83,9 +83,11 @@ The control wiring is NVIDIA's, from two shipped examples:
 Controls, once you press Play (defaults from
 ``omni.physxcct.scripts.utils.setup_controls``)::
 
-    W / S   forward / back   (world +X / -X -- movement is world-axis, the
-    A / D   left / right      controller does not rotate with the view)
-    E / Q   jump / down
+    W / S   forward / back   (world -X / +X -- MEASURED, not read off the
+    A / D   left / right      control code, which looks like it means +X. The
+    E / Q   jump / down       controller inverts X and not Y; see _FORWARD_X.
+                              Movement is world-axis: it does not follow the
+                              view, because the view cannot be turned.)
 
 Run::
 
@@ -297,9 +299,12 @@ def add_avatar(
     eye = float(cfg["eye_height"]) - (half + 0.05)  # local, relative to capsule centre
     # Sit the eye on the capsule's widest radius: outside the shell, so the
     # body never fills the first-person view, but never ahead of the surface
-    # that stops at a wall either.
-    _camera(stage, p["cam_fp"], Gf.Vec3d(radius, 0.0, eye), pitch=0.0, focal=18.0)
-    _camera(stage, p["cam_tp"], Gf.Vec3d(-3.0, 0.0, 1.6), pitch=25.0, focal=24.0)
+    # that stops at a wall either. Both offsets are along _FORWARD_X, so the
+    # first-person camera leads and the third-person camera trails -- get the
+    # sign wrong and the third-person view watches the avatar walk away from
+    # you while the first-person view faces the way you came.
+    _camera(stage, p["cam_fp"], Gf.Vec3d(radius * _FORWARD_X, 0.0, eye), pitch=0.0, focal=18.0)
+    _camera(stage, p["cam_tp"], Gf.Vec3d(-3.0 * _FORWARD_X, 0.0, 1.6), pitch=25.0, focal=24.0)
 
     # --- the visible body --------------------------------------------------
     if worker_asset:
@@ -318,12 +323,25 @@ def add_avatar(
     return p
 
 
-# Yaw that turns the asset to face +X, the direction W drives and the cameras
-# look. Derived from the rig, not guessed: in the Worker's own frame the ankle
-# joint sits at y=+5.46 cm and the toe joint at y=-8.92 cm, so the toes lead
-# towards -Y and the character faces -Y. Rotating +90 deg about Z sends -Y to
-# +X. (Arms spread along +/-X in the rest pose, which is consistent.)
-_CHARACTER_YAW_DEG = 90.0
+# Which way "forward" -- the direction W actually drives the avatar -- points in
+# world space. MEASURED, and it is not what the control code reads like:
+# `update_movement` builds Gf.Vec3f(forward, right, 0) and hands it to
+# set_move(), so W looks like +X. It is not. On an empty stage, commanding +X
+# for 60 frames moves the capsule -1.2000 m in X, while commanding +Y moves it
+# +1.2000 m in Y -- the X axis is inverted inside the controller and Y is not.
+# Both API routes agree exactly (set_move and an authored moveTarget produce the
+# same -1.2000), so this is the controller's convention, not one code path's
+# quirk. See sim/spikes/cct_movetarget.py.
+#
+# Everything directional hangs off this one constant, so if the avatar ever
+# moonwalks, flip it and rebuild -- nothing else needs touching.
+_FORWARD_X = -1.0
+
+# Yaw that turns the asset to face along _FORWARD_X. Derived from the rig, not
+# guessed: in the Worker's own frame the ankle joint sits at y=+5.46 cm and the
+# toe joint at y=-8.92 cm, so the toes lead towards -Y and the character faces
+# -Y. Rotating -90 deg about Z sends -Y to -X; +90 would send it to +X.
+_CHARACTER_YAW_DEG = 90.0 * _FORWARD_X
 
 # A human is between these, in metres. Used to decide whether Kit's metrics
 # assembler already resolved the asset's centimetre units for us -- see
@@ -429,7 +447,10 @@ def _add_character(
 def _camera(stage: Usd.Stage, path: str, translate: Gf.Vec3d, *, pitch: float, focal: float) -> None:
     cam = UsdGeom.Camera.Define(stage, path)
     cam.AddTranslateOp().Set(translate)
-    cam.AddRotateXYZOp().Set(Gf.Vec3f(90.0 - pitch, 0.0, -90.0))
+    # A USD camera looks down its own -Z with +Y up. rotateXYZ = (90-pitch, 0,
+    # -90*_FORWARD_X) turns that into "looks along the direction of travel,
+    # world +Z up, pitched down by `pitch`".
+    cam.AddRotateXYZOp().Set(Gf.Vec3f(90.0 - pitch, 0.0, -90.0 * _FORWARD_X))
     cam.CreateFocalLengthAttr(focal)
     # USD's default near plane is 1.0. In a warehouse that hides everything
     # within a metre of your face, which reads as "the camera is broken".
