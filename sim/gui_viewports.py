@@ -57,6 +57,13 @@ from core.observation import Modality  # noqa: E402
 
 STAGE = os.environ.get("SF_STAGE", str(REPO / "sim" / "observatory_avatar.usd"))
 VIEW_W, VIEW_H = 640, 360
+# Two panels by default: the main 3D view plus the station camera. The avatar's
+# own cameras are opt-in, because every extra viewport is another full render
+# of the scene and the demo reads fine without them.
+AVATAR_CAMS = os.environ.get("GUI_AVATAR_CAMS") == "1"
+# Collision is the frame-rate lever, not resolution: measured 2.48 -> 19.69 fps
+# from disabling unreachable colliders, and +0.8% from 1280x720 -> 960x540.
+DISABLE_HIGH_COLLIDERS = os.environ.get("GUI_KEEP_ALL_COLLIDERS") != "1"
 
 
 def log(msg: str) -> None:
@@ -156,7 +163,18 @@ class Boot:
         if self.follow_sub is None:
             log("! character follow NOT installed -- the body will not move with the capsule")
 
+        if DISABLE_HIGH_COLLIDERS:
+            sf.disable_unreachable_colliders(stage)
+        else:
+            log("collider mask SKIPPED (GUI_KEEP_ALL_COLLIDERS=1) -- expect ~2.5 fps at Play")
+
         cams = {sid: rec["prim_path"] for sid, rec in created.items() if rec["kind"] == "camera"}
+        if not AVATAR_CAMS:
+            dropped = [s for s in cams if s.startswith("AVATAR_")]
+            cams = {k: v for k, v in cams.items() if not k.startswith("AVATAR_")}
+            if dropped:
+                log(f"avatar camera panels off ({', '.join(dropped)}); "
+                    f"set GUI_AVATAR_CAMS=1 to show them")
         made = build_viewports(stage, registry, cams)
 
         log("=" * 68)

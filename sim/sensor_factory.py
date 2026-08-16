@@ -65,7 +65,7 @@ import omni.usd
 import yaml
 from isaacsim.core.experimental.materials import PreviewSurfaceMaterial
 from isaacsim.core.experimental.utils.app import enable_extension
-from pxr import Gf, Usd, UsdGeom, UsdShade
+from pxr import Gf, Usd, UsdGeom, UsdPhysics, UsdShade
 
 REPO = Path(__file__).resolve().parent.parent
 if str(REPO) not in sys.path:
@@ -176,6 +176,77 @@ def audit_registry(stage: Usd.Stage, registry: SensorRegistry) -> dict:
             for s in missing
         ],
     }
+
+
+COLLIDER_MASK = REPO / "sim" / "collider_mask.json"
+
+
+def disable_unreachable_colliders(stage: Usd.Stage, reach_m: float = 2.2) -> dict:
+    """Turn off collision on geometry the avatar can never touch.
+
+    THE frame-rate lever, and it is not marginal. Measured at Play on the full
+    warehouse, load average 13.9 throughout:
+
+        baseline                       2.48 fps
+        1,486 colliders above 2.2 m off  19.69 fps   (+694%)
+        ...and then at 960x540           19.85 fps   (+0.8%)
+
+    So the cost was PhysX carrying 3,469 exact triangle-mesh colliders, and
+    resolution is irrelevant next to it. Collision only: these prims keep their
+    render geometry, and cameras and lidar trace the render BVH rather than
+    colliders, so nothing about the picture changes.
+
+    The selection is CACHED to sim/collider_mask.json by prim path. Finding it
+    means a world-bbox computation over 3,469 prims, which took about fifteen
+    minutes on a loaded box; applying a known list of paths takes under a
+    second. The warehouse is static, so the list only goes stale if the base
+    stage changes -- delete the file to regenerate.
+    """
+    import json as _json
+
+    paths: list[str] | None = None
+    if COLLIDER_MASK.exists():
+        try:
+            cached = _json.loads(COLLIDER_MASK.read_text())
+            if abs(float(cached.get("reach_m", -1)) - reach_m) < 1e-9:
+                paths = cached.get("paths")
+        except Exception as exc:
+            log(f"  ! unreadable collider mask, recomputing: {exc!r}")
+
+    if paths is None:
+        log(f"  computing collider mask (no cache) -- a bbox pass over the warehouse, minutes")
+        cache = UsdGeom.BBoxCache(Usd.TimeCode.Default(), [UsdGeom.Tokens.default_])
+        paths = []
+        for prim in stage.Traverse():
+            if not prim.HasAPI(UsdPhysics.CollisionAPI):
+                continue
+            if not prim.GetPath().pathString.startswith("/Root/Warehouse"):
+                continue
+            if UsdPhysics.CollisionAPI(prim).GetCollisionEnabledAttr().Get() is False:
+                continue
+            try:
+                rng = cache.ComputeWorldBound(prim).ComputeAlignedRange()
+                if rng.IsEmpty() or float(rng.GetMin()[2]) <= reach_m:
+                    continue
+            except Exception:
+                continue
+            paths.append(prim.GetPath().pathString)
+        try:
+            COLLIDER_MASK.write_text(_json.dumps(
+                {"reach_m": reach_m, "note": "colliders entirely above reach_m; "
+                 "regenerate by deleting this file", "paths": paths}, indent=1))
+            log(f"  cached {len(paths)} paths -> {COLLIDER_MASK}")
+        except Exception as exc:
+            log(f"  ! could not cache the mask: {exc!r}")
+
+    n = 0
+    for path in paths:
+        prim = stage.GetPrimAtPath(path)
+        if prim.IsValid() and prim.HasAPI(UsdPhysics.CollisionAPI):
+            UsdPhysics.CollisionAPI(prim).CreateCollisionEnabledAttr().Set(False)
+            n += 1
+    log(f"  collision disabled on {n} prims entirely above {reach_m} m")
+    return {"disabled": n, "reach_m": reach_m, "cached": COLLIDER_MASK.exists()}
 
 
 def create_stations(stage: Usd.Stage) -> dict[str, list[float]]:

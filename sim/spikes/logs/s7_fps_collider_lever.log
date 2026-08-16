@@ -1,0 +1,18 @@
+[fps] open_stage /workspace/sim/observatory_avatar.usd -> True
+[fps] viewport (1280, 720)
+[fps] load average at start: ['13.01', '13.01', '13.53']
+[fps] phase A: baseline
+[fps] capture -> /out/fps_A_baseline.png
+[fps] disabled 1486 colliders entirely above 2.2 m
+[fps] phase B: colliders off
+[fps] viewport resolution -> (960, 540)
+[fps] phase C: low resolution
+[fps] capture -> /out/fps_C_final.png
+[fps] ========================================================================
+[fps]   A baseline                     2.48 fps
+[fps]   B colliders>2.2m disabled (1486)   19.69 fps
+[fps]   C B + viewport (960, 540)       19.85 fps
+[fps]   => collider lever: +694.0%
+[fps]   => resolution lever: +0.8%
+[fps]   load average at end: ['13.87', '13.89', '13.95']
+[fps] DONE
