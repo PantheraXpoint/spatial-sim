@@ -1,0 +1,74 @@
+{
+ "assets": {
+  "root": "https://omniverse-content-production.s3-us-west-2.amazonaws.com/Assets/Isaac/6.0",
+  "resolved": {
+   "BOT_01": "https://omniverse-content-production.s3-us-west-2.amazonaws.com/Assets/Isaac/6.0/Isaac/Robots/Turtlebot/Turtlebot3/turtlebot3_burger.usd",
+   "BOT_02": "https://omniverse-content-production.s3-us-west-2.amazonaws.com/Assets/Isaac/6.0/Isaac/Robots/Unitree/Go2/go2.usd"
+  },
+  "missing": [
+   {
+    "id": "BOT_03",
+    "reason": "asset is null in scene.yaml"
+   }
+  ],
+  "listing": [
+   {
+    "Isaac/Robots/Unitree/H1": [
+     ".thumbs",
+     "h1.usd",
+     "payloads"
+    ]
+   }
+  ],
+  "h1_candidates": [
+   "https://omniverse-content-production.s3-us-west-2.amazonaws.com/Assets/Isaac/6.0/Isaac/Robots/Unitree/H1/h1.usd"
+  ]
+ },
+ "placed": {
+  "BOT_01": {
+   "prim_path": "/Root/Robots/BOT_01",
+   "asset": "https://omniverse-content-production.s3-us-west-2.amazonaws.com/Assets/Isaac/6.0/Isaac/Robots/Turtlebot/Turtlebot3/turtlebot3_burger.usd",
+   "position": [
+    0.848,
+    6.763,
+    0.0
+   ],
+   "rigid_bodies": 6,
+   "articulations": 1,
+   "height_before": 0.1911,
+   "height_after": 0.1911,
+   "upright": true,
+   "camera": {
+    "prim_path": "/Root/Robots/BOT_01/cam",
+    "height_m": 0.2,
+    "rgb_px": 1227539,
+    "person_px": 16036
+   }
+  },
+  "BOT_02": {
+   "prim_path": "/Root/Robots/BOT_02",
+   "asset": "https://omniverse-content-production.s3-us-west-2.amazonaws.com/Assets/Isaac/6.0/Isaac/Robots/Unitree/Go2/go2.usd",
+   "position": [
+    -4.004,
+    8.063,
+    0.0
+   ],
+   "rigid_bodies": 0,
+   "articulations": 0,
+   "height_before": 0.5377,
+   "height_after": 0.4791,
+   "upright": true,
+   "camera": {
+    "prim_path": "/Root/Robots/BOT_02/cam",
+    "height_m": 0.4,
+    "rgb_px": 1228800,
+    "person_px": 15267
+   }
+  }
+ },
+ "avatar_target": [
+  -1.7523252723520613,
+  6.762881546020464,
+  0.8950362970299357
+ ]
+}

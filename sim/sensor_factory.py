@@ -333,7 +333,7 @@ def create_station_marker(stage: Usd.Stage, station_path: str, look_at: Gf.Vec3d
     material = UsdShade.Material(stage.GetPrimAtPath(f"{station_path}/marker/Looks/beacon"))
     for path in (f"{station_path}/marker/head", f"{station_path}/marker/aim"):
         UsdShade.MaterialBindingAPI.Apply(stage.GetPrimAtPath(path)).Bind(material)
-    log(f"station marker at {station_path}/marker (emissive, behind the camera)")
+    log(f"station marker at {station_path}/marker (emissive, above the station)")
     return marker
 
 

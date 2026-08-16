@@ -1,0 +1,30 @@
+[robots] open_stage /workspace/sim/observatory_avatar.usd -> True
+[robots] asset root https://omniverse-content-production.s3-us-west-2.amazonaws.com/Assets/Isaac/6.0
+[robots] resolved {'BOT_01': 'https://omniverse-content-production.s3-us-west-2.amazonaws.com/Assets/Isaac/6.0/Isaac/Robots/Turtlebot/Turtlebot3/turtlebot3_burger.usd', 'BOT_02': 'https://omniverse-content-production.s3-us-west-2.amazonaws.com/Assets/Isaac/6.0/Isaac/Robots/Unitree/Go2/go2.usd'}
+[robots] missing  [{'id': 'BOT_03', 'reason': 'asset is null in scene.yaml'}]
+[robots] listing  {"Isaac/Robots/Unitree/H1": [".thumbs", "h1.usd", "payloads"]}
+[robots]   701 low obstacles considered
+[robots]   clear at r=2.6   0 deg -> (0.848, 6.763)  2.60 m from the avatar
+[robots]   clear at r=2.6 150 deg -> (-4.004, 8.063)  2.60 m from the avatar
+[robots]   BOT_01: 6 rigid bodies -> kinematic, 1 articulation roots disabled
+[robots]   BOT_02: 0 rigid bodies -> kinematic, 0 articulation roots disabled
+[robots] placed ['BOT_01', 'BOT_02']
+[robots]   camera INFRA_01_CAM (station, for the label-strip measurement)
+[robots]   camera BOT_01 at 0.2 m -> /Root/Robots/BOT_01/cam
+[robots]   camera BOT_02 at 0.4 m -> /Root/Robots/BOT_02/cam
+[robots]   BOT_01 height before Play: 0.1911 m
+[robots]   BOT_02 height before Play: 0.5377 m
+[robots] play()
+[robots] ========================================================================
+[robots]   BOT_01   height 0.1911 -> 0.1911 m   UPRIGHT
+[robots]       -> avatar head  elevation +30.80 deg at 2.60 m
+[robots]       -> avatar torso elevation +16.09 deg at 2.60 m
+[robots]       -> avatar feet  elevation  -3.30 deg at 2.60 m
+[robots]   BOT_02   height 0.5377 -> 0.4791 m   UPRIGHT
+[robots]       -> avatar head  elevation +27.44 deg at 2.60 m
+[robots]       -> avatar torso elevation +11.94 deg at 2.60 m
+[robots]       -> avatar feet  elevation  -7.67 deg at 2.60 m
+[robots]   INFRA_01_CAM camera at 2.6 m: rgb 3,684,246 px, person 10,315 px
+[robots]   BOT_01   camera at 0.2 m: rgb 1,227,539 px, person 16,036 px
+[robots]   BOT_02   camera at 0.4 m: rgb 1,228,800 px, person 15,267 px
+[robots] DONE

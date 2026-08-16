@@ -87,11 +87,15 @@ sensors:
   # RGB-D only. Modality contrast lives in the infrastructure stations; the
   # robots contrast HEIGHT and VIEWPOINT. Ceiling sees your top, the Go2 sees
   # your legs, the humanoid sees your face.
+  # BOT_01/BOT_02 paths CONFIRMED: sim/spikes/_place_robots.py authors these
+  # prims from config/scene.yaml stage_position, and both cameras were measured
+  # capturing the avatar (16,036 and 15,267 'person' px). BOT_03 stays a
+  # placeholder until its asset is chosen.
   - id: BOT_01_CAM
     modality: rgbd
     mount: robot
-    parent: /World/Robots/BOT_01
-    prim_path: /World/Robots/BOT_01/cam
+    parent: /Root/Robots/BOT_01
+    prim_path: /Root/Robots/BOT_01/cam
     resolution: [640, 480]
     annotators: [rgb, distance_to_camera]
     notes: "TurtleBot3 Burger, ~0.2 m. Ground level."
@@ -99,8 +103,8 @@ sensors:
   - id: BOT_02_CAM
     modality: rgbd
     mount: robot
-    parent: /World/Robots/BOT_02
-    prim_path: /World/Robots/BOT_02/cam
+    parent: /Root/Robots/BOT_02
+    prim_path: /Root/Robots/BOT_02/cam
     resolution: [640, 480]
     annotators: [rgb, distance_to_camera]
     notes: "Unitree Go2, ~0.4 m. Static -- legged robots collapse on spawn

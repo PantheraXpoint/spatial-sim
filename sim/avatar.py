@@ -432,8 +432,34 @@ def _add_character(
     # the 6.x annotators resolve INHERITED labels is not something to find out
     # by getting an empty segmentation buffer in S10.
     add_labels(char.GetPrim(), labels=label, taxonomy="class")
+    stripped = 0
     for m in meshes:
         add_labels(m, labels=label, taxonomy="class")
+        # Strip the OLD-schema per-part labels the asset carries. The Worker
+        # ships SemanticsAPI:Semantics_* on every mesh -- fieldjacket, basebody,
+        # baseballcap, cargopant, basketballshoes -- and the annotator resolves
+        # ONE class per prim from the two schemas present. The result was the
+        # avatar coming back as 2,351 'person' pixels with the rest of the body
+        # attributed to its clothing. Removing them leaves a single answer per
+        # prim, so the whole silhouette reads as one person.
+        #
+        # Removed only on the AVATAR's copy: these are overrides under
+        # /Root/Avatar/character, so the warehouse's own Worker keeps its
+        # per-part labels and S10 still has them to look at.
+        for schema in list(m.GetAppliedSchemas()):
+            if schema.startswith("SemanticsAPI:"):
+                try:
+                    m.RemoveAppliedSchema(schema)
+                    stripped += 1
+                except Exception:
+                    inst = schema.split(":", 1)[-1]
+                    for suffix in ("semanticType", "semanticData"):
+                        a = m.GetAttribute(f"semantic:{inst}:params:{suffix}")
+                        if a:
+                            a.Set("")
+                            stripped += 1
+    print(f"  stripped {stripped} inherited per-part semantic schemas from the character",
+          flush=True)
 
     UsdGeom.Imageable(char).CreatePurposeAttr(UsdGeom.Tokens.default_)
     UsdGeom.Imageable(char).CreateVisibilityAttr(UsdGeom.Tokens.inherited)
