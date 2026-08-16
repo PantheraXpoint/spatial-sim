@@ -1,0 +1,20 @@
+[legibility] open_stage /workspace/sim/observatory_avatar.usd -> True
+[legibility] stage root /Root
+[legibility]   extension omni.debugdraw               enabled=True
+[legibility]   extension isaacsim.util.debug_draw     enabled=True
+[legibility]   extension omni.physx.cct               enabled=True
+[legibility] stations ['/Root/Infrastructure/INFRA_01']
+[sensor_factory] station marker at /Root/Infrastructure/INFRA_01/marker (emissive, behind the camera)
+[legibility]   INFRA_01_CAM -> /Root/Infrastructure/INFRA_01/cam_01 (camera)
+[legibility]   INFRA_01_LIDAR -> /Root/Infrastructure/INFRA_01/lidar_01 (lidar) draw=attached
+[legibility]   AVATAR_CAM_FP -> /Root/Avatar/body_mesh/cam_first_person (camera)
+[legibility]   AVATAR_CAM_TP -> /Root/Avatar/body_mesh/cam_third_person (camera)
+[legibility] point size=0.06 colour=[0.1, 1.0, 0.2, 1.0]
+[legibility] main viewport -> /Root/_Diag/overview_cam, resolution (1280, 720)
+[legibility] play()
+[legibility] capture requested -> /out/legibility_overview.png
+[legibility] ========================================================================
+[legibility] lidar points 290381   on the avatar 1424
+[legibility] point size 0.06  colour [0.1, 1.0, 0.2, 1.0]
+[legibility] captured /out/legibility_overview.png
+[legibility] DONE

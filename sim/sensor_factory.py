@@ -63,8 +63,9 @@ import omni.replicator.core as rep
 import omni.timeline
 import omni.usd
 import yaml
+from isaacsim.core.experimental.materials import PreviewSurfaceMaterial
 from isaacsim.core.experimental.utils.app import enable_extension
-from pxr import Gf, Usd, UsdGeom
+from pxr import Gf, Usd, UsdGeom, UsdShade
 
 REPO = Path(__file__).resolve().parent.parent
 if str(REPO) not in sys.path:
@@ -82,6 +83,12 @@ OUT_DIR = Path(os.environ.get("SF_OUT", "/isaac-sim/.nvidia-omniverse/logs"))
 # Halving it quarters the pixels, and a framing check or a point count reads
 # the same at 640x360.
 RES_SCALE = float(os.environ.get("SF_RES_SCALE", "1.0"))
+# Lidar debug-draw appearance. The defaults are the writer's own, and they are
+# ~1 cm dark points, which is why 419,000 of them were invisible against a grey
+# floor and orange racks. attach_writer forwards these to writer.initialize().
+LIDAR_PT_SIZE = float(os.environ.get("SF_LIDAR_PT_SIZE", "0.06"))
+LIDAR_PT_COLOR = [float(v) for v in
+                  os.environ.get("SF_LIDAR_PT_COLOR", "0.1,1.0,0.2,1.0").split(",")]
 
 ROOT = "/Root"
 PROVISIONAL = f"{ROOT}/_Provisional"
@@ -201,6 +208,64 @@ def create_stations(stage: Usd.Stage) -> dict[str, list[float]]:
     return made
 
 
+def create_station_marker(stage: Usd.Stage, station_path: str, look_at: Gf.Vec3d):
+    """A small emissive beacon so a human can SEE where a station is.
+
+    The camera panel was "a view from nowhere I can point at" because the
+    station is an Xform -- zero geometry, invisible in the viewport. This puts a
+    glowing sphere and a short cone at it: obviously an instrument, obviously
+    not warehouse furniture.
+
+    Built from UsdGeom primitives rather than a referenced prop because Isaac
+    ships no marker asset -- searched exts/ and extscache/ for
+    marker|beacon|arrow|axis|frustum and found only schema and test files.
+
+    Placed directly ABOVE the station, not behind it. Behind was the first
+    attempt and it is wrong twice over: the lidar sweeps a full 360 degrees in
+    azimuth, so a beacon 0.28 m away carves a blind wedge out of it, and
+    anything inside nearRangeM (1.0 m) is discarded as a return while still
+    occluding whatever is behind it. Straight up is outside the sensor's
+    elevation band (-15..+10 deg) entirely, so it cannot occlude, and it is
+    out of the camera's frame because the camera is pitched down at the floor.
+    """
+    station = stage.GetPrimAtPath(station_path)
+    if not station.IsValid():
+        return None
+    pos = UsdGeom.XformCache().GetLocalToWorldTransform(station).ExtractTranslation()
+    d = Gf.Vec3d(look_at[0] - pos[0], look_at[1] - pos[1], look_at[2] - pos[2])
+    n = d.GetLength() or 1.0
+    back = Gf.Vec3d(-d[0] / n, -d[1] / n, -d[2] / n)
+
+    marker = UsdGeom.Xform.Define(stage, f"{station_path}/marker")
+    marker.AddTranslateOp().Set(Gf.Vec3d(0.0, 0.0, 0.38))
+
+    head = UsdGeom.Sphere.Define(stage, f"{station_path}/marker/head")
+    head.CreateRadiusAttr(0.09)
+    head.CreateExtentAttr([(-0.09, -0.09, -0.09), (0.09, 0.09, 0.09)])
+
+    stalk = UsdGeom.Cone.Define(stage, f"{station_path}/marker/aim")
+    stalk.CreateRadiusAttr(0.05)
+    stalk.CreateHeightAttr(0.22)
+    stalk.CreateAxisAttr(UsdGeom.Tokens.z)
+    stalk.CreateExtentAttr([(-0.05, -0.05, -0.11), (0.05, 0.05, 0.11)])
+    # Point the cone along the view direction: rotate +Z onto it.
+    pitch = math.degrees(math.asin(max(-1.0, min(1.0, -back[2]))))
+    yaw = math.degrees(math.atan2(-back[1], -back[0]))
+    stalk.AddTranslateOp().Set(Gf.Vec3d(0.0, 0.0, 0.0))
+    stalk.AddRotateXYZOp().Set(Gf.Vec3f(0.0, 90.0 - pitch, yaw))
+
+    looks = UsdGeom.Scope.Define(stage, f"{station_path}/marker/Looks")  # noqa: F841
+    mat = PreviewSurfaceMaterial(f"{station_path}/marker/Looks/beacon")
+    mat.set_input_values("diffuseColor", [0.0, 0.9, 1.0])
+    mat.set_input_values("emissiveColor", [0.0, 1.2, 1.6])
+    mat.set_input_values("roughness", [0.4])
+    material = UsdShade.Material(stage.GetPrimAtPath(f"{station_path}/marker/Looks/beacon"))
+    for path in (f"{station_path}/marker/head", f"{station_path}/marker/aim"):
+        UsdShade.MaterialBindingAPI.Apply(stage.GetPrimAtPath(path)).Bind(material)
+    log(f"station marker at {station_path}/marker (emissive, behind the camera)")
+    return marker
+
+
 def look_at_rotate_xyz(eye: Gf.Vec3d, target: Gf.Vec3d) -> Gf.Vec3f:
     """rotateXYZ that aims a USD camera from `eye` at `target`, +Z up.
 
@@ -259,6 +324,7 @@ def create_camera(
 def create_registry_sensors(
     stage: Usd.Stage, registry: SensorRegistry, *, modalities=None,
     attach_annotators: bool = True, render_products: bool = True,
+    markers: bool = True,
 ) -> dict[str, dict]:
     """Instantiate every registry sensor whose parent Xform exists.
 
@@ -266,6 +332,10 @@ def create_registry_sensors(
     skipped -- never guessed into existence.
     """
     target = avatar_target(stage)
+    if markers:
+        for st in load_stations():
+            if st.get("prim_path") and st.get("stage_position"):
+                create_station_marker(stage, st["prim_path"], target)
     made: dict[str, dict] = {}
     for spec in registry:
         if modalities and spec.modality not in modalities:
@@ -288,8 +358,17 @@ def create_registry_sensors(
             draw = "attached"
             try:
                 # 6.x debug draw. NOT the RtxLidarDebugDrawPointCloudBuffer
-                # replicator writer that 5.x examples reach for.
+                # replicator writer that 5.x examples reach for. size/color are
+                # forwarded to writer.initialize(): the defaults draw small dark
+                # points, which is how 419,000 returns managed to be invisible
+                # against a grey floor.
+                sensor.attach_writer(
+                    "draw-point-cloud", size=LIDAR_PT_SIZE, color=LIDAR_PT_COLOR
+                )
+            except TypeError:
+                # Older writer signature: fall back rather than lose the draw.
                 sensor.attach_writer("draw-point-cloud")
+                draw = "attached (no size/color support)"
             except Exception as exc:
                 draw = f"failed: {exc!r}"
             log(f"{spec.sensor_id} -> {spec.prim_path} (lidar {spec.config}, draw {draw})")
