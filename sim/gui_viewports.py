@@ -36,11 +36,22 @@ from pathlib import Path
 import omni.kit.app
 import omni.usd
 
-REPO = Path(__file__).resolve().parent.parent
-if str(REPO) not in sys.path:
-    sys.path.insert(0, str(REPO))
+HERE = Path(__file__).resolve().parent
+REPO = HERE.parent
+# Kit's --exec runs this file under Kit's OWN sys.path, which contains neither
+# the repo root nor this directory. sensor_factory.py already inserts the repo
+# root so that `core` imports work; the sibling import needs this directory as
+# well, or the script dies at line one and the GUI comes up on Kit's default
+# World/Environment stage with no sensors and no explanation.
+for _p in (str(REPO), str(HERE)):
+    if _p not in sys.path:
+        sys.path.insert(0, _p)
 
-import sensor_factory as sf  # noqa: E402  -- same directory, exec mode
+# Importing sensor_factory must NOT run its capture: that would sample 120
+# frames and post_quit() this session. See sensor_factory._is_exec_entrypoint.
+os.environ["SF_NO_AUTORUN"] = "1"
+
+import sensor_factory as sf  # noqa: E402  -- sibling module, see sys.path above
 from core.observation import Modality  # noqa: E402
 
 STAGE = os.environ.get("SF_STAGE", str(REPO / "sim" / "observatory_avatar.usd"))
@@ -106,6 +117,15 @@ class Boot:
 
     def setup(self) -> None:
         stage = self.ctx.get_stage()
+        # Report the stage root explicitly. If the script had died on import,
+        # Kit would sit on its default World/Environment stage and look
+        # superficially fine -- this line is how you tell the two apart.
+        default_prim = stage.GetDefaultPrim()
+        root = default_prim.GetPath().pathString if default_prim else "<none>"
+        log(f"stage root: {root}   ({len(list(stage.Traverse()))} prims)")
+        if root != "/Root":
+            log(f"! expected /Root -- this is not the observatory stage")
+
         registry = sf.load_registry()
 
         # Stations first, or nothing under them resolves.

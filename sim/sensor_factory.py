@@ -598,4 +598,19 @@ def main() -> None:
     log("subscribed to the update stream")
 
 
-main()
+def _is_exec_entrypoint() -> bool:
+    """True when Kit --exec'd THIS file; false when another module imports it.
+
+    Deliberately not ``__name__ == "__main__"``. Kit's ``--exec`` does not
+    reliably set that, and both ways of getting it wrong are silent and bad:
+    too strict and the capture runs zero frames while looking fine, too loose
+    and merely *importing* this module opens a stage, samples 120 frames and
+    then post_quit()s -- which, from sim/gui_viewports.py, would close the GUI
+    out from under whoever is connected. So the importer says so explicitly
+    and the exec path keeps the behaviour it already has, unchanged.
+    """
+    return os.environ.get("SF_NO_AUTORUN") != "1"
+
+
+if _is_exec_entrypoint():
+    main()
