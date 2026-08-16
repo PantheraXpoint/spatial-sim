@@ -17,10 +17,11 @@ What it checks, and why each one is here (each fails silently in the sim):
                 geometry, not colliders. NVIDIA's own character-controller demo
                 ships a purpose="guide" capsule, which looks fine in the stage
                 tree and is invisible to every sensor in the project.
-    follow      the character is a sibling of the capsule (USD visibility is
-                pruning, so it cannot be a child of a hidden prim), so the graph
-                has to carry it. If that wiring breaks, the body stands still
-                while the capsule walks off with the cameras, in silence.
+    follow      AT PLAY, not on paper: the stage is played, the capsule is
+                moved, and the character's transform must move with it. The
+                structural version of this check passed while the follow copied
+                a constant for 120 frames -- OmniGraph reads Fabric, the
+                character controller writes USD. Structure is not behaviour.
     physics     a collision representation exists, and it is kinematic rather
                 than dynamic -- accepting either the character controller or a
                 literal kinematic rigid body, and rejecting a dynamic one
@@ -56,6 +57,7 @@ from isaacsim import SimulationApp  # noqa: I001  -- must be first (hard rule 3)
 _APP = SimulationApp({"headless": True})
 
 import carb  # noqa: E402
+import omni.timeline  # noqa: E402
 import omni.usd  # noqa: E402
 import yaml  # noqa: E402
 from pathlib import Path  # noqa: E402
@@ -312,36 +314,9 @@ def verify(stage: Usd.Stage, cfg: dict) -> Checks:
             f"setupControls={setup_v!r}",
         )
 
-    # The character is a sibling of the capsule, so it only moves because the
-    # graph copies the capsule's translate onto it. If that wiring is wrong the
-    # avatar's body stands still in the warehouse while the collision capsule
-    # walks off with the cameras -- and nothing errors.
-    def _node_with(attr_name: str, value: str):
-        for prim in Usd.PrimRange(stage.GetPrimAtPath(avatar_path)):
-            a = prim.GetAttribute(attr_name)
-            if a and str(a.Get()) == value:
-                yield prim
-
-    readers = [n for n in _node_with("inputs:primPath", body_path)
-               if str(n.GetAttribute("node:type").Get()) == "omni.graph.nodes.ReadPrimAttribute"]
-    writers = [n for n in _node_with("inputs:primPath", char_path)
-               if str(n.GetAttribute("node:type").Get()) == "omni.graph.nodes.WritePrimAttribute"]
-    c.check(len(readers) == 1, "graph reads the capsule's transform", f"found {len(readers)}")
-    c.check(len(writers) == 1, "graph writes the visible body's transform", f"found {len(writers)}")
-    if readers and writers:
-        r_name = readers[0].GetAttribute("inputs:name")
-        w_name = writers[0].GetAttribute("inputs:name")
-        c.check(
-            str(r_name.Get()) == "xformOp:translate" and str(w_name.Get()) == "xformOp:translate",
-            "the follow copies xformOp:translate",
-            f"read {r_name.Get()!r} -> write {w_name.Get()!r}",
-        )
-        conns = writers[0].GetAttribute("inputs:value").GetConnections()
-        c.check(
-            any(str(x).startswith(readers[0].GetPath().pathString) for x in conns),
-            "the follow's value input is actually connected to the reader",
-            f"connections={[str(x) for x in conns]}",
-        )
+    # The follow used to be checked here, structurally: reader present, writer
+    # present, connected, right paths. All four passed for a graph that copied
+    # a constant. Behaviour is asserted at Play instead -- see verify_at_play.
 
     # --- non-visual material ----------------------------------------------
     prefix = carb.settings.get_settings().get("/rtx/materialDb/nonVisualMaterialSemantics/prefix")
@@ -356,6 +331,79 @@ def verify(stage: Usd.Stage, cfg: dict) -> Checks:
     )
 
     return c
+
+
+def verify_at_play(stage: Usd.Stage, cfg: dict, c: Checks) -> None:
+    """Press Play, move the capsule, and assert the visible body went with it.
+
+    THE CHECK THAT WAS MISSING. Every graph check in this file is structural,
+    and structure is exactly what passed while nothing worked: the follow was
+    correctly wired, ticked 176 times, read 130 times, wrote 130 times, and
+    copied a byte-identical constant for 120 frames while the capsule moved
+    2.58 m. Three scripts were declared ready on structure alone. Structure is
+    not behaviour, so this one runs the thing.
+
+    Set VA_SKIP_PLAY=1 to skip -- only for a machine with no GPU to spare.
+    """
+    import sys as _sys
+
+    _sys.path.insert(0, str(REPO / "sim"))
+    import avatar as av  # noqa: E402
+    from isaacsim.core.experimental.utils.app import enable_extension  # noqa: E402
+
+    avatar_path = cfg["prim_path"]
+    body = stage.GetPrimAtPath(f"{avatar_path}/body_mesh")
+    char = stage.GetPrimAtPath(f"{avatar_path}/character")
+    if not body.IsValid() or not char.IsValid():
+        c.check(False, "play-time follow", "avatar or character missing")
+        return
+
+    sub = av.install_character_follow(stage, avatar_path)
+    if not c.check(sub is not None, "character follow installs", "sim.avatar.install_character_follow"):
+        return
+
+    enable_extension("omni.physx.cct")
+    from omni.physxcct.scripts import utils as cct_utils  # noqa: E402
+    from omni.physxcct.scripts.ifaces import get_physx_cct_interface  # noqa: E402
+
+    cct = cct_utils.CharacterController(f"{avatar_path}/body_mesh", None, True, 0.01)
+    cct.activate(stage)
+    iface = get_physx_cct_interface()
+
+    cache = UsdGeom.XformCache()
+
+    def world(prim):
+        cache.Clear()
+        t = cache.GetLocalToWorldTransform(prim).ExtractTranslation()
+        return (float(t[0]), float(t[1]), float(t[2]))
+
+    omni.timeline.get_timeline_interface().play()
+    for _ in range(20):
+        _APP.update()
+
+    b0, ch0 = world(body), world(char)
+    home = b0
+    # set_position, not set_move: set_move is consumed by a pre-physics stage
+    # update node and does nothing when called from here -- measured.
+    for i in range(1, 61):
+        iface.set_position(f"{avatar_path}/body_mesh", (home[0] + i * 0.02, home[1], home[2]))
+        _APP.update()
+    b1, ch1 = world(body), world(char)
+
+    moved_body = ((b1[0] - b0[0]) ** 2 + (b1[1] - b0[1]) ** 2) ** 0.5
+    moved_char = ((ch1[0] - ch0[0]) ** 2 + (ch1[1] - ch0[1]) ** 2) ** 0.5
+    gap = ((b1[0] - ch1[0]) ** 2 + (b1[1] - ch1[1]) ** 2) ** 0.5
+
+    c.check(moved_body > 0.5, "the capsule actually moved at Play",
+            f"{moved_body:.3f} m (if this fails the test proves nothing)")
+    c.check(moved_char > 0.5, "THE VISIBLE BODY FOLLOWED IT",
+            f"capsule {moved_body:.3f} m, character {moved_char:.3f} m")
+    c.check(gap < 0.25, "character stayed co-located with the capsule",
+            f"horizontal gap after moving: {gap:.3f} m")
+
+    omni.timeline.get_timeline_interface().stop()
+    for _ in range(5):
+        _APP.update()
 
 
 def main() -> int:
@@ -384,6 +432,8 @@ def main() -> int:
     print(f"up axis    : {UsdGeom.GetStageUpAxis(stage)}   m/unit: {UsdGeom.GetStageMetersPerUnit(stage)}", flush=True)
 
     checks = verify(stage, cfg)
+    if os.environ.get("VA_SKIP_PLAY") != "1":
+        verify_at_play(stage, cfg, checks)
     checks.report()
     _advise_launch_flag()
     return 1 if checks.failed else 0

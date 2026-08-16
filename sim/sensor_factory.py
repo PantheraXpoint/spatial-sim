@@ -77,6 +77,11 @@ STAGE = os.environ.get("SF_STAGE", str(REPO / "sim" / "observatory_avatar.usd"))
 MODE = os.environ.get("SF_MODE", "camera")
 FRAMES = int(os.environ.get("SF_FRAMES", "120"))
 OUT_DIR = Path(os.environ.get("SF_OUT", "/isaac-sim/.nvidia-omniverse/logs"))
+# Scales every render product. The registry's resolution is the contract for
+# what a sensor DELIVERS; it is not a statement about what a smoke test needs.
+# Halving it quarters the pixels, and a framing check or a point count reads
+# the same at 640x360.
+RES_SCALE = float(os.environ.get("SF_RES_SCALE", "1.0"))
 
 ROOT = "/Root"
 PROVISIONAL = f"{ROOT}/_Provisional"
@@ -221,7 +226,10 @@ def avatar_target(stage: Usd.Stage) -> Gf.Vec3d:
     return Gf.Vec3d(0.0, 0.0, 0.9)
 
 
-def create_camera(stage: Usd.Stage, path: str, *, resolution, look_at: Gf.Vec3d | None):
+def create_camera(
+    stage: Usd.Stage, path: str, *, resolution, look_at: Gf.Vec3d | None,
+    render_product: bool = True,
+):
     """A camera at its registry path, aimed at `look_at`, plus its render product.
 
     No translate op is authored: the camera hangs off its station Xform, which
@@ -236,11 +244,21 @@ def create_camera(stage: Usd.Stage, path: str, *, resolution, look_at: Gf.Vec3d 
         (prim.GetAttribute("xformOp:rotateXYZ") or cam.AddRotateXYZOp()).Set(rot)
     cam.CreateClippingRangeAttr(Gf.Vec2f(0.05, 1_000_000.0))
     cam.CreateFocalLengthAttr(18.0)
-    return cam, rep.create.render_product(path, resolution=tuple(resolution))
+    if not render_product:
+        # In a GUI session the VIEWPORT is the render product. Creating one
+        # here as well renders every camera twice -- once into a 1280x720
+        # Replicator target nothing reads, once into the panel you are looking
+        # at. Three cameras plus the lidar at 3-4 FPS was mostly this.
+        return cam, None
+    w, h = (max(16, int(v * RES_SCALE)) for v in resolution)
+    if RES_SCALE != 1.0:
+        log(f"  render product {w}x{h} (SF_RES_SCALE={RES_SCALE})")
+    return cam, rep.create.render_product(path, resolution=(w, h))
 
 
 def create_registry_sensors(
-    stage: Usd.Stage, registry: SensorRegistry, *, modalities=None, attach_annotators: bool = True
+    stage: Usd.Stage, registry: SensorRegistry, *, modalities=None,
+    attach_annotators: bool = True, render_products: bool = True,
 ) -> dict[str, dict]:
     """Instantiate every registry sensor whose parent Xform exists.
 
@@ -282,10 +300,11 @@ def create_registry_sensors(
             continue
 
         _, rp = create_camera(
-            stage, spec.prim_path, resolution=spec.resolution or (1280, 720), look_at=target
+            stage, spec.prim_path, resolution=spec.resolution or (1280, 720),
+            look_at=target, render_product=render_products,
         )
         anns = {}
-        if attach_annotators:
+        if attach_annotators and rp is not None:
             for name in spec.annotators:
                 params = {"colorize": False} if name == "semantic_segmentation" else None
                 ann = (

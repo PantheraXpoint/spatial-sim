@@ -313,12 +313,7 @@ def add_avatar(
         print("  ! no character asset given -- the avatar has no visible body", flush=True)
 
     # --- controls ----------------------------------------------------------
-    _build_controls_graph(
-        p["graph"],
-        p["body"],
-        character_path=p["character"] if worker_asset else None,
-        speed=cfg["move_speed"],
-    )
+    _build_controls_graph(p["graph"], p["body"], speed=cfg["move_speed"])
 
     return p
 
@@ -444,6 +439,51 @@ def _add_character(
     UsdGeom.Imageable(char).CreateVisibilityAttr(UsdGeom.Tokens.inherited)
 
 
+def install_character_follow(
+    stage: Usd.Stage, avatar_path: str = f"{ROOT}/Avatar"
+):
+    """Make the visible character track the collision capsule, every frame.
+
+    Python rather than OmniGraph, because OmniGraph cannot see the capsule
+    move. The character controller writes its pose to USD; Fabric is never
+    updated; ReadPrimAttribute reads Fabric and therefore returns the value it
+    cached at setup, forever. Measured: 130 computes, 130 identical values,
+    while the capsule travelled 2.58 m. See sim/spikes/_diag_follow_graph.py.
+
+    This is the shipped shape for the problem -- omni.physxcct's own
+    first-person camera follows this same capsule with a per-frame callback
+    reading UsdGeom.XformCache.
+
+    Returns the subscription. KEEP A REFERENCE: dropping it unsubscribes and
+    the character silently stops following.
+    """
+    import omni.kit.app
+
+    body = stage.GetPrimAtPath(f"{avatar_path}/body_mesh")
+    char = stage.GetPrimAtPath(f"{avatar_path}/character")
+    if not body.IsValid() or not char.IsValid():
+        print(f"  ! cannot install follow: {body.IsValid()=} {char.IsValid()=}", flush=True)
+        return None
+
+    attr = char.GetAttribute("xformOp:translate")
+    if not attr:
+        attr = UsdGeom.Xform(char).AddTranslateOp().GetAttr()
+    cache = UsdGeom.XformCache()
+
+    def _follow(_e) -> None:
+        # Clear() every frame or the cache returns the pose it saw first --
+        # the same staleness, one layer down.
+        cache.Clear()
+        t = cache.GetLocalToWorldTransform(body).ExtractTranslation()
+        attr.Set(Gf.Vec3d(float(t[0]), float(t[1]), float(t[2])))
+
+    sub = omni.kit.app.get_app().get_update_event_stream().create_subscription_to_pop(
+        _follow, name="avatar_character_follow"
+    )
+    print(f"  character follow installed: {body.GetPath()} -> {char.GetPath()}", flush=True)
+    return sub
+
+
 def _camera(stage: Usd.Stage, path: str, translate: Gf.Vec3d, *, pitch: float, focal: float) -> None:
     cam = UsdGeom.Camera.Define(stage, path)
     cam.AddTranslateOp().Set(translate)
@@ -538,9 +578,7 @@ def read_base_facts(base: Path) -> dict:
     return facts
 
 
-def _build_controls_graph(
-    graph_path: str, body_path: str, *, character_path: str | None, speed: float
-) -> None:
+def _build_controls_graph(graph_path: str, body_path: str, *, speed: float) -> None:
     """Wire the shipped character-controller node to the avatar's capsule.
 
     The whole graph is three nodes because ``setupControls="Auto"`` makes the
@@ -563,38 +601,20 @@ def _build_controls_graph(
             flush=True,
         )
 
-    # The visible character is a sibling of the capsule, not a child of it,
-    # because USD visibility prunes -- see _add_character. So it has to be
-    # carried along explicitly. This is the Omnigraph Keyboard example's own
-    # pattern (OnTick -> ReadPrimAttribute -> WritePrimAttribute); that sample
-    # drives a cube's `size`, this drives a character's `xformOp:translate`.
-    # Both prims are children of the identity /Root/Avatar, so their local
-    # translate IS their world translate and the copy needs no maths. The
-    # constant offset from capsule-centre to feet lives on the rig prim's own
-    # transform, so it survives every write.
-    follow_nodes: list = []
-    follow_values: list = []
-    follow_connects: list = []
-    if character_path:
-        follow_nodes = [
-            ("follow_tick", "omni.graph.action.OnTick"),
-            ("read_body", "omni.graph.nodes.ReadPrimAttribute"),
-            ("write_character", "omni.graph.nodes.WritePrimAttribute"),
-        ]
-        follow_values = [
-            ("follow_tick.inputs:onlyPlayback", True),
-            ("read_body.inputs:name", "xformOp:translate"),
-            ("read_body.inputs:primPath", body_path),
-            ("read_body.inputs:usePath", True),
-            ("write_character.inputs:name", "xformOp:translate"),
-            ("write_character.inputs:primPath", character_path),
-            ("write_character.inputs:usePath", True),
-        ]
-        follow_connects = [
-            ("follow_tick.outputs:tick", "write_character.inputs:execIn"),
-            ("read_body.outputs:value", "write_character.inputs:value"),
-        ]
-
+    # The character's follow is NOT in this graph, and that is a measured
+    # decision rather than a preference. It used to be
+    # OnTick -> ReadPrimAttribute -> WritePrimAttribute, correctly wired, and it
+    # copied a constant: the character controller writes the capsule's pose to
+    # USD, Fabric never receives it, and OmniGraph's ReadPrimAttribute reads
+    # Fabric. Instrumented over 120 frames while the capsule travelled 2.58 m:
+    # follow_tick computed 176 times, read_body 130 times, write_character 130
+    # times, and read_body's outputs:value was byte-identical at every single
+    # one. A graph that ticks, reads and writes, and does nothing.
+    #
+    # install_character_follow() does it in Python instead, which is also what
+    # omni.physxcct's own first-person camera does to follow the same capsule --
+    # a per-frame callback reading UsdGeom.XformCache. Shipped pattern, not a
+    # local invention.
     keys = og.Controller.Keys
     og.Controller.edit(
         {"graph_path": graph_path, "evaluator_name": "execution"},
@@ -603,8 +623,7 @@ def _build_controls_graph(
                 ("on_play", "omni.graph.action.OnStageEvent"),
                 ("on_stop", "omni.graph.action.OnStageEvent"),
                 ("cct", "omni.physx.cct.OgnCharacterController"),
-            ]
-            + follow_nodes,
+            ],
             keys.SET_VALUES: [
                 ("on_play.inputs:eventName", "Simulation Start Play"),
                 ("on_play.inputs:onlyPlayback", True),
@@ -618,13 +637,11 @@ def _build_controls_graph(
                 # active viewport and recentres the OS cursor every frame,
                 # which is wrong over a livestream. The cameras are parented
                 # instead, so switching view is rebinding the viewport.
-            ]
-            + follow_values,
+            ],
             keys.CONNECT: [
                 ("on_play.outputs:execOut", "cct.inputs:activate"),
                 ("on_stop.outputs:execOut", "cct.inputs:deactivate"),
-            ]
-            + follow_connects,
+            ],
         },
     )
 

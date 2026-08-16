@@ -1,16 +1,17 @@
 [gui_viewports] opening /workspace/sim/observatory_avatar.usd
-[gui_viewports] stage root: /Root   (27409 prims)
+[gui_viewports] stage root: /Root   (27406 prims)
 [gui_viewports] station /Root/Infrastructure/INFRA_01 at [4.91, 6.61, 2.6]
 [gui_viewports] sensor INFRA_01_CAM -> /Root/Infrastructure/INFRA_01/cam_01 (camera)
 [gui_viewports] sensor INFRA_01_LIDAR -> /Root/Infrastructure/INFRA_01/lidar_01 (lidar)
 [gui_viewports] sensor AVATAR_CAM_FP -> /Root/Avatar/body_mesh/cam_first_person (camera)
 [gui_viewports] sensor AVATAR_CAM_TP -> /Root/Avatar/body_mesh/cam_third_person (camera)
 [gui_viewports] radar not created (needs the three Motion BVH kit flags): ['INFRA_01_RADAR', 'INFRA_02_RADAR']
+  character follow installed: /Root/Avatar/body_mesh -> /Root/Avatar/character
 [gui_viewports] viewport 'INFRA_01_CAM' -> /Root/Infrastructure/INFRA_01/cam_01
 [gui_viewports] viewport 'AVATAR_CAM_FP' -> /Root/Avatar/body_mesh/cam_first_person
 [gui_viewports] viewport 'AVATAR_CAM_TP' -> /Root/Avatar/body_mesh/cam_third_person
 [gui_viewports] ====================================================================
-[gui_viewports] READY -- 4 sensors, 3 viewport panels bound
+[gui_viewports] READY -- 4 sensors, 3 viewport panels bound, follow=on
 [gui_viewports] 1. drag the panels into place
 [gui_viewports] 2. Window -> Layout -> Save Layout As...
 [gui_viewports] 3. THEN press Play. Never re-dock while a lidar sim is running.

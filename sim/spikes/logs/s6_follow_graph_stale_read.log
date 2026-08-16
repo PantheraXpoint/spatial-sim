@@ -1,0 +1,36 @@
+[diag_follow] open_stage /workspace/sim/observatory_avatar.usd -> True
+[diag_follow] subscribed
+[diag_follow] stage root /Root
+[diag_follow] usdrt attached
+[diag_follow] graph /Root/Cameras/PushGraph pipeline=GraphPipelineStage.GRAPH_PIPELINE_STAGE_SIMULATION disabled=False
+[diag_follow] graph /Root/Avatar/Controls pipeline=GraphPipelineStage.GRAPH_PIPELINE_STAGE_SIMULATION disabled=False
+[diag_follow] counts before Play: {'follow_tick': 6, 'read_body': 0, 'write_character': 0, 'cct': 0}
+[diag_follow] collider census: {'warehouse_colliders': 3469, 'disabled': 54, 'entirely_above_2.2m': 1486, 'reachable': 1929}
+[diag_follow] phase stopped: 10 warm + 30 measured frames
+[diag_follow] capsule home [-1.7482, 6.7629, 0.925]
+[diag_follow] play() -- phase playing: 10 warm + 120 frames
+[diag_follow]   f  30 body_usd=[-1.1682, 6.7629, 0.9114] read_out=[-1.7482, 6.7629, 0.925] char_usd=[-1.7482, 6.7629, 0.925] char_fab=[-1.7482, 6.7629, 0.925]
+[diag_follow]   f  60 body_usd=[-0.5682, 6.7629, 0.8951] read_out=[-1.7482, 6.7629, 0.925] char_usd=[-1.7482, 6.7629, 0.925] char_fab=[-1.7482, 6.7629, 0.925]
+[diag_follow]   f  90 body_usd=[0.0318, 6.7629, 0.9114] read_out=[-1.7482, 6.7629, 0.925] char_usd=[-1.7482, 6.7629, 0.925] char_fab=[-1.7482, 6.7629, 0.925]
+[diag_follow]   f 119 body_usd=[0.6118, 6.7629, 0.8978] read_out=[-1.7482, 6.7629, 0.925] char_usd=[-1.7482, 6.7629, 0.925] char_fab=[-1.7482, 6.7629, 0.925]
+[diag_follow]   f 120 body_usd=[0.6318, 6.7629, 0.8951] read_out=[-1.7482, 6.7629, 0.925] char_usd=[-1.7482, 6.7629, 0.925] char_fab=[-1.7482, 6.7629, 0.925]
+[diag_follow] pause() -- phase paused: 10 warm + 30 frames
+[diag_follow] ==========================================================================
+[diag_follow] A. FOLLOW GRAPH
+[diag_follow]    body   USD    [-1.7482, 6.7629, 0.925] -> [0.8318, 6.7629, 0.9005]
+[diag_follow]    body   FABRIC [-1.7482, 6.7629, 0.925] -> [-1.7482, 6.7629, 0.925]
+[diag_follow]    char   USD    [-1.7482, 6.7629, 0.925] -> [-1.7482, 6.7629, 0.925]
+[diag_follow]    char   FABRIC [-1.7482, 6.7629, 0.925] -> [-1.7482, 6.7629, 0.925]
+[diag_follow]    counts {'follow_tick': 47, 'read_body': 1, 'write_character': 1, 'cct': 1} -> {'follow_tick': 176, 'read_body': 130, 'write_character': 130, 'cct': 1}
+[diag_follow]    read_body outputs:value [-1.7482, 6.7629, 0.925] -> [-1.7482, 6.7629, 0.925]
+[diag_follow]    read_body.state:correctlySetup = None
+[diag_follow]    write_character.state:correctlySetup = None
+[diag_follow]    write_character.inputs:usdWriteBack = None
+[diag_follow]    => READ IS STALE -- the capsule moves but read_body's own output does not, so the graph faithfully writes a constant
+[diag_follow] 
+[diag_follow] B. WHERE THE FRAME TIME GOES
+[diag_follow]    stopped  14.61 fps   (29 frames)
+[diag_follow]    playing  7.8 fps   (119 frames)
+[diag_follow]    paused   14.7 fps   (29 frames)
+[diag_follow]    => PHYSICS. Rendering is identical in all three phases; only PLAYING steps PhysX, and PAUSED recovers.
+[diag_follow] DONE

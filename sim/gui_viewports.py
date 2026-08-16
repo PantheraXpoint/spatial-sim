@@ -51,7 +51,8 @@ for _p in (str(REPO), str(HERE)):
 # frames and post_quit() this session. See sensor_factory._is_exec_entrypoint.
 os.environ["SF_NO_AUTORUN"] = "1"
 
-import sensor_factory as sf  # noqa: E402  -- sibling module, see sys.path above
+import avatar as av  # noqa: E402  -- sibling module, see sys.path above
+import sensor_factory as sf  # noqa: E402
 from core.observation import Modality  # noqa: E402
 
 STAGE = os.environ.get("SF_STAGE", str(REPO / "sim" / "observatory_avatar.usd"))
@@ -97,6 +98,7 @@ class Boot:
         self.frame = 0
         self.sub = None
         self.done = False
+        self.follow_sub = None
 
     def on_update(self, _e) -> None:
         if self.done:
@@ -135,7 +137,9 @@ class Boot:
 
         # Annotators off: this session is for looking, and the viewports are
         # what you look through. sensor_factory attaches them when capturing.
-        created = sf.create_registry_sensors(stage, registry, attach_annotators=False)
+        created = sf.create_registry_sensors(
+            stage, registry, attach_annotators=False, render_products=False
+        )
         for sensor_id, rec in created.items():
             log(f"sensor {sensor_id} -> {rec['prim_path']} ({rec['kind']})")
 
@@ -143,11 +147,21 @@ class Boot:
         if skipped:
             log(f"radar not created (needs the three Motion BVH kit flags): {skipped}")
 
+        # The visible character follows the collision capsule from here, in
+        # Python. The OmniGraph version was correctly wired and copied a
+        # constant -- OmniGraph reads Fabric, the controller writes USD. The
+        # subscription is stashed on the instance because dropping it
+        # unsubscribes and the body silently stops following.
+        self.follow_sub = av.install_character_follow(stage)
+        if self.follow_sub is None:
+            log("! character follow NOT installed -- the body will not move with the capsule")
+
         cams = {sid: rec["prim_path"] for sid, rec in created.items() if rec["kind"] == "camera"}
         made = build_viewports(stage, registry, cams)
 
         log("=" * 68)
-        log(f"READY -- {len(created)} sensors, {len(made)} viewport panels bound")
+        log(f"READY -- {len(created)} sensors, {len(made)} viewport panels bound, "
+            f"follow={'on' if self.follow_sub else 'OFF'}")
         log("1. drag the panels into place")
         log("2. Window -> Layout -> Save Layout As...")
         log("3. THEN press Play. Never re-dock while a lidar sim is running.")
