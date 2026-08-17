@@ -65,7 +65,7 @@ import omni.usd
 import yaml
 from isaacsim.core.experimental.materials import PreviewSurfaceMaterial
 from isaacsim.core.experimental.utils.app import enable_extension
-from pxr import Gf, Usd, UsdGeom, UsdPhysics, UsdShade
+from pxr import Gf, Sdf, Usd, UsdGeom, UsdPhysics, UsdShade
 
 REPO = Path(__file__).resolve().parent.parent
 if str(REPO) not in sys.path:
@@ -335,6 +335,61 @@ def create_station_marker(stage: Usd.Stage, station_path: str, look_at: Gf.Vec3d
         UsdShade.MaterialBindingAPI.Apply(stage.GetPrimAtPath(path)).Bind(material)
     log(f"station marker at {station_path}/marker (emissive, above the station)")
     return marker
+
+
+def reference_robots(stage: Usd.Stage) -> dict[str, str]:
+    """Reference each robot that has BOTH an asset and a confirmed stage pose.
+
+    Does NOT pin them -- see pin_robots_static(). Splitting the two is not
+    tidiness: the Go2's physics lives behind payloads, and pinning in the same
+    breath as referencing found 0 rigid bodies on it and let PhysX settle the
+    animal 5.9 cm at Play. Counted: 0 bodies at reference, 17 once loaded.
+    """
+    from isaacsim.storage.native import get_assets_root_path
+
+    root = get_assets_root_path()
+    made: dict[str, str] = {}
+    for r in load_stations.__globals__["yaml"].safe_load(
+            open(REPO / "config" / "scene.yaml", encoding="utf-8")).get("robots") or []:
+        asset, pos, path = r.get("asset"), r.get("stage_position"), r.get("prim_path")
+        if not (asset and pos and path):
+            log(f"robot {r.get('id')} declared but not sited (asset/stage_position) -- skipped")
+            continue
+        xf = UsdGeom.Xform.Define(stage, path)
+        existing = xf.GetPrim().GetAttribute("xformOp:translate")
+        (existing or xf.AddTranslateOp()).Set(Gf.Vec3d(*[float(v) for v in pos]))
+        xf.GetPrim().GetReferences().AddReference(f"{root}/Isaac/{asset}")
+        stage.Load(xf.GetPrim().GetPath())
+        made[r["id"]] = path
+        log(f"robot {r['id']} -> {path}")
+    return made
+
+
+def pin_robots_static(stage: Usd.Stage, paths: dict[str, str]) -> dict[str, list[int]]:
+    """Make every robot rigid body kinematic and every articulation root off.
+
+    Call AFTER payloads have settled, or there may be nothing there to pin.
+    Legged robots collapse on spawn without a locomotion policy; this is what
+    keeps them standing, and it is measured rather than assumed -- see
+    sim/spikes/_place_robots.py, which compares bbox height across Play.
+    """
+    out: dict[str, list[int]] = {}
+    for rid, path in paths.items():
+        bodies = arts = 0
+        for prim in Usd.PrimRange(stage.GetPrimAtPath(path)):
+            if prim.HasAPI(UsdPhysics.RigidBodyAPI):
+                UsdPhysics.RigidBodyAPI(prim).CreateKinematicEnabledAttr().Set(True)
+                bodies += 1
+            if prim.HasAPI(UsdPhysics.ArticulationRootAPI):
+                arts += 1
+                a = prim.GetAttribute("physxArticulation:articulationEnabled")
+                if not a:
+                    a = prim.CreateAttribute(
+                        "physxArticulation:articulationEnabled", Sdf.ValueTypeNames.Bool)
+                a.Set(False)
+        out[rid] = [bodies, arts]
+        log(f"robot {rid} pinned static: {bodies} bodies, {arts} articulation roots")
+    return out
 
 
 def look_at_rotate_xyz(eye: Gf.Vec3d, target: Gf.Vec3d) -> Gf.Vec3f:

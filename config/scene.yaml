@@ -79,19 +79,13 @@ robots:
     stage_position: [-4.004, 8.063, 0.0]    # 2.60 m from the avatar
     sensor_height: 0.4
     static: true
-  # BOT_03 (H1) is UNPLACED and waiting on you. Listing the live asset root,
-  # Isaac/Robots/Unitree/H1/ contains exactly one USD:
-  #
-  #     Robots/Unitree/H1/h1.usd
-  #
-  # That is a single unambiguous candidate, not a guess -- but it is UNVERIFIED:
-  # H1 is the legged robot most likely to collapse on spawn, and I have not run
-  # it through the upright check the other two passed. Say the word and it gets
-  # placed and measured exactly like BOT_01/BOT_02. Uncomment to accept.
-  # asset: Robots/Unitree/H1/h1.usd
+  # H1: the only USD in Isaac/Robots/Unitree/, confirmed by listing the live
+  # asset root rather than recalled. Approved 2026-08-17.
   - id: BOT_03
-    asset: null              # Robotics Examples -> POLICY -> Humanoid (H1)
+    asset: Robots/Unitree/H1/h1.usd
+    prim_path: /Root/Robots/BOT_03
     position: [8.0, 1.5, 0.0]
+    stage_position: [-4.313, 6.311, 0.0]    # 2.60 m from the avatar
     sensor_height: 1.7
     static: true
 

@@ -3,14 +3,10 @@
   "root": "https://omniverse-content-production.s3-us-west-2.amazonaws.com/Assets/Isaac/6.0",
   "resolved": {
    "BOT_01": "https://omniverse-content-production.s3-us-west-2.amazonaws.com/Assets/Isaac/6.0/Isaac/Robots/Turtlebot/Turtlebot3/turtlebot3_burger.usd",
-   "BOT_02": "https://omniverse-content-production.s3-us-west-2.amazonaws.com/Assets/Isaac/6.0/Isaac/Robots/Unitree/Go2/go2.usd"
+   "BOT_02": "https://omniverse-content-production.s3-us-west-2.amazonaws.com/Assets/Isaac/6.0/Isaac/Robots/Unitree/Go2/go2.usd",
+   "BOT_03": "https://omniverse-content-production.s3-us-west-2.amazonaws.com/Assets/Isaac/6.0/Isaac/Robots/Unitree/H1/h1.usd"
   },
-  "missing": [
-   {
-    "id": "BOT_03",
-    "reason": "asset is null in scene.yaml"
-   }
-  ],
+  "missing": [],
   "listing": [
    {
     "Isaac/Robots/Unitree/H1": [
@@ -19,9 +15,6 @@
      "payloads"
     ]
    }
-  ],
-  "h1_candidates": [
-   "https://omniverse-content-production.s3-us-west-2.amazonaws.com/Assets/Isaac/6.0/Isaac/Robots/Unitree/H1/h1.usd"
   ]
  },
  "placed": {
@@ -33,15 +26,29 @@
     6.763,
     0.0
    ],
-   "rigid_bodies": 6,
-   "articulations": 1,
+   "physics_at_reference": [
+    6,
+    1
+   ],
+   "physics_after_load": [
+    6,
+    1
+   ],
+   "pinned": [
+    6,
+    1
+   ],
    "height_before": 0.1911,
+   "physics_after_play": [
+    6,
+    1
+   ],
    "height_after": 0.1911,
    "upright": true,
    "camera": {
     "prim_path": "/Root/Robots/BOT_01/cam",
     "height_m": 0.2,
-    "rgb_px": 1227539,
+    "rgb_px": 1227726,
     "person_px": 16036
    }
   },
@@ -53,16 +60,64 @@
     8.063,
     0.0
    ],
-   "rigid_bodies": 0,
-   "articulations": 0,
+   "physics_at_reference": [
+    0,
+    0
+   ],
+   "physics_after_load": [
+    17,
+    1
+   ],
+   "pinned": [
+    17,
+    1
+   ],
    "height_before": 0.5377,
-   "height_after": 0.4791,
+   "physics_after_play": [
+    17,
+    1
+   ],
+   "height_after": 0.5377,
    "upright": true,
    "camera": {
     "prim_path": "/Root/Robots/BOT_02/cam",
     "height_m": 0.4,
-    "rgb_px": 1228800,
+    "rgb_px": 1228715,
     "person_px": 15267
+   }
+  },
+  "BOT_03": {
+   "prim_path": "/Root/Robots/BOT_03",
+   "asset": "https://omniverse-content-production.s3-us-west-2.amazonaws.com/Assets/Isaac/6.0/Isaac/Robots/Unitree/H1/h1.usd",
+   "position": [
+    -4.313,
+    6.311,
+    0.0
+   ],
+   "physics_at_reference": [
+    25,
+    1
+   ],
+   "physics_after_load": [
+    25,
+    1
+   ],
+   "pinned": [
+    25,
+    1
+   ],
+   "height_before": 1.806,
+   "physics_after_play": [
+    25,
+    1
+   ],
+   "height_after": 1.806,
+   "upright": true,
+   "camera": {
+    "prim_path": "/Root/Robots/BOT_03/cam",
+    "height_m": 1.7,
+    "rgb_px": 1227909,
+    "person_px": 12895
    }
   }
  },

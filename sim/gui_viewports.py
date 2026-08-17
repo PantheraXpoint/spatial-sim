@@ -34,6 +34,7 @@ import sys
 from pathlib import Path
 
 import omni.kit.app
+import omni.timeline
 import omni.usd
 
 HERE = Path(__file__).resolve().parent
@@ -61,6 +62,7 @@ VIEW_W, VIEW_H = 640, 360
 # own cameras are opt-in, because every extra viewport is another full render
 # of the scene and the demo reads fine without them.
 AVATAR_CAMS = os.environ.get("GUI_AVATAR_CAMS") == "1"
+ROBOT_CAMS = os.environ.get("GUI_ROBOT_CAMS") == "1"
 # Collision is the frame-rate lever, not resolution: measured 2.48 -> 19.69 fps
 # from disabling unreachable colliders, and +0.8% from 1280x720 -> 960x540.
 DISABLE_HIGH_COLLIDERS = os.environ.get("GUI_KEEP_ALL_COLLIDERS") != "1"
@@ -106,11 +108,45 @@ class Boot:
         self.sub = None
         self.done = False
         self.follow_sub = None
+        self.robots: dict = {}
+        self.pin_at = None
+        self.fps_at = None
+        self._t = None
+
+    def _pin_pending(self) -> None:
+        """Pin the robots once, after their payloads have had time to compose."""
+        if self.pin_at is None or self.frame < self.pin_at:
+            return
+        self.pin_at = None
+        if self.robots:
+            sf.pin_robots_static(self.ctx.get_stage(), self.robots)
+            log("robots pinned static -- they will not collapse at Play")
+
+    def _log_fps(self) -> None:
+        """A frame-rate line every ~300 frames, so the number in this session is
+        observed rather than quoted from a different one."""
+        import time
+
+        if self.fps_at is None:
+            return
+        if self._t is None:
+            self._t = (time.perf_counter(), self.frame)
+            return
+        if self.frame - self._t[1] < 300:
+            return
+        t0, f0 = self._t
+        now = time.perf_counter()
+        playing = omni.timeline.get_timeline_interface().is_playing()
+        log(f"fps {round((self.frame - f0) / (now - t0), 2)}  "
+            f"({'PLAYING' if playing else 'stopped'})")
+        self._t = (now, self.frame)
 
     def on_update(self, _e) -> None:
-        if self.done:
-            return
         self.frame += 1
+        if self.done:
+            self._pin_pending()
+            self._log_fps()
+            return
         if self.frame <= 5 or any(self.ctx.get_stage_loading_status()[1:]):
             return
         self.done = True
@@ -121,8 +157,11 @@ class Boot:
 
             log("FAILED: " + repr(exc))
             log(traceback.format_exc())
-        finally:
-            self.sub = None
+        # The subscription is deliberately KEPT. It used to be dropped here,
+        # which unsubscribed the moment setup finished -- so the deferred robot
+        # pin never fired and the frame-rate line never printed. Robots would
+        # then collapse the first time you pressed Play, having been referenced
+        # but never made kinematic. Cheap to keep: two comparisons a frame.
 
     def setup(self) -> None:
         stage = self.ctx.get_stage()
@@ -137,7 +176,12 @@ class Boot:
 
         registry = sf.load_registry()
 
-        # Stations first, or nothing under them resolves.
+        # Robots first: their cameras are registry entries whose parent prims
+        # have to exist before create_registry_sensors can resolve them.
+        # Pinning waits -- see _pin_pending below.
+        self.robots = sf.reference_robots(stage)
+
+        # Stations, or nothing under them resolves either.
         stations = sf.create_stations(stage)
         for path, pos in stations.items():
             log(f"station {path} at {[round(v, 3) for v in pos]}")
@@ -169,12 +213,15 @@ class Boot:
             log("collider mask SKIPPED (GUI_KEEP_ALL_COLLIDERS=1) -- expect ~2.5 fps at Play")
 
         cams = {sid: rec["prim_path"] for sid, rec in created.items() if rec["kind"] == "camera"}
+        hidden = []
         if not AVATAR_CAMS:
-            dropped = [s for s in cams if s.startswith("AVATAR_")]
-            cams = {k: v for k, v in cams.items() if not k.startswith("AVATAR_")}
-            if dropped:
-                log(f"avatar camera panels off ({', '.join(dropped)}); "
-                    f"set GUI_AVATAR_CAMS=1 to show them")
+            hidden += [c for c in cams if c.startswith("AVATAR_")]
+        if not ROBOT_CAMS:
+            hidden += [c for c in cams if c.startswith("BOT_")]
+        cams = {k: v for k, v in cams.items() if k not in hidden}
+        if hidden:
+            log(f"camera panels created but not shown: {', '.join(sorted(hidden))} "
+                f"(GUI_AVATAR_CAMS=1 / GUI_ROBOT_CAMS=1)")
         made = build_viewports(stage, registry, cams)
 
         log("=" * 68)
@@ -184,6 +231,8 @@ class Boot:
         log("2. Window -> Layout -> Save Layout As...")
         log("3. THEN press Play. Never re-dock while a lidar sim is running.")
         log("=" * 68)
+        self.pin_at = self.frame + 90   # give payloads time before pinning
+        self.fps_at = self.frame + 30
 
 
 boot = Boot()

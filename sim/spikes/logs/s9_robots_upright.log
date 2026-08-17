@@ -1,0 +1,49 @@
+[robots] open_stage /workspace/sim/observatory_avatar.usd -> True
+[robots] asset root https://omniverse-content-production.s3-us-west-2.amazonaws.com/Assets/Isaac/6.0
+[robots] resolved {'BOT_01': 'https://omniverse-content-production.s3-us-west-2.amazonaws.com/Assets/Isaac/6.0/Isaac/Robots/Turtlebot/Turtlebot3/turtlebot3_burger.usd', 'BOT_02': 'https://omniverse-content-production.s3-us-west-2.amazonaws.com/Assets/Isaac/6.0/Isaac/Robots/Unitree/Go2/go2.usd', 'BOT_03': 'https://omniverse-content-production.s3-us-west-2.amazonaws.com/Assets/Isaac/6.0/Isaac/Robots/Unitree/H1/h1.usd'}
+[robots] missing  []
+[robots] listing  {"Isaac/Robots/Unitree/H1": [".thumbs", "h1.usd", "payloads"]}
+[robots]   701 low obstacles considered
+[robots]   clear at r=2.6   0 deg -> (0.848, 6.763)  2.60 m from the avatar
+[robots]   clear at r=2.6 150 deg -> (-4.004, 8.063)  2.60 m from the avatar
+[robots]   clear at r=2.6 190 deg -> (-4.313, 6.311)  2.60 m from the avatar
+[robots]   referenced BOT_01 -> /Root/Robots/BOT_01
+[robots]   BOT_01 physics immediately after reference: 6 bodies, 1 articulations
+[robots]   referenced BOT_02 -> /Root/Robots/BOT_02
+[robots]   BOT_02 physics immediately after reference: 0 bodies, 0 articulations
+[robots]   referenced BOT_03 -> /Root/Robots/BOT_03
+[robots]   BOT_03 physics immediately after reference: 25 bodies, 1 articulations
+[robots] referenced ['BOT_01', 'BOT_02', 'BOT_03'] -- waiting for payloads before pinning
+[robots] payloads quiet after 31 frames
+[robots]   BOT_01 physics after payloads loaded: 6 bodies, 1 articulations (was [6, 1])
+[robots]   /Root/Robots/BOT_01: pinned 6 rigid bodies kinematic, 1 articulation roots off
+[robots]   BOT_01 height before Play: 0.1911 m
+[robots]   BOT_02 physics after payloads loaded: 17 bodies, 1 articulations (was [0, 0])
+[robots]   /Root/Robots/BOT_02: pinned 17 rigid bodies kinematic, 1 articulation roots off
+[robots]   BOT_02 height before Play: 0.5377 m
+[robots]   BOT_03 physics after payloads loaded: 25 bodies, 1 articulations (was [25, 1])
+[robots]   /Root/Robots/BOT_03: pinned 25 rigid bodies kinematic, 1 articulation roots off
+[robots]   BOT_03 height before Play: 1.806 m
+[robots]   camera INFRA_01_CAM (station, for the label-strip measurement)
+[robots]   camera BOT_01 at 0.2 m -> /Root/Robots/BOT_01/cam
+[robots]   camera BOT_02 at 0.4 m -> /Root/Robots/BOT_02/cam
+[robots]   camera BOT_03 at 1.7 m -> /Root/Robots/BOT_03/cam
+[robots] play()
+[robots] ========================================================================
+[robots]   BOT_01   height 0.1911 -> 0.1911 m   UPRIGHT   physics ref[6, 1] load[6, 1] pinned[6, 1] play[6, 1]
+[robots]       -> avatar head  elevation +30.80 deg at 2.60 m
+[robots]       -> avatar torso elevation +16.09 deg at 2.60 m
+[robots]       -> avatar feet  elevation  -3.30 deg at 2.60 m
+[robots]   BOT_02   height 0.5377 -> 0.5377 m   UPRIGHT   physics ref[0, 0] load[17, 1] pinned[17, 1] play[17, 1]
+[robots]       -> avatar head  elevation +27.44 deg at 2.60 m
+[robots]       -> avatar torso elevation +11.94 deg at 2.60 m
+[robots]       -> avatar feet  elevation  -7.67 deg at 2.60 m
+[robots]   BOT_03   height 1.806 -> 1.806 m   UPRIGHT   physics ref[25, 1] load[25, 1] pinned[25, 1] play[25, 1]
+[robots]       -> avatar head  elevation  +1.10 deg at 2.60 m
+[robots]       -> avatar torso elevation -16.09 deg at 2.60 m
+[robots]       -> avatar feet  elevation -32.40 deg at 2.60 m
+[robots]   INFRA_01_CAM camera at 2.6 m: rgb 3,684,194 px, person 10,315 px
+[robots]   BOT_01   camera at 0.2 m: rgb 1,227,726 px, person 16,036 px
+[robots]   BOT_02   camera at 0.4 m: rgb 1,228,715 px, person 15,267 px
+[robots]   BOT_03   camera at 1.7 m: rgb 1,227,909 px, person 12,895 px
+[robots] DONE

@@ -1,0 +1,30 @@
+[gui_viewports] opening /workspace/sim/observatory_avatar.usd
+[gui_viewports] stage root: /Root   (27406 prims)
+[sensor_factory] robot BOT_01 -> /Root/Robots/BOT_01
+[sensor_factory] robot BOT_02 -> /Root/Robots/BOT_02
+[sensor_factory] robot BOT_03 -> /Root/Robots/BOT_03
+[gui_viewports] station /Root/Infrastructure/INFRA_01 at [4.91, 6.61, 2.6]
+[gui_viewports] sensor INFRA_01_CAM -> /Root/Infrastructure/INFRA_01/cam_01 (camera)
+[gui_viewports] sensor INFRA_01_LIDAR -> /Root/Infrastructure/INFRA_01/lidar_01 (lidar)
+[gui_viewports] sensor BOT_01_CAM -> /Root/Robots/BOT_01/cam (camera)
+[gui_viewports] sensor BOT_02_CAM -> /Root/Robots/BOT_02/cam (camera)
+[gui_viewports] sensor BOT_03_CAM -> /Root/Robots/BOT_03/cam (camera)
+[gui_viewports] sensor AVATAR_CAM_FP -> /Root/Avatar/body_mesh/cam_first_person (camera)
+[gui_viewports] sensor AVATAR_CAM_TP -> /Root/Avatar/body_mesh/cam_third_person (camera)
+[gui_viewports] radar not created (needs the three Motion BVH kit flags): ['INFRA_01_RADAR', 'INFRA_02_RADAR']
+[gui_viewports] camera panels created but not shown: AVATAR_CAM_FP, AVATAR_CAM_TP, BOT_01_CAM, BOT_02_CAM, BOT_03_CAM (GUI_AVATAR_CAMS=1 / GUI_ROBOT_CAMS=1)
+[gui_viewports] viewport 'INFRA_01_CAM' -> /Root/Infrastructure/INFRA_01/cam_01
+[gui_viewports] ====================================================================
+[gui_viewports] READY -- 7 sensors, 1 viewport panels bound, follow=on
+[gui_viewports] 1. drag the panels into place
+[gui_viewports] 2. Window -> Layout -> Save Layout As...
+[gui_viewports] 3. THEN press Play. Never re-dock while a lidar sim is running.
+[gui_viewports] ====================================================================
+[sensor_factory] robot BOT_01 pinned static: 6 bodies, 1 articulation roots
+[sensor_factory] robot BOT_02 pinned static: 17 bodies, 1 articulation roots
+[sensor_factory] robot BOT_03 pinned static: 25 bodies, 1 articulation roots
+[gui_viewports] robots pinned static -- they will not collapse at Play
+[gui_viewports] fps 5.63  (stopped)
+[gui_viewports] fps 19.81  (stopped)
+[gui_viewports] fps 19.48  (stopped)
+[gui_viewports] fps 19.13  (stopped)

@@ -166,29 +166,52 @@ def clear_positions(stage, centre, count, radii=(2.6, 3.2, 4.0, 5.0, 6.5, 8.0)):
     return chosen
 
 
-def place(stage, rid, url, pos):
-    """Reference a robot and make it STATIC: every rigid body kinematic."""
+def reference_robot(stage, rid, url, pos):
+    """Reference a robot. Does NOT pin it -- see pin_static() for why."""
     path = f"{ROBOT_ROOT}/{rid}"
     xf = UsdGeom.Xform.Define(stage, path)
     xf.AddTranslateOp().Set(Gf.Vec3d(pos[0], pos[1], 0.0))
     xf.GetPrim().GetReferences().AddReference(url)
     stage.Load(xf.GetPrim().GetPath())
+    log(f"  referenced {rid} -> {path}")
+    return path
 
+
+def count_physics(stage, path):
+    prim = stage.GetPrimAtPath(path)
     bodies = arts = 0
-    for prim in Usd.PrimRange(xf.GetPrim()):
-        if prim.HasAPI(UsdPhysics.RigidBodyAPI):
-            UsdPhysics.RigidBodyAPI(prim).CreateKinematicEnabledAttr().Set(True)
+    if prim.IsValid():
+        for p in Usd.PrimRange(prim):
+            bodies += bool(p.HasAPI(UsdPhysics.RigidBodyAPI))
+            arts += bool(p.HasAPI(UsdPhysics.ArticulationRootAPI))
+    return bodies, arts
+
+
+def pin_static(stage, path):
+    """Make every rigid body kinematic and disable every articulation root.
+
+    SEPARATED from referencing on purpose. The first attempt pinned immediately
+    after AddReference and found 0 rigid bodies and 0 articulation roots on the
+    Go2 -- then watched it sag 5.9 cm at Play. The asset's physics lives behind
+    PAYLOADS that had not finished composing when the traversal ran, so there
+    was literally nothing there to pin, and PhysX picked the articulation up
+    later once it had loaded. Pinning now waits for the stage to stop loading.
+    """
+    prim = stage.GetPrimAtPath(path)
+    bodies = arts = 0
+    for p in Usd.PrimRange(prim):
+        if p.HasAPI(UsdPhysics.RigidBodyAPI):
+            UsdPhysics.RigidBodyAPI(p).CreateKinematicEnabledAttr().Set(True)
             bodies += 1
-        if prim.HasAPI(UsdPhysics.ArticulationRootAPI):
+        if p.HasAPI(UsdPhysics.ArticulationRootAPI):
             arts += 1
-            a = prim.GetAttribute("physxArticulation:articulationEnabled")
+            a = p.GetAttribute("physxArticulation:articulationEnabled")
             if not a:
-                a = prim.CreateAttribute(
-                    "physxArticulation:articulationEnabled", Sdf.ValueTypeNames.Bool
-                )
+                a = p.CreateAttribute(
+                    "physxArticulation:articulationEnabled", Sdf.ValueTypeNames.Bool)
             a.Set(False)
-    log(f"  {rid}: {bodies} rigid bodies -> kinematic, {arts} articulation roots disabled")
-    return path, bodies, arts
+    log(f"  {path}: pinned {bodies} rigid bodies kinematic, {arts} articulation roots off")
+    return bodies, arts
 
 
 def robot_cameras(stage, placed):
@@ -278,33 +301,32 @@ def setup():
 
     placed = {}
     for (rid, url), pos in zip(sorted(assets["resolved"].items()), spots):
-        path, bodies, arts = place(stage, rid, url, pos)
+        path = reference_robot(stage, rid, url, pos)
         placed[rid] = {"prim_path": path, "asset": url,
-                       "position": [round(pos[0], 3), round(pos[1], 3), 0.0],
-                       "rigid_bodies": bodies, "articulations": arts}
+                       "position": [round(pos[0], 3), round(pos[1], 3), 0.0]}
+        b, a = count_physics(stage, path)
+        placed[rid]["physics_at_reference"] = [b, a]
+        log(f"  {rid} physics immediately after reference: {b} bodies, {a} articulations")
     S["placed"] = placed
-    log(f"placed {list(placed)}")
-    S["cams"] = robot_cameras(stage, placed)
-
-    for rid, rec in placed.items():
-        rec["height_before"] = bbox_height(stage, rec["prim_path"])
-        log(f"  {rid} height before Play: {rec['height_before']} m")
-
-    omni.timeline.get_timeline_interface().play()
-    log("play()")
+    log(f"referenced {list(placed)} -- waiting for payloads before pinning")
 
 
 def finish():
     stage = omni.usd.get_context().get_stage()
     log("=" * 72)
     for rid, rec in S.get("placed", {}).items():
+        b, a = count_physics(stage, rec["prim_path"])
+        rec["physics_after_play"] = [b, a]
         after = bbox_height(stage, rec["prim_path"])
         rec["height_after"] = after
         before = rec.get("height_before") or 0
         upright = after is not None and before and after > before * 0.8
         rec["upright"] = bool(upright)
         log(f"  {rid:8s} height {before} -> {after} m   "
-            f"{'UPRIGHT' if upright else 'COLLAPSED / MOVED'}")
+            f"{'UPRIGHT' if upright else 'COLLAPSED / MOVED'}   "
+            f"physics ref{rec.get('physics_at_reference')} "
+            f"load{rec.get('physics_after_load')} pinned{rec.get('pinned')} "
+            f"play{rec.get('physics_after_play')}")
         # Elevation from a camera at this robot's sensor height to the avatar.
         t = S["target"]
         h = float(next((r.get("sensor_height", 0.3) for r in _robot_cfg() if r["id"] == rid), 0.3))
@@ -336,12 +358,38 @@ def _robot_cfg():
         return yaml.safe_load(fh).get("robots") or []
 
 
+def settle_and_pin():
+    """Count physics again once loading is quiet, pin it, then start Play."""
+    stage = omni.usd.get_context().get_stage()
+    for rid, rec in S["placed"].items():
+        b, a = count_physics(stage, rec["prim_path"])
+        rec["physics_after_load"] = [b, a]
+        log(f"  {rid} physics after payloads loaded: {b} bodies, {a} articulations "
+            f"(was {rec['physics_at_reference']})")
+        pb, pa = pin_static(stage, rec["prim_path"])
+        rec["pinned"] = [pb, pa]
+        rec["height_before"] = bbox_height(stage, rec["prim_path"])
+        log(f"  {rid} height before Play: {rec['height_before']} m")
+    S["cams"] = robot_cameras(stage, S["placed"])
+    omni.timeline.get_timeline_interface().play()
+    log("play()")
+
+
 def on_update(_e):
     S["frame"] += 1
     try:
         if S["phase"] == "loading":
             if S["frame"] > 5 and not any(omni.usd.get_context().get_stage_loading_status()[1:]):
                 setup()
+                S["phase"], S["settle"] = "settling", 0
+            return
+
+        if S["phase"] == "settling":
+            S["settle"] += 1
+            quiet = not any(omni.usd.get_context().get_stage_loading_status()[1:])
+            if S["settle"] > 90 or (quiet and S["settle"] > 30):
+                log(f"payloads quiet after {S['settle']} frames")
+                settle_and_pin()
                 S["phase"] = "playing"
             return
         if S["phase"] == "playing":
