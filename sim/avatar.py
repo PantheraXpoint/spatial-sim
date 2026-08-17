@@ -724,10 +724,16 @@ def main(argv: list[str] | None = None) -> int:
     # physics bug. Cheap to print, expensive to discover later.
     print(f"physics    : /PhysicsScene {facts['gravity']}", flush=True)
 
+    cfg = load_avatar_config()
     if args.spawn:
         x, y = (float(v) for v in args.spawn.split(","))
         spawn_xy = (x, y)
+    elif cfg.get("spawn_xy"):
+        spawn_xy = tuple(float(v) for v in cfg["spawn_xy"])
+        print(f"  spawn from config/scene.yaml: {spawn_xy}", flush=True)
     else:
+        # Fallback only. Standing exactly where the Worker stands is safe but
+        # opens the demo with two identical men in the same place.
         spawn_xy = facts["worker_xy"]
         if spawn_xy is None:
             print("  ! no Worker transform in the base layer -- spawning at origin", flush=True)

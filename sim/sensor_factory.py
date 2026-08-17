@@ -389,6 +389,29 @@ def pin_robots_static(stage: Usd.Stage, paths: dict[str, str]) -> dict[str, list
                 a.Set(False)
         out[rid] = [bodies, arts]
         log(f"robot {rid} pinned static: {bodies} bodies, {arts} articulation roots")
+
+        # DROP THE ROBOT ONTO THE FLOOR. Their asset origins are not at their
+        # feet -- H1's is at the pelvis and the Go2's at the body -- so placing
+        # them at z=0 buries them. Measured before this fix: H1 spanned
+        # z -1.044..0.762 (sunk to the hips, which is why it read as "sitting")
+        # and the Go2 z -0.449..0.089 (legs underground, which is why it had
+        # "no legs"). The TurtleBot was already right at z 0.000..0.191, and
+        # 0.191 m is simply what a Burger is.
+        #
+        # Has to happen HERE, after the load barrier: the bounding box is
+        # meaningless until the payloads carrying the geometry have composed.
+        prim = stage.GetPrimAtPath(path)
+        cache = UsdGeom.BBoxCache(Usd.TimeCode.Default(), [UsdGeom.Tokens.default_])
+        rng = cache.ComputeWorldBound(prim).ComputeAlignedRange()
+        if not rng.IsEmpty():
+            z_min = float(rng.GetMin()[2])
+            if abs(z_min) > 0.01:
+                attr = prim.GetAttribute("xformOp:translate")
+                if attr:
+                    t = attr.Get()
+                    attr.Set(Gf.Vec3d(float(t[0]), float(t[1]), float(t[2]) - z_min))
+                    log(f"robot {rid} lifted {-z_min:+.3f} m so its lowest point "
+                        f"rests on the floor")
     return out
 
 

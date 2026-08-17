@@ -50,6 +50,13 @@ avatar:
   height: 1.75
   radius: 0.30               # capsule radius; cylinder = height - 2*radius
   eye_height: 1.65
+  # Where the demo opens. NOT the Worker's spot any more: spawning on top of
+  # him put two identical men inside each other on the opening frame. Derived
+  # rather than chosen -- clear of warehouse colliders, 3.0 m from the Worker,
+  # 8.69 m from INFRA_01, which sits in the middle of the lidar's usable zone
+  # (that zone starts at 6.34 m; closer than ~3.5 m and you drop out of the
+  # -15..+10 deg band entirely). Clear of all three robots too.
+  spawn_xy: [-3.469, 4.305]
   # The character-controller OmniGraph node types speed as an int in units/s
   # and this stage is 1.0 m/unit, so this rounds to 1 m/s at runtime.
   move_speed: 1.4            # m/s, roughly human walking pace

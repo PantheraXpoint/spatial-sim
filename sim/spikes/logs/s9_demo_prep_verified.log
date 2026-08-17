@@ -1,0 +1,42 @@
+[demo_prep] open_stage /workspace/sim/observatory_avatar.usd -> True
+[sensor_factory] robot BOT_01 -> /Root/Robots/BOT_01
+[sensor_factory] robot BOT_02 -> /Root/Robots/BOT_02
+[sensor_factory] robot BOT_03 -> /Root/Robots/BOT_03
+[demo_prep] payloads quiet after 46 frames
+[sensor_factory] robot BOT_01 pinned static: 6 bodies, 1 articulation roots
+[sensor_factory] robot BOT_02 pinned static: 17 bodies, 1 articulation roots
+[sensor_factory] robot BOT_02 lifted +0.449 m so its lowest point rests on the floor
+[sensor_factory] robot BOT_03 pinned static: 25 bodies, 1 articulation roots
+[sensor_factory] robot BOT_03 lifted +1.044 m so its lowest point rests on the floor
+[demo_prep] BOT_01: 0 meshes (0 visible), 47 prims, size [0.138, 0.178, 0.191], z -0.0..0.191
+[demo_prep]     leg link base_footprint                     z=0.0
+[demo_prep] BOT_02: 0 meshes (0 visible), 70 prims, size [0.574, 0.324, 0.538], z 0.0..0.538
+[demo_prep]     leg link FL_hip                             z=0.449
+[demo_prep]     leg link FL_hip_joint                       z=0.449
+[demo_prep]     leg link FL_thigh_joint                     z=0.449
+[demo_prep]     leg link FL_calf_joint                      z=0.449
+[demo_prep]     leg link FL_foot_joint                      z=0.449
+[demo_prep]     leg link FR_hip_joint                       z=0.449
+[demo_prep]     leg link FR_thigh_joint                     z=0.449
+[demo_prep]     leg link FR_calf_joint                      z=0.449
+[demo_prep]     leg link FR_foot_joint                      z=0.449
+[demo_prep]     leg link RL_hip_joint                       z=0.449
+[demo_prep] BOT_03: 0 meshes (0 visible), 78 prims, size [0.391, 0.556, 1.806], z 0.0..1.806
+[demo_prep]     leg link left_hip_yaw_link                  z=0.87
+[demo_prep]     leg link left_hip_roll_link                 z=0.87
+[demo_prep]     leg link left_hip_pitch_link                z=0.87
+[demo_prep]     leg link left_knee_link                     z=0.47
+[demo_prep]     leg link left_ankle_link                    z=0.07
+[demo_prep]     leg link right_hip_yaw_link                 z=0.87
+[demo_prep]     leg link right_hip_roll_link                z=0.87
+[demo_prep]     leg link right_hip_pitch_link               z=0.87
+[demo_prep]     leg link right_knee_link                    z=0.47
+[demo_prep]     leg link right_ankle_link                   z=0.07
+[demo_prep]   BOT_01 rests on the floor: True  (z_min -0.0)
+[demo_prep]   BOT_02 rests on the floor: True  (z_min 0.0)
+[demo_prep]   BOT_03 rests on the floor: True  (z_min 0.0)
+[demo_prep]   avatar spawns at (-3.469, 4.305); 3.00 m from the Worker, 8.69 m from INFRA_01
+[demo_prep] play()
+[demo_prep]   AT SPAWN: points_on_avatar=1074 avatar_range=8.572 m
+[demo_prep] capture -> /out/demo_prep_robots.png
+[demo_prep] DONE
