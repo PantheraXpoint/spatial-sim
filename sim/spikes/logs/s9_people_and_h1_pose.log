@@ -1,0 +1,61 @@
+[people_pose] open_stage /workspace/sim/observatory_avatar.usd -> True
+[people_pose] asset root https://omniverse-content-production.s3-us-west-2.amazonaws.com/Assets/Isaac/6.0
+[people_pose] avatar skeleton: 101 joints, first ['RL_BoneRoot', 'RL_BoneRoot/Hip', 'RL_BoneRoot/Hip/Pelvis']
+[people_pose] Isaac/People: ['Animations', 'Characters', 'DH_Characters', 'DH_Characters_Extended', 'MotionLibrary']
+[people_pose] Isaac/People/Characters: ['.thumbs', 'F_Business_02', 'F_Medical_01', 'M_Medical_01', 'female_adult_police_01_new', 'female_adult_police_02', 'female_adult_police_03_new', 'filter.json', 'male_adult_construction_01_new', 'male_adult_construction_03', 'male_adult_construction_05_new', 'male_adult_police_04', 'original_female_adult_business_02', 'original_female_adult_medical_01', 'original_female_adult_police_01', 'original_female_adult_police_02', 'original_female_adult_police_03', 'original_male_adult_construction_01', 'original_male_adult_construction_02', 'original_male_adult_construction_03', 'original_male_adult_construction_05', 'original_male_adult_medical_01', 'original_male_adult_police_04']
+[people_pose]   F_Business_02: joints=101 anims=0 same_skeleton=True
+[people_pose]   F_Medical_01: joints=101 anims=0 same_skeleton=True
+[people_pose]   M_Medical_01: joints=101 anims=0 same_skeleton=True
+[people_pose]   female_adult_police_01_new: joints=101 anims=0 same_skeleton=True
+[people_pose]   female_adult_police_02: joints=101 anims=0 same_skeleton=True
+[people_pose]   female_adult_police_03_new: joints=101 anims=0 same_skeleton=True
+[people_pose]   male_adult_construction_01_new: joints=101 anims=0 same_skeleton=True
+[people_pose]   male_adult_construction_03: joints=101 anims=0 same_skeleton=True
+[people_pose]   male_adult_construction_05_new: joints=101 anims=0 same_skeleton=True
+[people_pose]   male_adult_police_04: joints=101 anims=0 same_skeleton=True
+[people_pose] Isaac/People/Animations: ['.thumbs', 'LookAround.skelanim.usd', 'Sit.skelanim.usd', 'push_button.skelanim.usd', 'stand_idle_loop.skelanim.usd', 'stand_idle_loop_mirror.skelanim.usd', 'stand_idle_wave_loop.skelanim.usd', 'stand_idle_wave_loop_mirror.skelanim.usd', 'stand_walk_1.skelanim.usd', 'stand_walk_1_mirror.skelanim.usd', 'stand_walk_2.skelanim.usd', 'stand_walk_2_mirror.skelanim.usd', 'stand_walk_3.skelanim.usd', 'stand_walk_3_mirror.skelanim.usd', 'stand_walk_4.skelanim.usd', 'stand_walk_4_mirror.skelanim.usd', 'stand_walk_5.skelanim.usd', 'stand_walk_5_mirror.skelanim.usd', 'stand_walk_7.skelanim.usd', 'stand_walk_7_mirror.skelanim.usd', 'stand_walk_loop.skelanim.usd', 'stand_walk_loop_in_place.skelanim.usd', 'stand_walk_loop_in_place_mirror.skelanim.usd', 'stand_walk_loop_mirror.skelanim.usd', 'type_keyboard.skelanim.usd']
+[people_pose]   LookAround.skelanim.usd: joints=0 anims=1 same_skeleton=False
+[people_pose]   Sit.skelanim.usd: joints=0 anims=1 same_skeleton=False
+[people_pose]   push_button.skelanim.usd: joints=0 anims=1 same_skeleton=False
+[people_pose]   stand_idle_loop.skelanim.usd: joints=0 anims=1 same_skeleton=False
+[people_pose]   stand_idle_loop_mirror.skelanim.usd: joints=0 anims=1 same_skeleton=False
+[people_pose]   stand_idle_wave_loop.skelanim.usd: joints=0 anims=1 same_skeleton=False
+[people_pose]   stand_idle_wave_loop_mirror.skelanim.usd: joints=0 anims=1 same_skeleton=False
+[people_pose]   stand_walk_1.skelanim.usd: joints=0 anims=1 same_skeleton=False
+[people_pose]   stand_walk_1_mirror.skelanim.usd: joints=0 anims=1 same_skeleton=False
+[people_pose]   stand_walk_2.skelanim.usd: joints=0 anims=1 same_skeleton=False
+[people_pose]   stand_walk_2_mirror.skelanim.usd: joints=0 anims=1 same_skeleton=False
+[people_pose]   stand_walk_3.skelanim.usd: joints=0 anims=1 same_skeleton=False
+[people_pose]   stand_walk_3_mirror.skelanim.usd: joints=0 anims=1 same_skeleton=False
+[people_pose]   stand_walk_4.skelanim.usd: joints=0 anims=1 same_skeleton=False
+[people_pose]   stand_walk_4_mirror.skelanim.usd: joints=0 anims=1 same_skeleton=False
+[people_pose]   stand_walk_5.skelanim.usd: joints=0 anims=1 same_skeleton=False
+[people_pose]   stand_walk_5_mirror.skelanim.usd: joints=0 anims=1 same_skeleton=False
+[people_pose]   stand_walk_7.skelanim.usd: joints=0 anims=1 same_skeleton=False
+[people_pose]   stand_walk_7_mirror.skelanim.usd: joints=0 anims=1 same_skeleton=False
+[people_pose]   stand_walk_loop.skelanim.usd: joints=0 anims=1 same_skeleton=False
+[people_pose]   stand_walk_loop_in_place.skelanim.usd: joints=0 anims=1 same_skeleton=False
+[people_pose]   stand_walk_loop_in_place_mirror.skelanim.usd: joints=0 anims=1 same_skeleton=False
+[people_pose]   stand_walk_loop_mirror.skelanim.usd: joints=0 anims=1 same_skeleton=False
+[people_pose]   type_keyboard.skelanim.usd: joints=0 anims=1 same_skeleton=False
+[people_pose] Isaac/People/MotionLibrary: ['BuiltinActions', 'HumanMotionLibrary.usd']
+[people_pose]   HumanMotionLibrary.usd: joints=81 anims=193 same_skeleton=False
+[people_pose] H1 bbox  w=0.556  d=0.391  h=1.806  w/h=0.308  -> STANDING (arms in)
+[people_pose]    link left_shoulder_pitch_link     world [-4.308, 6.466, 0.43]
+[people_pose]    link left_shoulder_roll_link      world [-4.313, 6.525, 0.439]
+[people_pose]    link left_shoulder_yaw_link       world [-4.313, 6.525, 0.305]
+[people_pose]    link left_elbow_link              world [-4.294, 6.525, 0.107]
+[people_pose]    link right_shoulder_pitch_link    world [-4.308, 6.156, 0.43]
+[people_pose]    link right_shoulder_roll_link     world [-4.313, 6.097, 0.439]
+[people_pose]    link right_shoulder_yaw_link      world [-4.313, 6.097, 0.305]
+[people_pose]    link right_elbow_link             world [-4.294, 6.097, 0.107]
+[people_pose]    link left_shoulder_pitch          world [-4.313, 6.311, 0.0]
+[people_pose]    link right_shoulder_pitch         world [-4.313, 6.311, 0.0]
+[people_pose]    link left_shoulder_roll           world [-4.313, 6.311, 0.0]
+[people_pose]    link left_shoulder_yaw            world [-4.313, 6.311, 0.0]
+[people_pose] variant sets found: 1
+[people_pose]    /Root/Robots/BOT_03: {'Hands': ['H1_Hands', 'None'], 'Physics': ['None', 'Physx', 'Physx_minimal']}
+[people_pose] ======================================================================
+[people_pose] WALK CLIP: MATCH -> https://omniverse-content-production.s3-us-west-2.amazonaws.com/Assets/Isaac/6.0/Isaac/People/Animations/LookAround.skelanim.usd
+[people_pose] H1 POSE  : STANDING (arms in)  (w/h 0.308)
+[people_pose] DONE
