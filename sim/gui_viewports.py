@@ -54,6 +54,7 @@ os.environ["SF_NO_AUTORUN"] = "1"
 
 import avatar as av  # noqa: E402  -- sibling module, see sys.path above
 import sensor_factory as sf  # noqa: E402
+import sensor_inspector as si  # noqa: E402
 from core.observation import Modality  # noqa: E402
 
 STAGE = os.environ.get("SF_STAGE", str(REPO / "sim" / "observatory_avatar.usd"))
@@ -63,6 +64,16 @@ VIEW_W, VIEW_H = 640, 360
 # of the scene and the demo reads fine without them.
 AVATAR_CAMS = os.environ.get("GUI_AVATAR_CAMS") == "1"
 ROBOT_CAMS = os.environ.get("GUI_ROBOT_CAMS") == "1"
+# WHICH sensor the single camera panel shows. The height contrast IS the demo --
+# the same walk seen from 0.2 m, 0.4 m, 1.7 m and 2.6 m -- so this is the knob
+# that reaches it:
+#     GUI_PANEL=BOT_01_CAM make gui     0.2 m, looks up at you
+#     GUI_PANEL=BOT_02_CAM make gui     0.4 m
+#     GUI_PANEL=BOT_03_CAM make gui     1.7 m, meets your face
+#     GUI_PANEL=INFRA_01_CAM make gui   2.6 m, the wall station (default)
+# You can also retarget it live without relaunching: the viewport panel's own
+# camera menu (top-left of the panel) lists every sensor camera on the stage.
+PANEL = os.environ.get("GUI_PANEL", "INFRA_01_CAM")
 # Collision is the frame-rate lever, not resolution: measured 2.48 -> 19.69 fps
 # from disabling unreachable colliders, and +0.8% from 1280x720 -> 960x540.
 DISABLE_HIGH_COLLIDERS = os.environ.get("GUI_KEEP_ALL_COLLIDERS") != "1"
@@ -109,6 +120,7 @@ class Boot:
         self.done = False
         self.follow_sub = None
         self.robots: dict = {}
+        self.inspector = None
         self.pin_at = None
         self.fps_at = None
         self._t = None
@@ -204,6 +216,13 @@ class Boot:
         # subscription is stashed on the instance because dropping it
         # unsubscribes and the body silently stops following.
         self.follow_sub = av.install_character_follow(stage)
+        # S12 readout. Kept on the instance: dropping either reference stops
+        # the panel updating, silently.
+        try:
+            self.inspector = si.install_inspector(stage, created)
+        except Exception as exc:
+            self.inspector = None
+            log(f"! sensor inspector failed to install: {exc!r}")
         if self.follow_sub is None:
             log("! character follow NOT installed -- the body will not move with the capsule")
 
@@ -213,20 +232,28 @@ class Boot:
             log("collider mask SKIPPED (GUI_KEEP_ALL_COLLIDERS=1) -- expect ~2.5 fps at Play")
 
         cams = {sid: rec["prim_path"] for sid, rec in created.items() if rec["kind"] == "camera"}
-        hidden = []
-        if not AVATAR_CAMS:
-            hidden += [c for c in cams if c.startswith("AVATAR_")]
-        if not ROBOT_CAMS:
-            hidden += [c for c in cams if c.startswith("BOT_")]
-        cams = {k: v for k, v in cams.items() if k not in hidden}
+        if PANEL not in cams:
+            log(f"! GUI_PANEL={PANEL!r} is not a camera on this stage; "
+                f"available: {', '.join(sorted(cams))}")
+        wanted = {PANEL} if PANEL in cams else set()
+        if AVATAR_CAMS:
+            wanted |= {c for c in cams if c.startswith("AVATAR_")}
+        if ROBOT_CAMS:
+            wanted |= {c for c in cams if c.startswith("BOT_")}
+        hidden = sorted(set(cams) - wanted)
+        cams = {k: v for k, v in cams.items() if k in wanted}
+        log(f"panel shows {PANEL} (GUI_PANEL=... to change, or use the panel's "
+            f"own camera menu live)")
         if hidden:
-            log(f"camera panels created but not shown: {', '.join(sorted(hidden))} "
+            log(f"cameras created but not panelled: {', '.join(hidden)} "
                 f"(GUI_AVATAR_CAMS=1 / GUI_ROBOT_CAMS=1)")
         made = build_viewports(stage, registry, cams)
 
         log("=" * 68)
         log(f"READY -- {len(created)} sensors, {len(made)} viewport panels bound, "
-            f"follow={'on' if self.follow_sub else 'OFF'}")
+            f"follow={'on' if self.follow_sub else 'OFF'}, "
+            f"inspector={'on' if self.inspector else 'OFF'}")
+        log("Sensor Inspector panel: select a sensor prim to see its live numbers")
         log("1. drag the panels into place")
         log("2. Window -> Layout -> Save Layout As...")
         log("3. THEN press Play. Never re-dock while a lidar sim is running.")

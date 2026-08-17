@@ -1,0 +1,37 @@
+[inspector_test] open_stage /workspace/sim/observatory_avatar.usd -> True
+[inspector_test] selection ['/Root/Infrastructure/INFRA_01/lidar_01'] -> resolves to sensor INFRA_01_LIDAR
+[inspector_test] play(); walking the avatar from [-1.75, 6.76, 0.9] toward the station at [4.91, 6.61, 2.6]
+[inspector_test]   step 0: points=290042 ON_AVATAR=1406 avatar_range=6.516 depth_min=1.0000075101852417 frame=44
+[inspector_test]   panel would read:
+[inspector_test]     | INFRA_01_LIDAR
+[inspector_test]     | /Root/Infrastructure/INFRA_01/lidar_01
+[inspector_test]     | 
+[inspector_test]     | frame          44
+[inspector_test]     | points         290,042
+[inspector_test]     | points_on_avatar 1,406
+[inspector_test]     | avatar_range_m 6.516
+[inspector_test]     | raw_elements   290,042
+[inspector_test]     | sentinel       0
+[inspector_test]     | depth_min_m    1.000
+[inspector_test]     | depth_max_m    43.760
+[inspector_test]     | timestamp_ns   300000000
+[inspector_test]   step 1: points=290328 ON_AVATAR=1374 avatar_range=5.769 depth_min=1.000004529953003 frame=68
+[inspector_test]   step 2: points=290262 ON_AVATAR=1209 avatar_range=4.946 depth_min=1.0000343322753906 frame=92
+[inspector_test]   step 3: points=290093 ON_AVATAR=654 avatar_range=4.148 depth_min=1.0000293254852295 frame=116
+[inspector_test]   step 4: points=290371 ON_AVATAR=176 avatar_range=3.397 depth_min=1.000000238418579 frame=146
+[inspector_test]   step 5: points=289958 ON_AVATAR=0 avatar_range=None depth_min=1.0000174045562744 frame=170
+[inspector_test]   step 6: points=290108 ON_AVATAR=0 avatar_range=None depth_min=1.0000016689300537 frame=194
+[inspector_test] ======================================================================
+[inspector_test]   points     [290042, 290328, 290262, 290093, 290371, 289958, 290108]
+[inspector_test]   depth_min  [1.0000075101852417, 1.000004529953003, 1.0000343322753906, 1.0000293254852295, 1.000000238418579, 1.0000174045562744, 1.0000016689300537]
+[inspector_test]   depth_max  [43.759647369384766, 43.769535064697266, 43.76310729980469, 43.76901626586914, 43.77305603027344, 43.769134521484375, 43.78361511230469]
+[inspector_test]   frame      [44, 68, 92]...[146, 170, 194]
+[inspector_test]   on_avatar  [1406, 1374, 1209, 654, 176, 0, 0]
+[inspector_test]   avatar_rng [6.516, 5.769, 4.946, 4.148, 3.397]
+[inspector_test]   [PASS] frame counter advances
+[inspector_test]   [PASS] readout is not empty
+[inspector_test]   [PASS] points land on the avatar at all
+[inspector_test]   [PASS] points_on_avatar RESPONDS to the walk (>10% spread)
+[inspector_test]   [PASS] avatar range tracks the walk
+[inspector_test]   => INSPECTOR READS LIVE DATA
+[inspector_test] DONE
