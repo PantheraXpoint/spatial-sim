@@ -46,8 +46,30 @@ research claim in miniature.
    registry; they never hardcode a sensor. Adding a sensor means adding a YAML
    entry.
 
-6. **This is a visual demo, not a data pipeline.** Skip calibration export,
-   warm-up frame handling, and determinism checks.
+6. **Two modes, and no flag may cross between them unnoticed.** The deliverable
+   is an embodied navigation and exploration benchmark, compared against HM3D,
+   MP3D, GOAT-Bench, HM3D-OVON and A-EQA, with dynamic environment change
+   during navigation as the contribution. The visual demo is how that pipeline
+   is inspected and trusted — not what it is for.
+
+   - **GUI / demo mode** — `make gui`, streaming, human in the loop. Optimised
+     for interactivity. Permitted relaxations: viewport panel render
+     resolution, the unreachable-collider mask
+     (`disable_unreachable_colliders`), async rendering while stopped, renderer
+     tuning flags.
+   - **Capture / benchmark mode** — exec mode, headless, no client. Optimised
+     for correctness. **None of those relaxations are permitted.** Warm-up
+     frame handling, determinism, and recorded sensor extrinsics are all
+     required.
+
+   Two that cross by accident, both silent:
+
+   - **The collider mask changes the physics under test.** It deletes
+     colliders, so the avatar is navigating a different scene. It must never be
+     active in capture mode.
+   - **`--/persistent/simulation/minFrameRate` must never be raised in capture
+     mode.** It protects frame rate by dropping physics substeps — the run
+     stays smooth and simulates something else.
 
 7. **Never install anything on the host.** No `pip install`, no `npm install`,
    no `apt install` outside a container — on either machine.
@@ -210,7 +232,20 @@ Ranked by how much time they cost.
    through it, cameras render nothing, radar returns nothing, segmentation has
    nothing to label. *Every sensor reading stays constant and nothing warns
    you.* This is the most likely failure of the entire design.
-2. **Trusting `flags & VALID` to mean "a real return". It does not.** With
+2. **Reading `generic-model-output` as if it were metres.** It is **spherical
+   and sensor-local by default** — per-element `x`/`y`/`z` are azimuth degrees,
+   elevation degrees, range metres — while `core/observation.py` promises
+   `points` as `(N, 3)` float **world metres**. Three conversions are owed:
+   spherical→Cartesian, sensor→world, and masking on `flags & VALID`. Each
+   fails silently, because `(N, 3) float` is satisfied by degrees exactly as
+   well as by metres. Skipping sensor→world is the one that breaks
+   **multi-sensor fusion specifically**: every station's cloud lands on the
+   origin, and each cloud still looks plausible on its own. And `flags & VALID`
+   does not mean "a real return" — the radar's empty-scene sentinel at exactly
+   100.000 m carries that bit; see the next item. Prefer
+   `IsaacExtractRTXSensorPointCloud`, which does the first two and hands back
+   the sensor→world matrix. Derivation: `sim/spikes/FINDINGS.md`.
+3. **Trusting `flags & VALID` to mean "a real return". It does not.** With
    nothing in front of it, the RTX radar emits one element per frame at
    **exactly `azimuth 0°, elevation 0°, range 100.000 m`** — a round number with
    zero variance, and no geometry anywhere near it. It is a no-detection
@@ -230,13 +265,13 @@ Ranked by how much time they cost.
    will hit it. Drop the sentinel explicitly — it is identifiable by its exact
    `(0, 0, 100.0)` triple — rather than assuming any single flag or range bound
    will do it for you.
-3. **RTX sensor without its own viewport.** It silently does not simulate.
-4. **Missing semantic label.** Segmentation and bbox annotators return empty.
-5. **Dynamic instead of kinematic avatar.** Ragdolls, trips on shelves, falls
+4. **RTX sensor without its own viewport.** It silently does not simulate.
+5. **Missing semantic label.** Segmentation and bbox annotators return empty.
+6. **Dynamic instead of kinematic avatar.** Ragdolls, trips on shelves, falls
    through floors.
-6. **pip install into system python instead of `./python.sh`.** Package
+7. **pip install into system python instead of `./python.sh`.** Package
    installs fine, Isaac Sim cannot see it.
-7. **Cache volumes mapped to 4.5-era paths.** Docker creates them happily; they
+8. **Cache volumes mapped to 4.5-era paths.** Docker creates them happily; they
    cache nothing; every restart costs ~10 minutes.
 
 ---
