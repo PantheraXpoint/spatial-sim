@@ -473,12 +473,18 @@ def create_camera(
 def create_registry_sensors(
     stage: Usd.Stage, registry: SensorRegistry, *, modalities=None,
     attach_annotators: bool = True, render_products: bool = True,
-    markers: bool = True,
+    markers: bool = True, lidar_draw: bool = True,
 ) -> dict[str, dict]:
     """Instantiate every registry sensor whose parent Xform exists.
 
     Returns one record per created sensor. Anything unresolvable is logged and
     skipped -- never guessed into existence.
+
+    ``lidar_draw=False`` builds the lidar and its annotator as usual but
+    attaches no debug-draw writer, so the sensor still simulates and still
+    returns points with nothing rendered for them. That separates the cost of
+    drawing ~419,000 points from the cost of casting them -- see GUI_LIDAR_DRAW
+    in sim/gui_viewports.py. Default True: every existing caller is unaffected.
     """
     target = avatar_target(stage)
     if markers:
@@ -504,22 +510,25 @@ def create_registry_sensors(
                 spec.prim_path, config=spec.config, translations=np.array([[0.0, 0.0, 0.0]])
             )
             sensor = LidarSensor(lidar, annotators=["generic-model-output"])
-            draw = "attached"
-            try:
-                # 6.x debug draw. NOT the RtxLidarDebugDrawPointCloudBuffer
-                # replicator writer that 5.x examples reach for. size/color are
-                # forwarded to writer.initialize(): the defaults draw small dark
-                # points, which is how 419,000 returns managed to be invisible
-                # against a grey floor.
-                sensor.attach_writer(
-                    "draw-point-cloud", size=LIDAR_PT_SIZE, color=LIDAR_PT_COLOR
-                )
-            except TypeError:
-                # Older writer signature: fall back rather than lose the draw.
-                sensor.attach_writer("draw-point-cloud")
-                draw = "attached (no size/color support)"
-            except Exception as exc:
-                draw = f"failed: {exc!r}"
+            if not lidar_draw:
+                draw = "skipped (lidar_draw=False)"
+            else:
+                draw = "attached"
+                try:
+                    # 6.x debug draw. NOT the RtxLidarDebugDrawPointCloudBuffer
+                    # replicator writer that 5.x examples reach for. size/color
+                    # are forwarded to writer.initialize(): the defaults draw
+                    # small dark points, which is how 419,000 returns managed to
+                    # be invisible against a grey floor.
+                    sensor.attach_writer(
+                        "draw-point-cloud", size=LIDAR_PT_SIZE, color=LIDAR_PT_COLOR
+                    )
+                except TypeError:
+                    # Older writer signature: fall back rather than lose the draw.
+                    sensor.attach_writer("draw-point-cloud")
+                    draw = "attached (no size/color support)"
+                except Exception as exc:
+                    draw = f"failed: {exc!r}"
             log(f"{spec.sensor_id} -> {spec.prim_path} (lidar {spec.config}, draw {draw})")
             made[spec.sensor_id] = {
                 "prim_path": spec.prim_path, "kind": "lidar", "sensor": sensor,

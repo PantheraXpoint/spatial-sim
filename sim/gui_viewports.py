@@ -77,6 +77,19 @@ PANEL = os.environ.get("GUI_PANEL", "INFRA_01_CAM")
 # Collision is the frame-rate lever, not resolution: measured 2.48 -> 19.69 fps
 # from disabling unreachable colliders, and +0.8% from 1280x720 -> 960x540.
 DISABLE_HIGH_COLLIDERS = os.environ.get("GUI_KEEP_ALL_COLLIDERS") != "1"
+# The two gates that make the Play-state frame rate attributable. Measured
+# 2026-08-24: 16.99 fps at Play with two panels + physics + the RTX lidar + its
+# point-cloud draw, against 50 fps stopped with two panels and no lidar draw.
+# Three costs -- physics, the lidar's ray casting, drawing ~419,000 points --
+# are folded into one number with nothing separating them. These gates produce
+# the two missing measurements:
+#     GUI_LIDAR=0        no lidar created at all   (physics + panels only)
+#     GUI_LIDAR_DRAW=0   lidar casts and returns points, nothing is drawn
+# Take the difference between the three runs, at the same Play state, to
+# attribute the cost. Both default ON, so an unset environment is exactly the
+# behaviour every earlier session measured.
+LIDAR = os.environ.get("GUI_LIDAR") != "0"
+LIDAR_DRAW = os.environ.get("GUI_LIDAR_DRAW") != "0"
 
 
 def log(msg: str) -> None:
@@ -105,11 +118,86 @@ def build_viewports(stage, registry, created: dict) -> list[str]:
         try:
             win = create_viewport_window(name=sensor_id, width=VIEW_W, height=VIEW_H)
             win.viewport_api.set_active_camera(prim_path)
+            # width/height above size the WINDOW. They say nothing about the
+            # render target, which starts at the /app/renderer/resolution
+            # default: measured 2026-08-24, every panel rendered 1280x720 and
+            # downscaled into a 640x360 box, so ~75% of each panel's pixels
+            # were computed and thrown away. GUI_ROBOT_CAMS=1 opens five of
+            # them.
+            #
+            # The render resolution is a separate property on the viewport
+            # API -- ViewportAPI.resolution, a (w, h) tuple with a real
+            # setter (omni.kit.widget.viewport 109.2.0 in this image), which
+            # writes through to the backing Hydra texture. It is also exactly
+            # what isaacsim.core.rendering_manager's own
+            # ViewportManager.create_viewport_window does after constructing
+            # the window, for the same reason. Failing here costs frame rate,
+            # not the panel, so it must not take the panel down with it.
+            try:
+                win.viewport_api.resolution = (VIEW_W, VIEW_H)
+            except Exception as exc:
+                log(f"! {sensor_id} render resolution not set -- panel stays "
+                    f"at the renderer default: {exc!r}")
             made.append(sensor_id)
             log(f"viewport '{sensor_id}' -> {prim_path}")
         except Exception as exc:
             log(f"! viewport for {sensor_id} failed: {exc!r}")
     return made
+
+
+def log_panel_resolutions(names: list[str]) -> None:
+    """What each panel is ACTUALLY rendering, printed at READY.
+
+    Read back from the live window rather than echoing the number we asked
+    for: a set that silently did not take looks identical from the call site,
+    and the viewport HUD was until now the only place the truth appeared.
+    """
+    try:
+        from omni.kit.viewport.utility import get_viewport_from_window_name
+    except Exception as exc:
+        log(f"! panel resolutions unavailable: {exc!r}")
+        return
+    for name in names:
+        try:
+            api = get_viewport_from_window_name(name)
+            if api is None:
+                log(f"! panel {name}: no window found to read resolution from")
+                continue
+            res, full = api.resolution, api.full_resolution
+            if not res or not full:
+                log(f"! panel {name}: viewport reports no resolution yet")
+                continue
+            # .resolution is post-scale (what the renderer computes);
+            # .full_resolution is what was requested. They differ only when
+            # /app/renderer/resolution/multiplier is not 1.
+            scaled = ""
+            if (int(res[0]), int(res[1])) != (int(full[0]), int(full[1])):
+                scaled = f" (requested {int(full[0])}x{int(full[1])}, scaled)"
+            log(f"panel {name} renders {int(res[0])}x{int(res[1])} px{scaled}"
+                f"  [asked for {VIEW_W}x{VIEW_H}]")
+        except Exception as exc:
+            log(f"! panel {name}: resolution readback failed: {exc!r}")
+
+
+def log_lidar_config(created: dict) -> None:
+    """Which of the lidar's costs are live, printed at READY.
+
+    An fps number is only comparable to another session's if the configuration
+    travels with it, and these two gates are what change it. Read back from the
+    created records rather than echoing the environment: attach_writer can fail
+    on its own, and a run whose draw failed is not the run GUI_LIDAR_DRAW=0 was
+    meant to produce.
+    """
+    lidars = {sid: rec for sid, rec in created.items() if rec.get("kind") == "lidar"}
+    gates = f"GUI_LIDAR={'1' if LIDAR else '0'} GUI_LIDAR_DRAW={'1' if LIDAR_DRAW else '0'}"
+    if not lidars:
+        why = "gated off" if not LIDAR else "none in the registry resolved"
+        log(f"lidar config: NONE created ({why}) -- {gates}. "
+            f"fps from this session carries no lidar cost.")
+        return
+    for sid, rec in lidars.items():
+        log(f"lidar config: {sid} created, draw {rec.get('draw_writer', 'unknown')}"
+            f" -- {gates}")
 
 
 class Boot:
@@ -200,8 +288,18 @@ class Boot:
 
         # Annotators off: this session is for looking, and the viewports are
         # what you look through. sensor_factory attaches them when capturing.
+        # GUI_LIDAR=0 drops the lidar by narrowing the modality filter the
+        # factory already takes, rather than by deleting the prim afterwards: a
+        # sensor never created costs nothing, and nothing else in the registry
+        # changes. The filter is built from the Modality enum, not from what
+        # this registry happens to contain, so it can never come out empty --
+        # which the factory would read as "no filter" and create the lidar
+        # anyway. With the gate on, `modalities` stays None and the call is the
+        # one every earlier session made.
+        modalities = None if LIDAR else {m for m in Modality if m is not Modality.LIDAR}
         created = sf.create_registry_sensors(
-            stage, registry, attach_annotators=False, render_products=False
+            stage, registry, attach_annotators=False, render_products=False,
+            modalities=modalities, lidar_draw=LIDAR_DRAW,
         )
         for sensor_id, rec in created.items():
             log(f"sensor {sensor_id} -> {rec['prim_path']} ({rec['kind']})")
@@ -253,6 +351,8 @@ class Boot:
         log(f"READY -- {len(created)} sensors, {len(made)} viewport panels bound, "
             f"follow={'on' if self.follow_sub else 'OFF'}, "
             f"inspector={'on' if self.inspector else 'OFF'}")
+        log_panel_resolutions(made)
+        log_lidar_config(created)
         log("Sensor Inspector panel: select a sensor prim to see its live numbers")
         log("1. drag the panels into place")
         log("2. Window -> Layout -> Save Layout As...")
