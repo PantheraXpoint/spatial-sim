@@ -1,4 +1,110 @@
-# S4 — radar spike findings
+# Spike and findings log
+
+What the spikes measured and what each one turned out to have got wrong:
+sensor behaviour, environment facts, and performance sessions. **Newest
+first** — a new dated section goes directly under this heading, not at the
+end of the file.
+
+## GUI PERFORMANCE — 2026-08-24, and it is the first uncontended measurement
+
+**Every earlier fps number in this project was taken on a loaded host.** The
+collider sweep that produced **2.48 → 19.69 fps** ran at load ~13.9. This
+session ran at load **0.68**, no other GPU compute processes, all four 3090s
+free. So 19.69 is a *floor*, not a result, and no number below is comparable to
+anything measured before today.
+
+Conditions unless a line says otherwise: `make gui`, two viewport panels,
+**camera stationary**, avatar not driven. Both timeline states are reported —
+stopped and playing differ by more than any knob tested here. Numbers are the
+viewport HUD's and the `[gui_viewports] fps` line's, which agree.
+
+### Panel render resolution — 38 → 50 fps stopped, and the arguments lied
+
+`create_viewport_window(width=, height=)` sizes the **window**, not the render
+target. Both panels were rendering **1280×720** and downscaling into a 640×360
+box: ~75% of every panel's pixels computed and discarded. The render resolution
+is a separate property, `ViewportAPI.resolution`, set after the window exists.
+
+```
+1 panel                              59-60 fps stopped   (app loop caps at 60)
+2 panels, 1280x720 render               38 fps stopped
+2 panels,  640x360 render               50 fps stopped   +32%
+```
+
+Per-frame, that is 16.7 ms → 26.3 ms → 20.0 ms, so the **cost of one extra
+panel fell from ~9.6 ms to ~3.3 ms**. That is what makes the five-viewport S9
+demo (`GUI_ROBOT_CAMS=1`) viable; at 9.6 ms each it was not.
+
+### The lidar is free at Play — both halves of it
+
+Measured with the `GUI_LIDAR` / `GUI_LIDAR_DRAW` gates, at Play:
+
+```
+GUI_LIDAR=0        no lidar created            14-20 fps
+GUI_LIDAR_DRAW=0   lidar casts, nothing drawn  14-20 fps
+both on            lidar + ~419,000 points     ~17 fps
+```
+
+Ray casting and drawing ~419,000 points are **both below measurement noise**.
+The three configurations are one spread, not three. **S8's debug draw costs
+nothing** — it can stay on for the demo.
+
+### Physics is 100% of the Play-state cost
+
+```
+stopped   ~30-40 ms/frame
+playing   ~50-70 ms/frame
+```
+
+Nothing else moved that number in this session. The remaining cost is the
+**~2,000 exact triangle-mesh colliders** still enabled after
+`disable_unreachable_colliders` switches off 1,486.
+
+### Thread count is not a lever
+
+`--/persistent/physics/numThreads` at **16 and 32 are indistinguishable** on
+this 64-thread EPYC 7543. `0` — synchronous, physics on the main thread — is
+**untested**.
+
+### Camera motion costs ~10-20 fps, stopped
+
+Moving the viewport camera while measuring is worth more than most of the knobs
+above. **Fix the camera position before comparing any two runs.** This is the
+explanation for the 50 vs 30-40 fps discrepancy between readings taken in this
+same session — not lidar state, not thread count.
+
+### Renderer
+
+**RTX - Real-Time 2.0**, confirmed in the viewport HUD. Everything above was
+measured under it. `--/rtx/pathtracing/cached/retrace=0.1` remains **untested**;
+this session ran no path tracing at all.
+
+### Convex-hull conversion — REJECTED, and not on performance grounds
+
+Converting the remaining triangle-mesh colliders to convex hulls would be the
+obvious next win, and it is refused. The benchmark measures **dynamic
+environment change during embodied navigation**, which makes collision geometry
+*the measured quantity*, and a hull fills concavities — a shelf you can reach
+into becomes a shelf you cannot. Walls and floors are convex already and could
+convert safely; **anything that can move during an episode must stay exact.**
+Buying frame rate here would mean buying it out of the result.
+
+### Two comments this session made stale
+
+Recorded, not edited — they belong to the code that owns them:
+
+- **`sim/gui_viewports.py`**, on the collider mask: *"+0.8% from 1280x720 ->
+  960x540"*. That was true when measured, at Play, where physics dominates and
+  swamps any render cost. It reads today as "resolution does not matter", and
+  panel **render** resolution measured **+32% stopped**. Different state,
+  different conclusion.
+- **`sim/sensor_factory.py`**, the `lidar_draw` docstring: it exists to
+  *"separate the cost of drawing ~419,000 points from the cost of casting
+  them"*. The measurement it was written for has now been made, and **there is
+  no drawing cost to separate.** The parameter is still useful as a control;
+  its stated premise is spent.
+
+---
 
 ## S4 MEASURED — 2026-08-14, and the answer is NO with one large caveat
 
