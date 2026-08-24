@@ -63,14 +63,43 @@ stream: ## Launch headless streaming. -v shows shader warm-up progress.
 	$(COMPOSE) run --rm --service-ports sim ./runheadless.sh -v \
 		--enable omni.physx.cct
 
+# CPU worker threads for the gui session. Sweep them without editing this file:
+#   PHYS_THREADS=8 KIT_THREADS=16 make gui
+#
+# Isaac takes the whole machine by default -- carb.tasking documents
+# threadCount 0 as carb::thread::hardware_concurrency(), and PhysX's "Num
+# Simulation Threads" preference is 0 (auto) out of the box. On a 64-thread
+# EPYC 7543 that is 64 workers, and NVIDIA's performance handbook warns that
+# spawning too many worker threads may lead to CPU bottlenecking, calling 32
+# threads optimal for most use cases.
+#
+# Worth having because physics is where the frame rate goes. Measured
+# 2026-08-24 on an idle host (load 0.68): no lidar, lidar-without-draw and
+# lidar-with-draw all land at 14-20 fps at Play against 30-50 stopped, so the
+# lidar is not the cost -- physics is 100% of it.
+#
+# This is a SCHEDULING change and does not alter physics results: the same
+# scene simulates the same way on 16 threads as on 64, only slower or faster.
+# That is the property that matters here, because this project is building
+# benchmarks and a knob that changed the physics would invalidate every number
+# measured on either side of it.
+PHYS_THREADS ?= 16
+KIT_THREADS  ?= 32
+
 gui: ## Stream the observatory with every sensor built and every panel bound.
 	@# Same launcher as `stream`, plus sim/gui_viewports.py, which opens
 	@# observatory_avatar.usd, authors the stations from config/scene.yaml,
 	@# creates the registry's sensors and binds one viewport per camera. It
 	@# does NOT press Play. Dock the panels, save the layout, THEN Play --
 	@# never re-dock while an RTX lidar sim is running.
+	@#
+	@# Thread flags go BEFORE --exec: Kit reads everything after the script
+	@# path as arguments to the script, so a kit flag placed after it is
+	@# swallowed silently. See PHYS_THREADS/KIT_THREADS above.
 	$(COMPOSE) run --rm --service-ports sim ./runheadless.sh -v \
 		--enable omni.physx.cct \
+		--/persistent/physics/numThreads=$(PHYS_THREADS) \
+		--/plugins/carb.tasking.plugin/threadCount=$(KIT_THREADS) \
 		--exec /workspace/sim/gui_viewports.py
 
 encoder-check: ## Confirm NVENC can actually OPEN A SESSION. Run before make stream.
