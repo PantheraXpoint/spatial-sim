@@ -5,6 +5,168 @@ sensor behaviour, environment facts, and performance sessions. **Newest
 first** — a new dated section goes directly under this heading, not at the
 end of the file.
 
+## SEMANTICS AUDIT AND RENDER PROBE — 2026-08-25, and the recon was wrong by a factor of 313
+
+Conditions: idle host, all four 3090s free, no other GPU tenant, exec mode under
+`runheadless.sh`, `observatory_avatar.usd`. Two scripts, both report-only:
+`sim/spikes/_diag_semantics_audit.py` reads USD and renders nothing;
+`sim/spikes/_diag_semantics_render.py` renders and reads `idToLabels`. Neither
+authors a semantic label, saves a layer, or creates a prim under `/Root` — the
+render probe snapshots the prim set under the default prim before and after
+setup and diffs it, so "the stage was not touched" is measured (0 created, 0
+removed) rather than asserted. Outputs: `logs/s10_semantics_audit.{json,log}`,
+`logs/s10_semantics_render.{json,log}`.
+
+**Headline: the observatory stage is 98.5% labelled, not 0.3%.** `tasks/SERVER.md`
+S5 recorded "Only **11** prims carry semantics, all of them parts of the worker
+character; the shelving, floor, walls and forklift are unlabelled." That is
+wrong and has been corrected in place. Measured: **3,441 of 3,493 renderable
+prims carry a direct label — 98.5% by count, 99.0% by bounding-box volume,
+across 37 classes.**
+
+### The schema split, which is why the recon read 11
+
+Two incompatible semantics schemas ship in 6.0.1 and this stage uses both. Read
+out of the shipped `generatedSchema.usda` of each, not recalled:
+
+| schema | applied as | attribute | entries here |
+|---|---|---|---|
+| `UsdSemantics.LabelsAPI` (current, `omni.usd.libs`) | `SemanticsLabelsAPI:<tax>` | `token[] semantics:labels:<tax>` | **13** |
+| `Semantics.SemanticsAPI` (deprecated, `omni.usd.schema.semantics`) | `SemanticsAPI:<inst>` | `string semantic:<inst>:params:semanticType` + `…:semanticData` | **3,467** |
+
+The 2026-08-12 recon looked for the current schema only. The 11 it found are
+the Worker's; the 13 current-schema entries are the avatar's, authored later by
+`sim/avatar.py`. Zero prims carry the attributes without the API schema applied
+— the third case, and the nastiest, since it looks correct in a layer dump and
+`LabelsAPI.Get()` cannot see it.
+
+Class census, `class` taxonomy (the only one on this stage): `box` 1841,
+`rack` 432, `sign` 253, `pallet` 158, `wall` 122, `bottle` 120, `ceiling` 72,
+`floor_decal` 72, `lamp` 60, `bracket` 59, `pillar` 54, `floor` 54, `crate` 51,
+`barel` 37 (the asset's spelling), `barcode` 20, `wire` 17, `person` 13,
+`paper_note` 12, `fire_extinguisher` 7, `cone` 6, `emergency_board` 3,
+`fuse_box` 2, then singletons. Only **41** renderable prims carry nothing: 40
+ceiling beams `SM_BeamA_9M` (0.36 m³, 7.3 m² each) and one forklift fork.
+
+### Do the 6.0.1 annotators read the deprecated schema? YES — measured
+
+USD cannot answer this and neither can string-scanning the plugin
+(`libomni.syntheticdata.plugin.so` carries strings for *both* schemas). The
+audit's headline was therefore conditional: deprecated read → 98.5%; not read →
+0.4%, the avatar alone. Settled by render, four probes, 480×480, targets chosen
+off the stage rather than hardcoded.
+
+**`idToLabels` alone does not settle it** — a class can appear in the map with
+no pixel carrying it. The number that answers the question is the labelled
+pixel fraction.
+
+Probe `racking`, camera on the largest `rack`-labelled prim
+(`/Root/Warehouse/SM_RackPile_91/…/Section0`), whose labels are *entirely*
+deprecated-schema:
+
+```
+LABELLED 227,594 / 230,400 px = 98.78% of frame     18 map entries, 16 with pixels
+rack    55,429  24.06%     pallet  14,505  6.30%     sign          1,361  0.59%
+wall    45,717  19.84%     pillar  14,415  6.26%     floor_decal   1,052  0.46%
+ceiling 30,162  13.09%     lamp    10,364  4.50%     bracket         283  0.12%
+barel   22,212   9.64%     box      5,999  2.60%     wire            192  0.08%
+floor   21,267   9.23%     crate    3,147  1.37%     UNLABELLED    2,806  1.22%
+```
+
+Probe `avatar` (positive control, current schema only): `person` 7,233 px
+(3.14%), frame **99.89%** labelled. Probe `stage_camera`, the existing
+`/Root/Avatar/body_mesh/cam_third_person` with nothing created: `person`
+15,276 px (6.63%), frame **100.00%** labelled.
+
+**Both schemas are read.** Since all 13 current-schema labels are `person` on
+the avatar, every one of those 16 warehouse classes can only have come from
+`Semantics.SemanticsAPI`. No migration is required for segmentation to work.
+
+### The controls, because "empty" has more than one cause
+
+Every probe carried `rgb` (is anything rendering) and
+`instance_id_segmentation` (is the target in frame — it maps prim **paths** and
+never consults semantics, so it separates "the annotator ignored these labels"
+from "the camera was pointed at a wall"). All four: rgb ~921,500 non-zero px,
+target confirmed in frame at 4.03% / 3.14% / 2.95% / 6.63% of pixels, 390 / 50 /
+356 / 134 distinct instances visible. `ids_missing_from_map_pixels` was **0**
+everywhere — no pixel carried an id absent from `idToLabels`, which is the thing
+`tests/contract.py` forbids of the observation adapter and which the annotator
+itself also honours.
+
+### RETRACTED: "/Root/Worker reads as unlabelled"
+
+The audit found `/Root/Worker` with **11 renderable meshes, 0 direct labels, 11
+inherited** — its labels sit on the parent Xforms
+(`/Root/Worker/ManRoot/Worker/Field_Jacket`), one level above the meshes
+(`…/Field_Jacket/Field_Jacket/Field_Jacket`). From
+`omni.syntheticdata.set_default_semantic_filter(predicate="*:*",
+hierarchical_labels=False, matching_labels=True)` being the shipped default —
+"option to propagate semantic labels within the hierarchy, from parent to
+children" — and `omni.replicator.core` calling `set_semantic_filter` without
+overriding it, **it was inferred that the Worker would read as unlabelled. That
+inference is wrong.**
+
+A third probe framed whichever subtree the scan found in exactly that state,
+discovered rather than hardcoded, and ancestor labels reach the annotator:
+
+```
+fieldjacket 3,098 px 1.34%   basketballshoes 377 0.16%   basebody   295 0.13%
+cargopant   2,859 px 1.24%   baseballcap     165 0.07%
+```
+
+The six that did not appear — `baseeye`, `baseeyeocclusion`, `basetearline`,
+`baseteeth`, `basetongue`, `vneckscrubshirt` — are eyes, tearline, teeth,
+tongue, eye-occlusion and the shirt under the jacket: not visible on a clothed
+person at 3.7 m, not a semantics failure.
+
+The lesson is the ordinary one and it cost a wrong claim in a report: a default
+argument read out of shipped source is a hypothesis, not a measurement. It was
+labelled as such at the time and was still wrong. `s7_camera_capture.jsonl`
+(2026-08-15) had already contradicted it — its `idToLabels` contains
+`fieldjacket`, `basebody` and `baseballcap`, which exist nowhere but on those
+parent Xforms — and nobody had read the label names out of it.
+
+That probe also caught both humans in one frame: the Worker as
+`fieldjacket`/`cargopant`/`basebody`, the avatar as `person` (3,880 px). **Two
+people in the scene, two vocabularies, and `person` on only one of them.** That
+is a ground-truth defect for a navigation benchmark and it is a labelling
+*quality* problem, not a schema one — as is `barel`.
+
+### Replicator captures NOTHING while the timeline is stopped
+
+Incidental to the probe and now failure mode 10 in CLAUDE.md. The render script
+deliberately samples with the timeline stopped first, so that a run which fills
+never perturbs the scene at all. It does not fill:
+
+```
+40 stopped frames   ->  no data on any of 4 render products
+play()              ->  all 4 filled at frame 49, the very next frame
+```
+
+Filling one frame after `play()` is what rules out "it just needed a longer
+warm-up". Nothing raises; `get_data()` returns an empty buffer, which is
+indistinguishable from a working sensor that sees nothing. A capture script that
+samples a fixed number of frames and exits therefore writes a complete,
+well-formed, entirely empty dataset. Capture mode: press Play, warm up, *then*
+sample.
+
+### What is NOT decided
+
+**Migrating the 3,467 deprecated-schema labels to `UsdSemantics.LabelsAPI` is
+optional and undecided.** Segmentation works without it — that is the measured
+result above, not an assumption. Against migrating: it edits a shipped asset's
+semantics for no functional gain today. For migrating: the schema is deprecated,
+`pxr.Semantics` already warns on import, and a future Isaac release that drops
+it would silently take 98.5% of the ground truth with it. The path, if it is
+ever taken, is
+`isaacsim.core.experimental.utils.semantics.upgrade_prim_semantics_to_labels(prim,
+include_descendants=True)` — old `semanticType` becomes the new taxonomy, old
+`semanticData` becomes the label, and it removes the old API as it goes. **Do
+not run it as a side-effect of anything else.**
+
+---
+
 ## S11 OBSERVATION ADAPTER — 2026-08-25, and two conversions nobody had counted
 
 Conditions: idle host, all four 3090s free, exec mode under `runheadless.sh`,

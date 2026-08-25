@@ -195,12 +195,33 @@ same directory.
 >   children: `forklift`, `GroundPlane`, `Lights`, `Warehouse`, `Cameras`.
 >   Five cameras already exist: `Camera_01`, `Camera_02`, `Camera_Worker_Anim`,
 >   `Camera_Forklift_Anim`, `Camera_Shelves_Anim`.
-> - **Semantic labels are NOT already applied to the warehouse.** Only **11**
+> - **CORRECTED 2026-08-25 — the warehouse IS labelled. This bullet was wrong.**
+>   It read: *"Semantic labels are NOT already applied to the warehouse. Only 11
 >   prims carry semantics, all of them parts of the worker character
->   (`/Root/Worker/ManRoot/Worker/CC_Base_Body`, `Field_Jacket`,
->   `Baseball_cap`, …). The shelving, floor, walls and forklift are unlabelled.
->   Budget for S10 accordingly — the "60% pre-labelled" premise holds for the
->   *character*, not the environment.
+>   (`/Root/Worker/ManRoot/Worker/CC_Base_Body`, `Field_Jacket`, `Baseball_cap`,
+>   …). The shelving, floor, walls and forklift are unlabelled."*
+>
+>   Audited on the composed stage: **3,441 of 3,493 renderable prims carry a
+>   direct label — 98.5% by count, 99.0% by bounding-box volume — across 37
+>   classes.** `box` 1841, `rack` 432, `sign` 253, `pallet` 158, `wall` 122,
+>   `bottle` 120, `ceiling` 72, `floor_decal` 72, `lamp` 60, `bracket` 59,
+>   `pillar` 54, `floor` 54, `crate` 51, `barel` 37 (sic), and on down. Only
+>   **41** renderable prims carry nothing at all: 40 ceiling beams
+>   (`SM_BeamA_9M`) and one forklift fork.
+>
+>   **Why 2026-08-12 read 11:** it looked for the 6.x `UsdSemantics.LabelsAPI`
+>   only. **3,467 of the 3,480 label entries are on the deprecated
+>   `Semantics.SemanticsAPI`** (`semantic:<inst>:params:semanticType` /
+>   `semanticData`). The 11 it found are the Worker's; the 13 on the current
+>   schema are the avatar's, authored later by `sim/avatar.py`.
+>
+>   **Isaac Sim 6.0.1's annotators read BOTH schemas** — confirmed by render,
+>   not by inspection: a camera on the racking returns `rack` at 24.1% of pixels
+>   and `box` at 2.6%, frame 98.8% labelled; the avatar returns `person`. So the
+>   "60% pre-labelled" premise held for the environment as well as the
+>   character. `sim/spikes/_diag_semantics_audit.py`,
+>   `sim/spikes/_diag_semantics_render.py`; derivation in
+>   `sim/spikes/FINDINGS.md`.
 
 Save as `scenes/observatory_base.usd`.
 
@@ -344,9 +365,24 @@ dropped; see above.
 > Measured caveat: Motion BVH itself is harmless here (lidar + BVH ran clean);
 > it was never the problem.
 >
-> **Semantics is the load-bearing half of this task and it is bigger than the
+> ~~**Semantics is the load-bearing half of this task and it is bigger than the
 > plan assumed** — the warehouse asset ships with only the worker character
-> labelled, not the environment. See the reconnaissance note under S5.
+> labelled, not the environment.~~ **Retracted 2026-08-25: this repeated the S5
+> reconnaissance error, corrected above.** The environment is 98.5% labelled and
+> the annotators read the deprecated schema it is labelled with, so **S10 is
+> much smaller than planned, not bigger.** What is actually left is a labelling
+> *quality* question rather than a coverage one:
+>
+> - the avatar is `person`, but `/Root/Worker` — the other human in the scene —
+>   is `fieldjacket` / `cargopant` / `basebody` / `baseballcap`, never `person`.
+>   Two humans, two vocabularies. That is a ground-truth defect for a navigation
+>   benchmark and the Semantics Schema Editor is the tool for it;
+> - 41 prims carry nothing (40 ceiling beams, one forklift fork);
+> - the asset spells it `barel`.
+>
+> Migrating the 3,467 deprecated-schema labels to `UsdSemantics.LabelsAPI` is
+> **optional and undecided** — segmentation works without it. See
+> `sim/spikes/FINDINGS.md`.
 
 ---
 

@@ -1,0 +1,138 @@
+report       /workspace/sim/spikes/logs/s10_semantics_render.json   (requested (SR_OUT))
+==============================================================================
+DOES THE 6.0.1 ANNOTATOR READ THE DEPRECATED SEMANTICS SCHEMA?
+==============================================================================
+stage        /workspace/sim/observatory_avatar.usd
+default prim /Root   1.0 m/unit   probes at 480x480
+scanned: 3454 labelled prims, 3493 renderable, 2.3s
+label entries on Semantics.SemanticsAPI: 3467   on UsdSemantics.LabelsAPI: 13
+target 'racking' -> /Root/Warehouse/SM_RackPile_91/SM_RackPile_06/SM_RackPile_06/Section0  bbox ['1.01', '3.12', '1.00'] m  (432 rack prims on the stage, 0 'box' prims within 4 m)
+target 'avatar'  -> /Root/Avatar  bbox ['0.48', '1.96', '1.94'] m  expect 'person'
+target 'ancestor_only' -> /Root/Worker  (11 meshes labelled only via a parent)  labels present: ['BaseBody', 'BaseEye', 'BaseEyeOcclusion', 'BaseTearLine', 'BaseTeeth', 'BaseTongue', 'Baseballcap', 'BasketballShoes', 'Cargopant', 'FieldJacket', 'VNeckScrubShirt']
+  probe racking        eye [-12.53, 9.73, 5.38] -> look [-15.5, 14.87, 4.6]  clearance 1.69 m
+  probe avatar         eye [-6.7, 6.17, 1.39] -> look [-3.47, 4.31, 0.9]  clearance 1.39 m
+  probe ancestor_only  eye [1.93, 6.77, 1.33] -> look [-1.75, 6.77, 0.85]  clearance 1.33 m
+  probe stage_camera   /Root/Avatar/body_mesh/cam_third_person (existing, not created)
+prims created under /Root by this setup: 0  []
+
+sampling with the timeline STOPPED for up to 40 frames before playing
+nothing captured in 40 stopped frames -- calling play()
+
+------------------------------------------------------------------------------
+PROBE racking   (432 rack / 1841 box prims on the stage, 0 boxes within 4 m of this one)
+------------------------------------------------------------------------------
+  target        /Root/Warehouse/SM_RackPile_91/SM_RackPile_06/SM_RackPile_06/Section0
+  schema tested Semantics.SemanticsAPI
+  expecting     ['rack', 'box']
+  rgb non-zero  921,573 px
+  target in frame (instance_id, semantics-independent): True  9,292 px (4.03%), 390 instances visible
+  idToLabels    18 entries; 16 classes actually carry pixels
+  LABELLED PIXELS 227,594 of 230,400  (98.78% of the frame)
+      pixels     pct  class
+      55,429  24.06%  rack
+      45,717  19.84%  wall
+      30,162  13.09%  ceiling
+      22,212   9.64%  barel
+      21,267   9.23%  floor
+      14,505   6.30%  pallet
+      14,415   6.26%  pillar
+      10,364   4.50%  lamp
+       5,999   2.60%  box
+       3,147   1.37%  crate
+       2,806   1.22%  UNLABELLED
+       1,461   0.63%  bottle
+       1,361   0.59%  sign
+       1,052   0.46%  floor_decal
+         283   0.12%  bracket
+         192   0.08%  wire
+          28   0.01%  fire_extinguisher
+  VERDICT: FOUND ['rack', 'box']
+------------------------------------------------------------------------------
+PROBE avatar   (positive control for the current schema)
+------------------------------------------------------------------------------
+  target        /Root/Avatar
+  schema tested UsdSemantics.LabelsAPI
+  expecting     ['person']
+  rgb non-zero  921,600 px
+  target in frame (instance_id, semantics-independent): True  7,233 px (3.14%), 50 instances visible
+  idToLabels    9 entries; 7 classes actually carry pixels
+  LABELLED PIXELS 230,145 of 230,400  (99.89% of the frame)
+      pixels     pct  class
+     118,008  51.22%  floor
+      91,392  39.67%  wall
+      12,069   5.24%  pillar
+       7,233   3.14%  person
+       1,015   0.44%  bracket
+         320   0.14%  ceiling
+         255   0.11%  UNLABELLED
+         108   0.05%  lamp
+  VERDICT: FOUND ['person']
+------------------------------------------------------------------------------
+PROBE ancestor_only   (labels sit on parent Xforms, not on the meshes -- does the annotator propagate them?)
+------------------------------------------------------------------------------
+  target        /Root/Worker
+  schema tested Semantics.SemanticsAPI
+  expecting     ['basebody', 'baseeye', 'baseeyeocclusion', 'basetearline', 'baseteeth', 'basetongue', 'baseballcap', 'basketballshoes', 'cargopant', 'fieldjacket', 'vneckscrubshirt']
+  rgb non-zero  921,490 px
+  target in frame (instance_id, semantics-independent): True  6,794 px (2.95%), 356 instances visible
+  idToLabels    27 entries; 25 classes actually carry pixels
+  LABELLED PIXELS 227,264 of 230,400  (98.64% of the frame)
+      pixels     pct  class
+     111,492  48.39%  floor
+      31,020  13.46%  wall
+      20,932   9.09%  box
+      17,951   7.79%  ceiling
+      17,513   7.60%  rack
+       6,919   3.00%  pillar
+       3,880   1.68%  person
+       3,227   1.40%  pallet
+       3,136   1.36%  UNLABELLED
+       3,098   1.34%  fieldjacket
+       2,859   1.24%  cargopant
+       2,550   1.11%  sign
+       2,161   0.94%  floor_decal
+       1,026   0.45%  cone
+         609   0.26%  lamp
+         387   0.17%  barel
+         377   0.16%  basketballshoes
+         322   0.14%  bracket
+  ... 8 more ids (in the JSON)
+  VERDICT: PARTIAL -- found ['basebody', 'baseballcap', 'basketballshoes', 'cargopant', 'fieldjacket'], missing ['baseeye', 'baseeyeocclusion', 'basetearline', 'baseteeth', 'basetongue', 'vneckscrubshirt']
+------------------------------------------------------------------------------
+PROBE stage_camera   (existing stage camera /Root/Avatar/body_mesh/cam_third_person, nothing created)
+------------------------------------------------------------------------------
+  target        /Root/Avatar
+  schema tested both
+  expecting     ['person']
+  rgb non-zero  921,600 px
+  target in frame (instance_id, semantics-independent): True  15,276 px (6.63%), 134 instances visible
+  idToLabels    17 entries; 15 classes actually carry pixels
+  LABELLED PIXELS 230,400 of 230,400  (100.00% of the frame)
+      pixels     pct  class
+     188,324  81.74%  floor
+      15,276   6.63%  person
+      14,702   6.38%  wall
+       4,052   1.76%  box
+       3,560   1.55%  rack
+       1,127   0.49%  pillar
+       1,100   0.48%  pallet
+         670   0.29%  barel
+         520   0.23%  crate
+         513   0.22%  floor_decal
+         330   0.14%  emergency_board
+         102   0.04%  sign
+          86   0.04%  fire_extinguisher
+          29   0.01%  bottle
+           9   0.00%  paper_note
+  VERDICT: FOUND ['person']
+
+==============================================================================
+ANSWER
+==============================================================================
+  deprecated Semantics.SemanticsAPI  -> READ   (FOUND ['rack', 'box'])
+  current UsdSemantics.LabelsAPI     -> READ   (FOUND ['person'])
+  labels on parent Xforms only       -> PARTIAL -- found ['basebody', 'baseballcap', 'basketballshoes', 'cargopant', 'fieldjacket'], missing ['baseeye', 'baseeyeocclusion', 'basetearline', 'baseteeth', 'basetongue', 'vneckscrubshirt']
+  BOTH schemas are read. The audit's 98.5% direct coverage stands, and no migration is required for segmentation to work.
+  captured with the timeline playing (play() was called)
+  prims created under /Root: 0; removed: 0. Nothing was saved and no semantics were authored.
+==============================================================================

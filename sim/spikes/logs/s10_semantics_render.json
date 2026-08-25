@@ -1,0 +1,984 @@
+{
+ "schema_version": 1,
+ "complete": true,
+ "setup": {
+  "stage": "/workspace/sim/observatory_avatar.usd",
+  "default_prim": "/Root",
+  "meters_per_unit": 1.0,
+  "resolution": [
+   480,
+   480
+  ],
+  "label_entries_by_schema": {
+   "Semantics.SemanticsAPI": 3467,
+   "UsdSemantics.LabelsAPI": 13
+  },
+  "probes": [
+   {
+    "name": "racking",
+    "schema_under_test": "Semantics.SemanticsAPI",
+    "prim_path": "/Root/Warehouse/SM_RackPile_91/SM_RackPile_06/SM_RackPile_06/Section0",
+    "expect": [
+     "rack",
+     "box"
+    ],
+    "note": "432 rack / 1841 box prims on the stage, 0 boxes within 4 m of this one",
+    "eye": [
+     -12.534132886493403,
+     9.734027785837036,
+     5.38012647296719
+    ],
+    "clearance_m": 1.6869639991875953,
+    "camera_kwargs": {
+     "focal_length": 18.0,
+     "clipping_range": [
+      0.05,
+      1000000.0
+     ]
+    },
+    "rgb_px": 0,
+    "filled_at_frame": null
+   },
+   {
+    "name": "avatar",
+    "schema_under_test": "UsdSemantics.LabelsAPI",
+    "prim_path": "/Root/Avatar",
+    "expect": [
+     "person"
+    ],
+    "note": "positive control for the current schema",
+    "eye": [
+     -6.704223244659502,
+     6.170497154500399,
+     1.385956028641253
+    ],
+    "clearance_m": 1.3859558855901086,
+    "camera_kwargs": {
+     "focal_length": 18.0,
+     "clipping_range": [
+      0.05,
+      1000000.0
+     ]
+    },
+    "rgb_px": 0,
+    "filled_at_frame": null
+   },
+   {
+    "name": "ancestor_only",
+    "schema_under_test": "Semantics.SemanticsAPI",
+    "prim_path": "/Root/Worker",
+    "expect": [
+     "basebody",
+     "baseeye",
+     "baseeyeocclusion",
+     "basetearline",
+     "baseteeth",
+     "basetongue",
+     "baseballcap",
+     "basketballshoes",
+     "cargopant",
+     "fieldjacket",
+     "vneckscrubshirt"
+    ],
+    "note": "labels sit on parent Xforms, not on the meshes -- does the annotator propagate them?",
+    "eye": [
+     1.9336561711890297,
+     6.766341002900397,
+     1.3297825027193049
+    ],
+    "clearance_m": 1.3297823596681606,
+    "camera_kwargs": {
+     "focal_length": 18.0,
+     "clipping_range": [
+      0.05,
+      1000000.0
+     ]
+    },
+    "rgb_px": 0,
+    "filled_at_frame": null
+   },
+   {
+    "name": "stage_camera",
+    "schema_under_test": "both",
+    "prim_path": "/Root/Avatar",
+    "expect": [
+     "person"
+    ],
+    "note": "existing stage camera /Root/Avatar/body_mesh/cam_third_person, nothing created",
+    "eye": null,
+    "clearance_m": null,
+    "camera_kwargs": {},
+    "rgb_px": 0,
+    "filled_at_frame": null
+   }
+  ],
+  "prims_created_under_root": []
+ },
+ "probes": [
+  {
+   "name": "racking",
+   "schema_under_test": "Semantics.SemanticsAPI",
+   "prim_path": "/Root/Warehouse/SM_RackPile_91/SM_RackPile_06/SM_RackPile_06/Section0",
+   "expect": [
+    "rack",
+    "box"
+   ],
+   "note": "432 rack / 1841 box prims on the stage, 0 boxes within 4 m of this one",
+   "eye": [
+    -12.534132886493403,
+    9.734027785837036,
+    5.38012647296719
+   ],
+   "clearance_m": 1.6869639991875953,
+   "rgb_px": 921573,
+   "filled_at_frame": 49,
+   "filled_while": "playing",
+   "semantic": {
+    "shape": [
+     480,
+     480
+    ],
+    "idToLabels": {
+     "0": "BACKGROUND",
+     "1": "UNLABELLED",
+     "14": "box",
+     "17": "wall",
+     "18": "rack",
+     "19": "pillar",
+     "20": "bracket",
+     "21": "lamp",
+     "22": "pallet",
+     "24": "sign",
+     "26": "floor_decal",
+     "27": "wire",
+     "29": "fire_extinguisher",
+     "30": "crate",
+     "32": "barel",
+     "33": "bottle",
+     "36": "floor",
+     "37": "ceiling"
+    },
+    "idToLabels_size": 18,
+    "per_id": [
+     {
+      "id": 18,
+      "label": "rack",
+      "pixels": 55429,
+      "pixel_pct": 24.057725694444443,
+      "counts_as_labelled": true
+     },
+     {
+      "id": 17,
+      "label": "wall",
+      "pixels": 45717,
+      "pixel_pct": 19.842447916666668,
+      "counts_as_labelled": true
+     },
+     {
+      "id": 37,
+      "label": "ceiling",
+      "pixels": 30162,
+      "pixel_pct": 13.091145833333334,
+      "counts_as_labelled": true
+     },
+     {
+      "id": 32,
+      "label": "barel",
+      "pixels": 22212,
+      "pixel_pct": 9.640625,
+      "counts_as_labelled": true
+     },
+     {
+      "id": 36,
+      "label": "floor",
+      "pixels": 21267,
+      "pixel_pct": 9.23046875,
+      "counts_as_labelled": true
+     },
+     {
+      "id": 22,
+      "label": "pallet",
+      "pixels": 14505,
+      "pixel_pct": 6.295572916666667,
+      "counts_as_labelled": true
+     },
+     {
+      "id": 19,
+      "label": "pillar",
+      "pixels": 14415,
+      "pixel_pct": 6.256510416666667,
+      "counts_as_labelled": true
+     },
+     {
+      "id": 21,
+      "label": "lamp",
+      "pixels": 10364,
+      "pixel_pct": 4.498263888888889,
+      "counts_as_labelled": true
+     },
+     {
+      "id": 14,
+      "label": "box",
+      "pixels": 5999,
+      "pixel_pct": 2.603732638888889,
+      "counts_as_labelled": true
+     },
+     {
+      "id": 30,
+      "label": "crate",
+      "pixels": 3147,
+      "pixel_pct": 1.3658854166666667,
+      "counts_as_labelled": true
+     },
+     {
+      "id": 1,
+      "label": "UNLABELLED",
+      "pixels": 2806,
+      "pixel_pct": 1.2178819444444444,
+      "counts_as_labelled": false
+     },
+     {
+      "id": 33,
+      "label": "bottle",
+      "pixels": 1461,
+      "pixel_pct": 0.6341145833333334,
+      "counts_as_labelled": true
+     },
+     {
+      "id": 24,
+      "label": "sign",
+      "pixels": 1361,
+      "pixel_pct": 0.5907118055555556,
+      "counts_as_labelled": true
+     },
+     {
+      "id": 26,
+      "label": "floor_decal",
+      "pixels": 1052,
+      "pixel_pct": 0.4565972222222222,
+      "counts_as_labelled": true
+     },
+     {
+      "id": 20,
+      "label": "bracket",
+      "pixels": 283,
+      "pixel_pct": 0.1228298611111111,
+      "counts_as_labelled": true
+     },
+     {
+      "id": 27,
+      "label": "wire",
+      "pixels": 192,
+      "pixel_pct": 0.08333333333333333,
+      "counts_as_labelled": true
+     },
+     {
+      "id": 29,
+      "label": "fire_extinguisher",
+      "pixels": 28,
+      "pixel_pct": 0.012152777777777778,
+      "counts_as_labelled": true
+     }
+    ],
+    "classes_with_pixels": [
+     "barel",
+     "bottle",
+     "box",
+     "bracket",
+     "ceiling",
+     "crate",
+     "fire_extinguisher",
+     "floor",
+     "floor_decal",
+     "lamp",
+     "pallet",
+     "pillar",
+     "rack",
+     "sign",
+     "wall",
+     "wire"
+    ],
+    "labelled_pixels": 227594,
+    "labelled_pixel_pct": 98.78211805555556,
+    "ids_missing_from_map_pixels": 0
+   },
+   "instances": {
+    "distinct_instances_in_frame": 390,
+    "target_path": "/Root/Warehouse/SM_RackPile_91/SM_RackPile_06/SM_RackPile_06/Section0",
+    "target_in_frame": true,
+    "target_pixels": 9292,
+    "target_pixel_pct": 4.032986111111111,
+    "sample_paths": [
+     "/Root/Warehouse/Barrel_15108/SM_BarelPlastic_A_01",
+     "/Root/Warehouse/Barrel_15110/SM_BarelPlastic_A_01",
+     "/Root/Warehouse/Barrel_15114/SM_BarelPlastic_B_01",
+     "/Root/Warehouse/Barrel_15118/SM_BarelPlastic_A_02",
+     "/Root/Warehouse/Barrel_15397/SM_BarelPlastic_C_01",
+     "/Root/Warehouse/Barrel_15399/SM_BarelPlastic_A_03",
+     "/Root/Warehouse/Barrel_15401/SM_BarelPlastic_A_02",
+     "/Root/Warehouse/Barrel_15403/SM_BarelPlastic_A_01",
+     "/Root/Warehouse/Barrel_15405/SM_BarelPlastic_A_03",
+     "/Root/Warehouse/Barrel_15407/SM_BarelPlastic_A_01",
+     "/Root/Warehouse/Barrel_15409/SM_BarelPlastic_D_01",
+     "/Root/Warehouse/Barrel_15411/SM_BarelPlastic_D_02"
+    ]
+   },
+   "expected_found": [
+    "rack",
+    "box"
+   ],
+   "expected_missing": [],
+   "verdict": "FOUND ['rack', 'box']"
+  },
+  {
+   "name": "avatar",
+   "schema_under_test": "UsdSemantics.LabelsAPI",
+   "prim_path": "/Root/Avatar",
+   "expect": [
+    "person"
+   ],
+   "note": "positive control for the current schema",
+   "eye": [
+    -6.704223244659502,
+    6.170497154500399,
+    1.385956028641253
+   ],
+   "clearance_m": 1.3859558855901086,
+   "rgb_px": 921600,
+   "filled_at_frame": 49,
+   "filled_while": "playing",
+   "semantic": {
+    "shape": [
+     480,
+     480
+    ],
+    "idToLabels": {
+     "0": "BACKGROUND",
+     "1": "UNLABELLED",
+     "2": "person",
+     "17": "wall",
+     "19": "pillar",
+     "20": "bracket",
+     "21": "lamp",
+     "36": "floor",
+     "37": "ceiling"
+    },
+    "idToLabels_size": 9,
+    "per_id": [
+     {
+      "id": 36,
+      "label": "floor",
+      "pixels": 118008,
+      "pixel_pct": 51.21875,
+      "counts_as_labelled": true
+     },
+     {
+      "id": 17,
+      "label": "wall",
+      "pixels": 91392,
+      "pixel_pct": 39.666666666666664,
+      "counts_as_labelled": true
+     },
+     {
+      "id": 19,
+      "label": "pillar",
+      "pixels": 12069,
+      "pixel_pct": 5.23828125,
+      "counts_as_labelled": true
+     },
+     {
+      "id": 2,
+      "label": "person",
+      "pixels": 7233,
+      "pixel_pct": 3.1393229166666665,
+      "counts_as_labelled": true
+     },
+     {
+      "id": 20,
+      "label": "bracket",
+      "pixels": 1015,
+      "pixel_pct": 0.4405381944444444,
+      "counts_as_labelled": true
+     },
+     {
+      "id": 37,
+      "label": "ceiling",
+      "pixels": 320,
+      "pixel_pct": 0.1388888888888889,
+      "counts_as_labelled": true
+     },
+     {
+      "id": 1,
+      "label": "UNLABELLED",
+      "pixels": 255,
+      "pixel_pct": 0.11067708333333333,
+      "counts_as_labelled": false
+     },
+     {
+      "id": 21,
+      "label": "lamp",
+      "pixels": 108,
+      "pixel_pct": 0.046875,
+      "counts_as_labelled": true
+     }
+    ],
+    "classes_with_pixels": [
+     "bracket",
+     "ceiling",
+     "floor",
+     "lamp",
+     "person",
+     "pillar",
+     "wall"
+    ],
+    "labelled_pixels": 230145,
+    "labelled_pixel_pct": 99.88932291666667,
+    "ids_missing_from_map_pixels": 0
+   },
+   "instances": {
+    "distinct_instances_in_frame": 50,
+    "target_path": "/Root/Avatar",
+    "target_in_frame": true,
+    "target_pixels": 7233,
+    "target_pixel_pct": 3.1393229166666665,
+    "sample_paths": [
+     "/Root/Avatar/character/rig/ManRoot/Worker/Baseball_cap/Baseball_Cap/Baseball_Cap",
+     "/Root/Avatar/character/rig/ManRoot/Worker/Basketball_Shoes/Basketball_Shoes/Basketball_Shoes",
+     "/Root/Avatar/character/rig/ManRoot/Worker/CC_Base_Body/CC_Base_Body/CC_Base_Body",
+     "/Root/Avatar/character/rig/ManRoot/Worker/Cargo_pant/Cargo_pant/Cargo_pant",
+     "/Root/Avatar/character/rig/ManRoot/Worker/Field_Jacket/Field_Jacket/Field_Jacket",
+     "/Root/Avatar/character/rig/ManRoot/Worker/V_Neck_Scrub_Shirt/V_Neck_Scrub_Shirt/V_Neck_Scrub_Shirt",
+     "/Root/Warehouse/SM_BeamA_9M55/SM_BeamA_9M/SM_BeamA_9M",
+     "/Root/Warehouse/SM_BracketBeam_6m17/SM_BracketBeam_3m/SM_BracketBeam_3m",
+     "/Root/Warehouse/SM_BracketBeam_6m19/SM_BracketBeam_3m/SM_BracketBeam_3m",
+     "/Root/Warehouse/SM_BracketBeam_6m4_1501/SM_BracketBeam_3m/SM_BracketBeam_3m",
+     "/Root/Warehouse/SM_BracketSlot29/SM_BracketSlot/SM_BracketSlot",
+     "/Root/Warehouse/SM_BracketSlot31/SM_BracketSlot/SM_BracketSlot"
+    ]
+   },
+   "expected_found": [
+    "person"
+   ],
+   "expected_missing": [],
+   "verdict": "FOUND ['person']"
+  },
+  {
+   "name": "ancestor_only",
+   "schema_under_test": "Semantics.SemanticsAPI",
+   "prim_path": "/Root/Worker",
+   "expect": [
+    "basebody",
+    "baseeye",
+    "baseeyeocclusion",
+    "basetearline",
+    "baseteeth",
+    "basetongue",
+    "baseballcap",
+    "basketballshoes",
+    "cargopant",
+    "fieldjacket",
+    "vneckscrubshirt"
+   ],
+   "note": "labels sit on parent Xforms, not on the meshes -- does the annotator propagate them?",
+   "eye": [
+    1.9336561711890297,
+    6.766341002900397,
+    1.3297825027193049
+   ],
+   "clearance_m": 1.3297823596681606,
+   "rgb_px": 921490,
+   "filled_at_frame": 49,
+   "filled_while": "playing",
+   "semantic": {
+    "shape": [
+     480,
+     480
+    ],
+    "idToLabels": {
+     "0": "BACKGROUND",
+     "1": "UNLABELLED",
+     "2": "person",
+     "3": "basebody",
+     "7": "cargopant",
+     "9": "baseballcap",
+     "11": "basketballshoes",
+     "13": "fieldjacket",
+     "14": "box",
+     "15": "barcode",
+     "17": "wall",
+     "18": "rack",
+     "19": "pillar",
+     "20": "bracket",
+     "21": "lamp",
+     "22": "pallet",
+     "23": "emergency_board",
+     "24": "sign",
+     "26": "floor_decal",
+     "28": "paper_note",
+     "29": "fire_extinguisher",
+     "30": "crate",
+     "32": "barel",
+     "33": "bottle",
+     "36": "floor",
+     "37": "ceiling",
+     "38": "cone"
+    },
+    "idToLabels_size": 27,
+    "per_id": [
+     {
+      "id": 36,
+      "label": "floor",
+      "pixels": 111492,
+      "pixel_pct": 48.390625,
+      "counts_as_labelled": true
+     },
+     {
+      "id": 17,
+      "label": "wall",
+      "pixels": 31020,
+      "pixel_pct": 13.463541666666666,
+      "counts_as_labelled": true
+     },
+     {
+      "id": 14,
+      "label": "box",
+      "pixels": 20932,
+      "pixel_pct": 9.085069444444445,
+      "counts_as_labelled": true
+     },
+     {
+      "id": 37,
+      "label": "ceiling",
+      "pixels": 17951,
+      "pixel_pct": 7.791232638888889,
+      "counts_as_labelled": true
+     },
+     {
+      "id": 18,
+      "label": "rack",
+      "pixels": 17513,
+      "pixel_pct": 7.601128472222222,
+      "counts_as_labelled": true
+     },
+     {
+      "id": 19,
+      "label": "pillar",
+      "pixels": 6919,
+      "pixel_pct": 3.0030381944444446,
+      "counts_as_labelled": true
+     },
+     {
+      "id": 2,
+      "label": "person",
+      "pixels": 3880,
+      "pixel_pct": 1.6840277777777777,
+      "counts_as_labelled": true
+     },
+     {
+      "id": 22,
+      "label": "pallet",
+      "pixels": 3227,
+      "pixel_pct": 1.4006076388888888,
+      "counts_as_labelled": true
+     },
+     {
+      "id": 1,
+      "label": "UNLABELLED",
+      "pixels": 3136,
+      "pixel_pct": 1.3611111111111112,
+      "counts_as_labelled": false
+     },
+     {
+      "id": 13,
+      "label": "fieldjacket",
+      "pixels": 3098,
+      "pixel_pct": 1.3446180555555556,
+      "counts_as_labelled": true
+     },
+     {
+      "id": 7,
+      "label": "cargopant",
+      "pixels": 2859,
+      "pixel_pct": 1.2408854166666667,
+      "counts_as_labelled": true
+     },
+     {
+      "id": 24,
+      "label": "sign",
+      "pixels": 2550,
+      "pixel_pct": 1.1067708333333333,
+      "counts_as_labelled": true
+     },
+     {
+      "id": 26,
+      "label": "floor_decal",
+      "pixels": 2161,
+      "pixel_pct": 0.9379340277777778,
+      "counts_as_labelled": true
+     },
+     {
+      "id": 38,
+      "label": "cone",
+      "pixels": 1026,
+      "pixel_pct": 0.4453125,
+      "counts_as_labelled": true
+     },
+     {
+      "id": 21,
+      "label": "lamp",
+      "pixels": 609,
+      "pixel_pct": 0.2643229166666667,
+      "counts_as_labelled": true
+     },
+     {
+      "id": 32,
+      "label": "barel",
+      "pixels": 387,
+      "pixel_pct": 0.16796875,
+      "counts_as_labelled": true
+     },
+     {
+      "id": 11,
+      "label": "basketballshoes",
+      "pixels": 377,
+      "pixel_pct": 0.1636284722222222,
+      "counts_as_labelled": true
+     },
+     {
+      "id": 20,
+      "label": "bracket",
+      "pixels": 322,
+      "pixel_pct": 0.13975694444444445,
+      "counts_as_labelled": true
+     },
+     {
+      "id": 3,
+      "label": "basebody",
+      "pixels": 295,
+      "pixel_pct": 0.12803819444444445,
+      "counts_as_labelled": true
+     },
+     {
+      "id": 30,
+      "label": "crate",
+      "pixels": 177,
+      "pixel_pct": 0.07682291666666667,
+      "counts_as_labelled": true
+     },
+     {
+      "id": 9,
+      "label": "baseballcap",
+      "pixels": 165,
+      "pixel_pct": 0.07161458333333333,
+      "counts_as_labelled": true
+     },
+     {
+      "id": 23,
+      "label": "emergency_board",
+      "pixels": 163,
+      "pixel_pct": 0.07074652777777778,
+      "counts_as_labelled": true
+     },
+     {
+      "id": 29,
+      "label": "fire_extinguisher",
+      "pixels": 117,
+      "pixel_pct": 0.05078125,
+      "counts_as_labelled": true
+     },
+     {
+      "id": 33,
+      "label": "bottle",
+      "pixels": 18,
+      "pixel_pct": 0.0078125,
+      "counts_as_labelled": true
+     },
+     {
+      "id": 28,
+      "label": "paper_note",
+      "pixels": 4,
+      "pixel_pct": 0.001736111111111111,
+      "counts_as_labelled": true
+     },
+     {
+      "id": 15,
+      "label": "barcode",
+      "pixels": 2,
+      "pixel_pct": 0.0008680555555555555,
+      "counts_as_labelled": true
+     }
+    ],
+    "classes_with_pixels": [
+     "barcode",
+     "barel",
+     "baseballcap",
+     "basebody",
+     "basketballshoes",
+     "bottle",
+     "box",
+     "bracket",
+     "cargopant",
+     "ceiling",
+     "cone",
+     "crate",
+     "emergency_board",
+     "fieldjacket",
+     "fire_extinguisher",
+     "floor",
+     "floor_decal",
+     "lamp",
+     "pallet",
+     "paper_note",
+     "person",
+     "pillar",
+     "rack",
+     "sign",
+     "wall"
+    ],
+    "labelled_pixels": 227264,
+    "labelled_pixel_pct": 98.63888888888889,
+    "ids_missing_from_map_pixels": 0
+   },
+   "instances": {
+    "distinct_instances_in_frame": 356,
+    "target_path": "/Root/Worker",
+    "target_in_frame": true,
+    "target_pixels": 6794,
+    "target_pixel_pct": 2.9487847222222223,
+    "sample_paths": [
+     "/Root/Avatar/character/rig/ManRoot/Worker/Baseball_cap/Baseball_Cap/Baseball_Cap",
+     "/Root/Avatar/character/rig/ManRoot/Worker/Basketball_Shoes/Basketball_Shoes/Basketball_Shoes",
+     "/Root/Avatar/character/rig/ManRoot/Worker/CC_Base_Body/CC_Base_Body/CC_Base_Body",
+     "/Root/Avatar/character/rig/ManRoot/Worker/Cargo_pant/Cargo_pant/Cargo_pant",
+     "/Root/Avatar/character/rig/ManRoot/Worker/Field_Jacket/Field_Jacket/Field_Jacket",
+     "/Root/Warehouse/Barrel_15494/SM_BarelPlastic_C_01",
+     "/Root/Warehouse/Barrel_15496/SM_BarelPlastic_C_01",
+     "/Root/Warehouse/Barrel_16261/SM_BarelPlastic_A_02",
+     "/Root/Warehouse/Bottle_15539/SM_BottlePlasticE_01",
+     "/Root/Warehouse/Bottle_15543/SM_BottlePlasticD_02",
+     "/Root/Warehouse/Bottle_15856/SM_BottlePlasticD_01",
+     "/Root/Warehouse/Bottle_21/SM_BottlePlasticD_01"
+    ]
+   },
+   "expected_found": [
+    "basebody",
+    "baseballcap",
+    "basketballshoes",
+    "cargopant",
+    "fieldjacket"
+   ],
+   "expected_missing": [
+    "baseeye",
+    "baseeyeocclusion",
+    "basetearline",
+    "baseteeth",
+    "basetongue",
+    "vneckscrubshirt"
+   ],
+   "verdict": "PARTIAL -- found ['basebody', 'baseballcap', 'basketballshoes', 'cargopant', 'fieldjacket'], missing ['baseeye', 'baseeyeocclusion', 'basetearline', 'baseteeth', 'basetongue', 'vneckscrubshirt']"
+  },
+  {
+   "name": "stage_camera",
+   "schema_under_test": "both",
+   "prim_path": "/Root/Avatar",
+   "expect": [
+    "person"
+   ],
+   "note": "existing stage camera /Root/Avatar/body_mesh/cam_third_person, nothing created",
+   "eye": null,
+   "clearance_m": null,
+   "rgb_px": 921600,
+   "filled_at_frame": 49,
+   "filled_while": "playing",
+   "semantic": {
+    "shape": [
+     480,
+     480
+    ],
+    "idToLabels": {
+     "0": "BACKGROUND",
+     "1": "UNLABELLED",
+     "2": "person",
+     "14": "box",
+     "17": "wall",
+     "18": "rack",
+     "19": "pillar",
+     "22": "pallet",
+     "23": "emergency_board",
+     "24": "sign",
+     "26": "floor_decal",
+     "28": "paper_note",
+     "29": "fire_extinguisher",
+     "30": "crate",
+     "32": "barel",
+     "33": "bottle",
+     "36": "floor"
+    },
+    "idToLabels_size": 17,
+    "per_id": [
+     {
+      "id": 36,
+      "label": "floor",
+      "pixels": 188324,
+      "pixel_pct": 81.73784722222223,
+      "counts_as_labelled": true
+     },
+     {
+      "id": 2,
+      "label": "person",
+      "pixels": 15276,
+      "pixel_pct": 6.630208333333333,
+      "counts_as_labelled": true
+     },
+     {
+      "id": 17,
+      "label": "wall",
+      "pixels": 14702,
+      "pixel_pct": 6.381076388888889,
+      "counts_as_labelled": true
+     },
+     {
+      "id": 14,
+      "label": "box",
+      "pixels": 4052,
+      "pixel_pct": 1.7586805555555556,
+      "counts_as_labelled": true
+     },
+     {
+      "id": 18,
+      "label": "rack",
+      "pixels": 3560,
+      "pixel_pct": 1.5451388888888888,
+      "counts_as_labelled": true
+     },
+     {
+      "id": 19,
+      "label": "pillar",
+      "pixels": 1127,
+      "pixel_pct": 0.4891493055555556,
+      "counts_as_labelled": true
+     },
+     {
+      "id": 22,
+      "label": "pallet",
+      "pixels": 1100,
+      "pixel_pct": 0.4774305555555556,
+      "counts_as_labelled": true
+     },
+     {
+      "id": 32,
+      "label": "barel",
+      "pixels": 670,
+      "pixel_pct": 0.2907986111111111,
+      "counts_as_labelled": true
+     },
+     {
+      "id": 30,
+      "label": "crate",
+      "pixels": 520,
+      "pixel_pct": 0.22569444444444445,
+      "counts_as_labelled": true
+     },
+     {
+      "id": 26,
+      "label": "floor_decal",
+      "pixels": 513,
+      "pixel_pct": 0.22265625,
+      "counts_as_labelled": true
+     },
+     {
+      "id": 23,
+      "label": "emergency_board",
+      "pixels": 330,
+      "pixel_pct": 0.14322916666666666,
+      "counts_as_labelled": true
+     },
+     {
+      "id": 24,
+      "label": "sign",
+      "pixels": 102,
+      "pixel_pct": 0.044270833333333336,
+      "counts_as_labelled": true
+     },
+     {
+      "id": 29,
+      "label": "fire_extinguisher",
+      "pixels": 86,
+      "pixel_pct": 0.03732638888888889,
+      "counts_as_labelled": true
+     },
+     {
+      "id": 33,
+      "label": "bottle",
+      "pixels": 29,
+      "pixel_pct": 0.012586805555555556,
+      "counts_as_labelled": true
+     },
+     {
+      "id": 28,
+      "label": "paper_note",
+      "pixels": 9,
+      "pixel_pct": 0.00390625,
+      "counts_as_labelled": true
+     }
+    ],
+    "classes_with_pixels": [
+     "barel",
+     "bottle",
+     "box",
+     "crate",
+     "emergency_board",
+     "fire_extinguisher",
+     "floor",
+     "floor_decal",
+     "pallet",
+     "paper_note",
+     "person",
+     "pillar",
+     "rack",
+     "sign",
+     "wall"
+    ],
+    "labelled_pixels": 230400,
+    "labelled_pixel_pct": 100.0,
+    "ids_missing_from_map_pixels": 0
+   },
+   "instances": {
+    "distinct_instances_in_frame": 134,
+    "target_path": "/Root/Avatar",
+    "target_in_frame": true,
+    "target_pixels": 15276,
+    "target_pixel_pct": 6.630208333333333,
+    "sample_paths": [
+     "/Root/Avatar/character/rig/ManRoot/Worker/Baseball_cap/Baseball_Cap/Baseball_Cap",
+     "/Root/Avatar/character/rig/ManRoot/Worker/Basketball_Shoes/Basketball_Shoes/Basketball_Shoes",
+     "/Root/Avatar/character/rig/ManRoot/Worker/CC_Base_Body/CC_Base_Body/CC_Base_Body",
+     "/Root/Avatar/character/rig/ManRoot/Worker/Cargo_pant/Cargo_pant/Cargo_pant",
+     "/Root/Avatar/character/rig/ManRoot/Worker/Field_Jacket/Field_Jacket/Field_Jacket",
+     "/Root/Warehouse/Barrel_15494/SM_BarelPlastic_C_01",
+     "/Root/Warehouse/Barrel_15496/SM_BarelPlastic_C_01",
+     "/Root/Warehouse/Bottle_15543/SM_BottlePlasticD_02",
+     "/Root/Warehouse/Bottle_15545/SM_BottlePlasticB_01",
+     "/Root/Warehouse/Box_13072/SM_CardBoxC_01/SM_CardBoxC_01",
+     "/Root/Warehouse/Box_13074/SM_CardBoxC_01/SM_CardBoxC_01",
+     "/Root/Warehouse/Box_13076/SM_CardBoxC_01/SM_CardBoxC_01"
+    ]
+   },
+   "expected_found": [
+    "person"
+   ],
+   "expected_missing": [],
+   "verdict": "FOUND ['person']"
+  }
+ ],
+ "answer": {
+  "deprecated_schema_read": true,
+  "current_schema_read": true,
+  "captured_while": "playing",
+  "timeline_played": true,
+  "headline": "BOTH schemas are read. The audit's 98.5% direct coverage stands, and no migration is required for segmentation to work.",
+  "prims_created_under_root": [],
+  "prims_removed_under_root": []
+ },
+ "generated_epoch": 1787632907.2651072
+}

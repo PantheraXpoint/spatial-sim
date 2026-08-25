@@ -1,0 +1,626 @@
+report         /workspace/sim/spikes/logs/s10_semantics_audit.json   (requested (SA_OUT))
+==============================================================================
+SEMANTIC LABELLING AUDIT -- report only, nothing on this stage was changed
+==============================================================================
+stage          /workspace/sim/observatory_avatar.usd
+default prim   /Root   up Z   1.0 m/unit
+root children  forklift, GroundPlane, Lights, Warehouse, Cameras, Worker, Avatar
+  ... 20000 prims traversed
+traversed 27406 prims (0 instance proxies) in 3.1s
+
+------------------------------------------------------------------------------
+1. LABELLED PRIMS -- 3454 prims, 3480 label entries
+------------------------------------------------------------------------------
+  UsdSemantics.LabelsAPI     class=person             [geometry] /Root/Avatar/body_mesh
+  UsdSemantics.LabelsAPI     class=person             [non-geometry] /Root/Avatar/character
+  UsdSemantics.LabelsAPI     class=person             [renderable] /Root/Avatar/character/rig/ManRoot/Worker/Baseball_cap/Baseball_Cap/Baseball_Cap
+  UsdSemantics.LabelsAPI     class=person             [renderable] /Root/Avatar/character/rig/ManRoot/Worker/Basketball_Shoes/Basketball_Shoes/Basketball_Shoes
+  UsdSemantics.LabelsAPI     class=person             [renderable] /Root/Avatar/character/rig/ManRoot/Worker/CC_Base_Body/CC_Base_Body/CC_Base_Body
+  UsdSemantics.LabelsAPI     class=person             [renderable] /Root/Avatar/character/rig/ManRoot/Worker/CC_Base_Eye/CC_Base_Eye/CC_Base_Eye
+  UsdSemantics.LabelsAPI     class=person             [renderable] /Root/Avatar/character/rig/ManRoot/Worker/CC_Base_EyeOcclusion/CC_Base_EyeOcclusion/CC_Base_EyeOcclusion
+  UsdSemantics.LabelsAPI     class=person             [renderable] /Root/Avatar/character/rig/ManRoot/Worker/CC_Base_TearLine/CC_Base_TearLine/CC_Base_TearLine
+  UsdSemantics.LabelsAPI     class=person             [renderable] /Root/Avatar/character/rig/ManRoot/Worker/CC_Base_Teeth/CC_Base_Teeth/CC_Base_Teeth
+  UsdSemantics.LabelsAPI     class=person             [renderable] /Root/Avatar/character/rig/ManRoot/Worker/CC_Base_Tongue/CC_Base_Tongue/CC_Base_Tongue
+  UsdSemantics.LabelsAPI     class=person             [renderable] /Root/Avatar/character/rig/ManRoot/Worker/Cargo_pant/Cargo_pant/Cargo_pant
+  UsdSemantics.LabelsAPI     class=person             [renderable] /Root/Avatar/character/rig/ManRoot/Worker/Field_Jacket/Field_Jacket/Field_Jacket
+  UsdSemantics.LabelsAPI     class=person             [renderable] /Root/Avatar/character/rig/ManRoot/Worker/V_Neck_Scrub_Shirt/V_Neck_Scrub_Shirt/V_Neck_Scrub_Shirt
+  Semantics.SemanticsAPI     class=barel              [renderable] /Root/Warehouse/Barrel_15108/SM_BarelPlastic_A_01
+  Semantics.SemanticsAPI     class=barel              [renderable] /Root/Warehouse/Barrel_15110/SM_BarelPlastic_A_01
+  Semantics.SemanticsAPI     class=barel              [renderable] /Root/Warehouse/Barrel_15112/SM_BarelPlastic_C_01
+  Semantics.SemanticsAPI     class=barel              [renderable] /Root/Warehouse/Barrel_15114/SM_BarelPlastic_B_01
+  Semantics.SemanticsAPI     class=barel              [renderable] /Root/Warehouse/Barrel_15116/SM_BarelPlastic_C_01
+  Semantics.SemanticsAPI     class=barel              [renderable] /Root/Warehouse/Barrel_15118/SM_BarelPlastic_A_02
+  Semantics.SemanticsAPI     class=barel              [renderable] /Root/Warehouse/Barrel_15397/SM_BarelPlastic_C_01
+  Semantics.SemanticsAPI     class=barel              [renderable] /Root/Warehouse/Barrel_15399/SM_BarelPlastic_A_03
+  Semantics.SemanticsAPI     class=barel              [renderable] /Root/Warehouse/Barrel_15401/SM_BarelPlastic_A_02
+  Semantics.SemanticsAPI     class=barel              [renderable] /Root/Warehouse/Barrel_15403/SM_BarelPlastic_A_01
+  Semantics.SemanticsAPI     class=barel              [renderable] /Root/Warehouse/Barrel_15405/SM_BarelPlastic_A_03
+  Semantics.SemanticsAPI     class=barel              [renderable] /Root/Warehouse/Barrel_15407/SM_BarelPlastic_A_01
+  Semantics.SemanticsAPI     class=barel              [renderable] /Root/Warehouse/Barrel_15409/SM_BarelPlastic_D_01
+  Semantics.SemanticsAPI     class=barel              [renderable] /Root/Warehouse/Barrel_15411/SM_BarelPlastic_D_02
+  Semantics.SemanticsAPI     class=barel              [renderable] /Root/Warehouse/Barrel_15494/SM_BarelPlastic_C_01
+  Semantics.SemanticsAPI     class=barel              [renderable] /Root/Warehouse/Barrel_15496/SM_BarelPlastic_C_01
+  Semantics.SemanticsAPI     class=barel              [renderable] /Root/Warehouse/Barrel_16069/SM_BarelPlastic_B_02
+  Semantics.SemanticsAPI     class=barel              [renderable] /Root/Warehouse/Barrel_16071/SM_BarelPlastic_C_01
+  Semantics.SemanticsAPI     class=barel              [renderable] /Root/Warehouse/Barrel_16073/SM_BarelPlastic_C_01
+  Semantics.SemanticsAPI     class=barel              [renderable] /Root/Warehouse/Barrel_16075/SM_BarelPlastic_C_02
+  Semantics.SemanticsAPI     class=barel              [renderable] /Root/Warehouse/Barrel_16077/SM_BarelPlastic_C_02
+  Semantics.SemanticsAPI     class=barel              [renderable] /Root/Warehouse/Barrel_16079/SM_BarelPlastic_D_02
+  Semantics.SemanticsAPI     class=barel              [renderable] /Root/Warehouse/Barrel_16081/SM_BarelPlastic_C_02
+  Semantics.SemanticsAPI     class=barel              [renderable] /Root/Warehouse/Barrel_16083/SM_BarelPlastic_A_01
+  Semantics.SemanticsAPI     class=barel              [renderable] /Root/Warehouse/Barrel_16259/SM_BarelPlastic_B_03
+  Semantics.SemanticsAPI     class=barel              [renderable] /Root/Warehouse/Barrel_16261/SM_BarelPlastic_A_02
+  Semantics.SemanticsAPI     class=barel              [renderable] /Root/Warehouse/Barrel_16304/SM_BarelPlastic_C_01
+  Semantics.SemanticsAPI     class=barel              [renderable] /Root/Warehouse/Barrel_16306/SM_BarelPlastic_A_01
+  Semantics.SemanticsAPI     class=barel              [renderable] /Root/Warehouse/Barrel_16326/SM_BarelPlastic_C_02
+  Semantics.SemanticsAPI     class=barel              [renderable] /Root/Warehouse/Barrel_16328/SM_BarelPlastic_B_03
+  Semantics.SemanticsAPI     class=barel              [renderable] /Root/Warehouse/Barrel_16330/SM_BarelPlastic_A_01
+  Semantics.SemanticsAPI     class=barel              [renderable] /Root/Warehouse/Barrel_16332/SM_BarelPlastic_C_02
+  Semantics.SemanticsAPI     class=barel              [renderable] /Root/Warehouse/Barrel_16334/SM_BarelPlastic_D_01
+  Semantics.SemanticsAPI     class=barel              [renderable] /Root/Warehouse/Barrel_16336/SM_BarelPlastic_D_02
+  Semantics.SemanticsAPI     class=barel              [renderable] /Root/Warehouse/Barrel_6/SM_BarelPlastic_A_02
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_10/SM_BottlePlasticB_02
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_11/SM_BottlePlasticE_01
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_12/SM_BottlePlasticC_02
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_13/SM_BottlePlasticC_02
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_14/SM_BottlePlasticA_02
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_15/SM_BottlePlasticD_02
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_15519/SM_BottlePlasticC_02
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_15521/SM_BottlePlasticB_02
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_15523/SM_BottlePlasticB_02
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_15525/SM_BottlePlasticE_01
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_15527/SM_BottlePlasticA_02
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_15529/SM_BottlePlasticA_02
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_15531/SM_BottlePlasticD_02
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_15533/SM_BottlePlasticB_02
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_15535/SM_BottlePlasticA_01
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_15537/SM_BottlePlasticA_01
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_15539/SM_BottlePlasticE_01
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_15541/SM_BottlePlasticE_02
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_15543/SM_BottlePlasticD_02
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_15545/SM_BottlePlasticB_01
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_15547/SM_BottlePlasticD_02
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_15549/SM_BottlePlasticA_02
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_15551/SM_BottlePlasticC_02
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_15553/SM_BottlePlasticC_02
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_15555/SM_BottlePlasticE_01
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_15557/SM_BottlePlasticB_01
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_15559/SM_BottlePlasticB_02
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_15852/SM_BottlePlasticC_02
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_15854/SM_BottlePlasticB_01
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_15856/SM_BottlePlasticD_01
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_15858/SM_BottlePlasticC_02
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_15860/SM_BottlePlasticC_02
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_15862/SM_BottlePlasticB_02
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_15864/SM_BottlePlasticC_01
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_15866/SM_BottlePlasticB_02
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_15868/SM_BottlePlasticE_01
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_15870/SM_BottlePlasticA_01
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_15872/SM_BottlePlasticD_01
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_15874/SM_BottlePlasticA_02
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_15876/SM_BottlePlasticA_02
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_15878/SM_BottlePlasticD_02
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_15880/SM_BottlePlasticB_02
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_15882/SM_BottlePlasticD_01
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_15884/SM_BottlePlasticD_02
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_15886/SM_BottlePlasticE_01
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_15888/SM_BottlePlasticA_01
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_16/SM_BottlePlasticA_02
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_16434/SM_BottlePlasticD_01
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_16436/SM_BottlePlasticD_01
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_16438/SM_BottlePlasticB_02
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_16440/SM_BottlePlasticC_01
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_16442/SM_BottlePlasticE_01
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_16444/SM_BottlePlasticC_02
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_16446/SM_BottlePlasticB_01
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_16448/SM_BottlePlasticB_02
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_16463/SM_BottlePlasticC_02
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_16479/SM_BottlePlasticE_01
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_16481/SM_BottlePlasticC_01
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_16483/SM_BottlePlasticB_01
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_16485/SM_BottlePlasticD_01
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_16487/SM_BottlePlasticE_02
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_16489/SM_BottlePlasticD_02
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_16491/SM_BottlePlasticB_01
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_16493/SM_BottlePlasticD_02
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_16495/SM_BottlePlasticC_02
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_16497/SM_BottlePlasticC_02
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_16499/SM_BottlePlasticD_01
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_16501/SM_BottlePlasticC_02
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_16503/SM_BottlePlasticE_01
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_16505/SM_BottlePlasticA_02
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_16507/SM_BottlePlasticD_01
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_16509/SM_BottlePlasticB_02
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_16511/SM_BottlePlasticE_01
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_16513/SM_BottlePlasticB_01
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_16515/SM_BottlePlasticE_01
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_16517/SM_BottlePlasticE_02
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_16519/SM_BottlePlasticA_02
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_16521/SM_BottlePlasticA_01
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_16523/SM_BottlePlasticE_01
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_16525/SM_BottlePlasticD_01
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_16527/SM_BottlePlasticB_02
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_16529/SM_BottlePlasticE_01
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_16531/SM_BottlePlasticE_02
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_16533/SM_BottlePlasticB_01
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_16535/SM_BottlePlasticC_01
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_16537/SM_BottlePlasticA_02
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_16539/SM_BottlePlasticC_01
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_16541/SM_BottlePlasticC_01
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_16543/SM_BottlePlasticC_01
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_16545/SM_BottlePlasticC_01
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_16547/SM_BottlePlasticA_02
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_16549/SM_BottlePlasticA_01
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_17/SM_BottlePlasticD_01
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_18/SM_BottlePlasticB_02
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_19/SM_BottlePlasticB_01
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_20/SM_BottlePlasticB_01
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_21/SM_BottlePlasticD_01
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_22/SM_BottlePlasticB_01
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_23/SM_BottlePlasticC_01
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_24/SM_BottlePlasticB_02
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_25/SM_BottlePlasticB_02
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_26/SM_BottlePlasticD_01
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_27/SM_BottlePlasticB_02
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_28/SM_BottlePlasticD_02
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_29/SM_BottlePlasticA_01
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_30/SM_BottlePlasticB_01
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_31/SM_BottlePlasticE_01
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_32/SM_BottlePlasticB_01
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_33/SM_BottlePlasticC_01
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_34/SM_BottlePlasticD_01
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_35/SM_BottlePlasticD_01
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_36/SM_BottlePlasticB_02
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_37/SM_BottlePlasticB_02
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_38/SM_BottlePlasticB_02
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_8/SM_BottlePlasticD_01
+  Semantics.SemanticsAPI     class=bottle             [renderable] /Root/Warehouse/Bottle_9/SM_BottlePlasticE_02
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_10582/SM_CardBoxB_01/SM_CardBoxB_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_10584/SM_CardBoxB_01/SM_CardBoxB_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_10586/SM_CardBoxB_01/SM_CardBoxB_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_10588/SM_CardBoxB_01/SM_CardBoxB_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_10590/SM_CardBoxB_01/SM_CardBoxB_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_10592/SM_CardBoxB_01/SM_CardBoxB_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_10594/SM_CardBoxB_01/SM_CardBoxB_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_10596/SM_CardBoxB_01/SM_CardBoxB_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_10598/SM_CardBoxB_01/SM_CardBoxB_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_10600/SM_CardBoxB_01/SM_CardBoxB_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_10602/SM_CardBoxB_01/SM_CardBoxB_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_10604/SM_CardBoxB_01/SM_CardBoxB_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_10606/SM_CardBoxB_01/SM_CardBoxB_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_10608/SM_CardBoxB_01/SM_CardBoxB_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_10610/SM_CardBoxB_01/SM_CardBoxB_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_10612/SM_CardBoxB_01/SM_CardBoxB_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_10614/SM_CardBoxB_01/SM_CardBoxB_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_10616/SM_CardBoxB_01/SM_CardBoxB_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_10618/SM_CardBoxB_01/SM_CardBoxB_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_10620/SM_CardBoxB_01/SM_CardBoxB_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_10622/SM_CardBoxB_01/SM_CardBoxB_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_10624/SM_CardBoxB_01/SM_CardBoxB_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_10626/SM_CardBoxB_01/SM_CardBoxB_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_10628/SM_CardBoxB_01/SM_CardBoxB_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_10630/SM_CardBoxB_01/SM_CardBoxB_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_10632/SM_CardBoxB_01/SM_CardBoxB_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_10634/SM_CardBoxB_01/SM_CardBoxB_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_10636/SM_CardBoxB_01/SM_CardBoxB_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_11158/SM_CardBoxD_04
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_11160/SM_CardBoxD_02
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_11162/SM_CardBoxC_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_11164/SM_CardBoxC_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_11166/SM_CardBoxA_02
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_11168/SM_CardBoxC_02
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_11170/SM_CardBoxD_04
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_11172/SM_CardBoxB_02
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_11174/SM_CardBoxB_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_11176/SM_CardBoxD_02
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_11178/SM_CardBoxC_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_11180/SM_CardBoxD_02
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_11182/SM_CardBoxC_02
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_11542/SM_CardBoxB_01/SM_CardBoxB_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_11544/SM_CardBoxB_01/SM_CardBoxB_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_11546/SM_CardBoxB_01/SM_CardBoxB_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_11548/SM_CardBoxB_01/SM_CardBoxB_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_11550/SM_CardBoxB_01/SM_CardBoxB_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_11552/SM_CardBoxB_01/SM_CardBoxB_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_11554/SM_CardBoxB_01/SM_CardBoxB_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_11556/SM_CardBoxB_01/SM_CardBoxB_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_11558/SM_CardBoxB_01/SM_CardBoxB_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_11560/SM_CardBoxB_01/SM_CardBoxB_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_11562/SM_CardBoxB_01/SM_CardBoxB_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_11564/SM_CardBoxB_01/SM_CardBoxB_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_11566/SM_CardBoxB_01/SM_CardBoxB_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_11568/SM_CardBoxC_01/SM_CardBoxC_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_11570/SM_CardBoxC_01/SM_CardBoxC_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_11572/SM_CardBoxC_01/SM_CardBoxC_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_12722/SM_CardBoxC_01/SM_CardBoxC_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_12724/SM_CardBoxC_01/SM_CardBoxC_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_12726/SM_CardBoxC_01/SM_CardBoxC_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_12728/SM_CardBoxC_01/SM_CardBoxC_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_12730/SM_CardBoxC_01/SM_CardBoxC_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_12732/SM_CardBoxC_01/SM_CardBoxC_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_12734/SM_CardBoxC_01/SM_CardBoxC_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_12736/SM_CardBoxC_01/SM_CardBoxC_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_12738/SM_CardBoxC_01/SM_CardBoxC_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_12740/SM_CardBoxC_01/SM_CardBoxC_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_12742/SM_CardBoxC_01/SM_CardBoxC_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_12744/SM_CardBoxC_01/SM_CardBoxC_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_12746/SM_CardBoxC_01/SM_CardBoxC_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_12748/SM_CardBoxC_01/SM_CardBoxC_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_12750/SM_CardBoxC_02/SM_CardBoxC_02
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_12752/SM_CardBoxC_02/SM_CardBoxC_02
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_12754/SM_CardBoxC_02/SM_CardBoxC_02
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_12756/SM_CardBoxC_02/SM_CardBoxC_02
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_12758/SM_CardBoxC_02/SM_CardBoxC_02
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_12760/SM_CardBoxC_02/SM_CardBoxC_02
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_12762/SM_CardBoxC_02/SM_CardBoxC_02
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_12764/SM_CardBoxC_02/SM_CardBoxC_02
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_12766/SM_CardBoxC_02/SM_CardBoxC_02
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_12768/SM_CardBoxC_02/SM_CardBoxC_02
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_12770/SM_CardBoxC_02/SM_CardBoxC_02
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_12772/SM_CardBoxC_02/SM_CardBoxC_02
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_12774/SM_CardBoxC_02/SM_CardBoxC_02
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_12776/SM_CardBoxC_02/SM_CardBoxC_02
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_13062/SM_CardBoxC_01/SM_CardBoxC_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_13064/SM_CardBoxC_01/SM_CardBoxC_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_13066/SM_CardBoxC_01/SM_CardBoxC_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_13068/SM_CardBoxC_01/SM_CardBoxC_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_13070/SM_CardBoxC_01/SM_CardBoxC_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_13072/SM_CardBoxC_01/SM_CardBoxC_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_13074/SM_CardBoxC_01/SM_CardBoxC_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_13076/SM_CardBoxC_01/SM_CardBoxC_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_13078/SM_CardBoxC_01/SM_CardBoxC_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_13080/SM_CardBoxC_01/SM_CardBoxC_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_13082/SM_CardBoxC_01/SM_CardBoxC_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_13084/SM_CardBoxC_01/SM_CardBoxC_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_13086/SM_CardBoxC_01/SM_CardBoxC_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_13088/SM_CardBoxC_01/SM_CardBoxC_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_13090/SM_CardBoxB_02/SM_CardBoxB_02
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_13092/SM_CardBoxB_02/SM_CardBoxB_02
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_13094/SM_CardBoxB_02/SM_CardBoxB_02
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_13096/SM_CardBoxB_02/SM_CardBoxB_02
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_13098/SM_CardBoxB_02/SM_CardBoxB_02
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_13100/SM_CardBoxB_02/SM_CardBoxB_02
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_13102/SM_CardBoxB_02/SM_CardBoxB_02
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_13104/SM_CardBoxB_02/SM_CardBoxB_02
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_13106/SM_CardBoxB_02/SM_CardBoxB_02
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_13108/SM_CardBoxB_02/SM_CardBoxB_02
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_13110/SM_CardBoxB_02/SM_CardBoxB_02
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_14206/SM_CardBoxA_01/SM_CardBoxA_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_14208/SM_CardBoxA_01/SM_CardBoxA_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_14210/SM_CardBoxA_01/SM_CardBoxA_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_14212/SM_CardBoxA_01/SM_CardBoxA_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_14214/SM_CardBoxA_01/SM_CardBoxA_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_14216/SM_CardBoxA_01/SM_CardBoxA_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_14218/SM_CardBoxA_01/SM_CardBoxA_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_14220/SM_CardBoxD_04/SM_CardBoxD_04
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_14222/SM_CardBoxD_04/SM_CardBoxD_04
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_14224/SM_CardBoxD_04/SM_CardBoxD_04
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_14226/SM_CardBoxD_04/SM_CardBoxD_04
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_14228/SM_CardBoxD_04/SM_CardBoxD_04
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_14230/SM_CardBoxD_04/SM_CardBoxD_04
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_14232/SM_CardBoxD_04/SM_CardBoxD_04
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_14234/SM_CardBoxD_04/SM_CardBoxD_04
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_14236/SM_CardBoxD_04/SM_CardBoxD_04
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_14238/SM_CardBoxD_04/SM_CardBoxD_04
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_14240/SM_CardBoxD_04/SM_CardBoxD_04
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_14242/SM_CardBoxD_04/SM_CardBoxD_04
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_14244/SM_CardBoxD_04/SM_CardBoxD_04
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_14246/SM_CardBoxD_04/SM_CardBoxD_04
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_14248/SM_CardBoxD_04/SM_CardBoxD_04
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_14250/SM_CardBoxD_04/SM_CardBoxD_04
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_14252/SM_CardBoxD_04/SM_CardBoxD_04
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_14254/SM_CardBoxD_04/SM_CardBoxD_04
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_14256/SM_CardBoxD_04/SM_CardBoxD_04
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_14258/SM_CardBoxD_04/SM_CardBoxD_04
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_14260/SM_CardBoxD_04/SM_CardBoxD_04
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_14262/SM_CardBoxD_04/SM_CardBoxD_04
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_14264/SM_CardBoxD_04/SM_CardBoxD_04
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_14266/SM_CardBoxD_04/SM_CardBoxD_04
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_14268/SM_CardBoxD_04/SM_CardBoxD_04
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_14270/SM_CardBoxD_04/SM_CardBoxD_04
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_14272/SM_CardBoxD_04/SM_CardBoxD_04
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_14274/SM_CardBoxD_04/SM_CardBoxD_04
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_14276/SM_CardBoxA_01/SM_CardBoxA_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_14278/SM_CardBoxA_01/SM_CardBoxA_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_14280/SM_CardBoxA_01/SM_CardBoxA_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_14282/SM_CardBoxA_01/SM_CardBoxA_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_14284/SM_CardBoxA_01/SM_CardBoxA_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_14286/SM_CardBoxA_01/SM_CardBoxA_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_14288/SM_CardBoxA_01/SM_CardBoxA_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_14356/SM_CardBoxC_02
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_14358/SM_CardBoxC_02
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_14360/SM_CardBoxD_05
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_14362/SM_CardBoxB_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_14364/SM_CardBoxB_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_14366/SM_CardBoxB_02
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_14368/SM_CardBoxD_03
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_14370/SM_CardBoxC_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_14372/SM_CardBoxD_05
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_14374/SM_CardBoxD_05
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_14392/SM_CardBoxC_01/SM_CardBoxC_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_14394/SM_CardBoxC_01/SM_CardBoxC_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_14396/SM_CardBoxC_01/SM_CardBoxC_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_14398/SM_CardBoxC_01/SM_CardBoxC_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_14400/SM_CardBoxC_01/SM_CardBoxC_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_14402/SM_CardBoxC_01/SM_CardBoxC_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_14404/SM_CardBoxB_01/SM_CardBoxB_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_14406/SM_CardBoxB_01/SM_CardBoxB_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_14420/SM_CardBoxB_01/SM_CardBoxB_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_14422/SM_CardBoxB_01/SM_CardBoxB_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_14424/SM_CardBoxB_01/SM_CardBoxB_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_14942/SM_CardBoxA_01/SM_CardBoxA_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_14944/SM_CardBoxA_01/SM_CardBoxA_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_14946/SM_CardBoxA_01/SM_CardBoxA_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_14948/SM_CardBoxB_01/SM_CardBoxB_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_14950/SM_CardBoxB_01/SM_CardBoxB_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_14952/SM_CardBoxB_01/SM_CardBoxB_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_17259/SM_CardBoxA_01/SM_CardBoxA_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_17261/SM_CardBoxA_01/SM_CardBoxA_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_17263/SM_CardBoxA_01/SM_CardBoxA_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_17265/SM_CardBoxA_01/SM_CardBoxA_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_17267/SM_CardBoxA_01/SM_CardBoxA_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_17269/SM_CardBoxA_01/SM_CardBoxA_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_17271/SM_CardBoxC_01/SM_CardBoxC_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_17273/SM_CardBoxC_01/SM_CardBoxC_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_17933/SM_CardBoxD_04/SM_CardBoxD_04
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_17935/SM_CardBoxD_04/SM_CardBoxD_04
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_17937/SM_CardBoxD_04/SM_CardBoxD_04
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_17939/SM_CardBoxD_04/SM_CardBoxD_04
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_17941/SM_CardBoxD_04/SM_CardBoxD_04
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_17943/SM_CardBoxD_04/SM_CardBoxD_04
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_17945/SM_CardBoxD_04/SM_CardBoxD_04
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_17947/SM_CardBoxD_04/SM_CardBoxD_04
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_17949/SM_CardBoxD_04/SM_CardBoxD_04
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_17951/SM_CardBoxD_04/SM_CardBoxD_04
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_17953/SM_CardBoxD_04/SM_CardBoxD_04
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_17955/SM_CardBoxD_04/SM_CardBoxD_04
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_17957/SM_CardBoxD_04/SM_CardBoxD_04
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_17959/SM_CardBoxD_04/SM_CardBoxD_04
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_17961/SM_CardBoxD_04/SM_CardBoxD_04
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_17963/SM_CardBoxD_04/SM_CardBoxD_04
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_17965/SM_CardBoxD_04/SM_CardBoxD_04
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_17967/SM_CardBoxD_04/SM_CardBoxD_04
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_17969/SM_CardBoxD_04/SM_CardBoxD_04
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_17971/SM_CardBoxD_04/SM_CardBoxD_04
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_17973/SM_CardBoxD_04/SM_CardBoxD_04
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_17975/SM_CardBoxD_04/SM_CardBoxD_04
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_17977/SM_CardBoxD_04/SM_CardBoxD_04
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_17979/SM_CardBoxD_04/SM_CardBoxD_04
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_17981/SM_CardBoxD_04/SM_CardBoxD_04
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_17983/SM_CardBoxD_04/SM_CardBoxD_04
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_17985/SM_CardBoxD_04/SM_CardBoxD_04
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_17987/SM_CardBoxD_04/SM_CardBoxD_04
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_17989/SM_CardBoxC_01/SM_CardBoxC_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_17991/SM_CardBoxC_01/SM_CardBoxC_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_17993/SM_CardBoxC_01/SM_CardBoxC_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_17995/SM_CardBoxC_01/SM_CardBoxC_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_17997/SM_CardBoxC_01/SM_CardBoxC_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_17999/SM_CardBoxC_01/SM_CardBoxC_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_18001/SM_CardBoxC_01/SM_CardBoxC_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_18003/SM_CardBoxC_01/SM_CardBoxC_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_18005/SM_CardBoxC_01/SM_CardBoxC_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_18007/SM_CardBoxC_01/SM_CardBoxC_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_18009/SM_CardBoxC_01/SM_CardBoxC_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_18011/SM_CardBoxC_01/SM_CardBoxC_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_18013/SM_CardBoxC_01/SM_CardBoxC_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_18015/SM_CardBoxC_01/SM_CardBoxC_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_18017/SM_CardBoxB_01/SM_CardBoxB_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_18019/SM_CardBoxB_01/SM_CardBoxB_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_18021/SM_CardBoxB_01/SM_CardBoxB_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_18023/SM_CardBoxB_01/SM_CardBoxB_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_18025/SM_CardBoxB_01/SM_CardBoxB_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_18027/SM_CardBoxB_01/SM_CardBoxB_01
+  Semantics.SemanticsAPI     class=box                [renderable] /Root/Warehouse/Box_18029/SM_CardBoxB_01/SM_CardBoxB_01
+  ... 3080 more entries; all of them are in the JSON
+
+------------------------------------------------------------------------------
+2. CLASSES -- 37 distinct labels across 1 taxonomies
+------------------------------------------------------------------------------
+  taxonomy 'class'
+     box                       1841 prims  (1841 renderable)   via SemanticsAPIx1841
+     rack                       432 prims  (432 renderable)   via SemanticsAPIx432
+     sign                       253 prims  (253 renderable)   via SemanticsAPIx253
+     pallet                     158 prims  (158 renderable)   via SemanticsAPIx158
+     wall                       122 prims  (122 renderable)   via SemanticsAPIx122
+     bottle                     120 prims  (120 renderable)   via SemanticsAPIx120
+     ceiling                     72 prims  (72 renderable)   via SemanticsAPIx72
+     floor_decal                 72 prims  (72 renderable)   via SemanticsAPIx72
+     lamp                        60 prims  (60 renderable)   via SemanticsAPIx60
+     bracket                     59 prims  (59 renderable)   via SemanticsAPIx59
+     pillar                      54 prims  (54 renderable)   via SemanticsAPIx54
+     floor                       54 prims  (54 renderable)   via SemanticsAPIx54
+     crate                       51 prims  (51 renderable)   via SemanticsAPIx51
+     barel                       37 prims  (37 renderable)   via SemanticsAPIx37
+     barcode                     20 prims  (20 renderable)   via SemanticsAPIx20
+     wire                        17 prims  (17 renderable)   via SemanticsAPIx17
+     person                      13 prims  (11 renderable)   via LabelsAPIx13
+     paper_note                  12 prims  (12 renderable)   via SemanticsAPIx12
+     fire_extinguisher            7 prims  (7 renderable)   via SemanticsAPIx7
+     cone                         6 prims  (6 renderable)   via SemanticsAPIx6
+     emergency_board              3 prims  (3 renderable)   via SemanticsAPIx3
+     fuse_box                     2 prims  (2 renderable)   via SemanticsAPIx2
+     bucket                       1 prims  (1 renderable)   via SemanticsAPIx1
+     paper_shortcut               1 prims  (1 renderable)   via SemanticsAPIx1
+     cart                         1 prims  (1 renderable)   via SemanticsAPIx1
+     Baseballcap                  1 prims  (0 renderable)   via SemanticsAPIx1
+     BasketballShoes              1 prims  (0 renderable)   via SemanticsAPIx1
+     BaseBody                     1 prims  (0 renderable)   via SemanticsAPIx1
+     BaseEye                      1 prims  (0 renderable)   via SemanticsAPIx1
+     BaseEyeOcclusion             1 prims  (0 renderable)   via SemanticsAPIx1
+     BaseTearLine                 1 prims  (0 renderable)   via SemanticsAPIx1
+     BaseTeeth                    1 prims  (0 renderable)   via SemanticsAPIx1
+     BaseTongue                   1 prims  (0 renderable)   via SemanticsAPIx1
+     Cargopant                    1 prims  (0 renderable)   via SemanticsAPIx1
+     FieldJacket                  1 prims  (0 renderable)   via SemanticsAPIx1
+     VNeckScrubShirt              1 prims  (0 renderable)   via SemanticsAPIx1
+     forklift                     1 prims  (1 renderable)   via SemanticsAPIx1
+  carried by:
+     UsdSemantics.LabelsAPI        13 label entries
+     Semantics.SemanticsAPI      3467 label entries
+     attributes with NO API schema applied: 0
+
+------------------------------------------------------------------------------
+3. COVERAGE OF RENDERABLE GEOMETRY
+------------------------------------------------------------------------------
+  27406 prims on the stage; 3497 carry geometry; 3493 of those are renderable
+  excluded: 2 invisible, 2 guide/proxy purpose, 0 prims with unloaded payloads
+  total bbox volume 2,014.4 m3 (upper bound -- sibling boxes may overlap)
+
+                                       prims           bbox volume
+  labelled, direct             3441   98.5%       1,993.4 m3  99.0%
+  labelled, incl. inherited    3452   98.8%       1,998.6 m3  99.2%
+  UNLABELLED                     41    1.2%          15.8 m3   0.8%
+
+  Annotators do NOT propagate labels down the hierarchy by default
+  (omni.syntheticdata set_default_semantic_filter hierarchical_labels=False),
+  so 'direct' is the row that predicts what segmentation returns. Read from
+  the shipped source, not measured here -- this script renders nothing.
+
+  subtree                    renderable   direct  +inherit   volume m3   extent m
+  /Root/Warehouse                  3469     3429      3429     2,000.1   36.0x74.8x9.3
+  /Root/forklift                      2        1         1         7.5   3.5x1.2x2.2
+  /Root/Worker                       11        0        11         5.2   1.9x1.5x1.9
+  /Root/Avatar                       11       11        11         1.6   0.5x2.0x1.9
+
+  geometry the sensors CANNOT trace (4 prims) -- invisible or guide/proxy purpose:
+     inherited  purpose=guide    Mesh       /Root/forklift/S_ForkliftFork/collision_box
+     invisible  purpose=default  Mesh       /Root/GroundPlane/CollisionMesh
+     inherited  purpose=guide    Plane      /Root/GroundPlane/CollisionPlane
+     invisible  purpose=default  Capsule    /Root/Avatar/body_mesh
+
+------------------------------------------------------------------------------
+4. LARGEST UNLABELLED RENDERABLE GEOMETRY -- 41 prims, 41 distinct assets
+------------------------------------------------------------------------------
+  by whole asset (nearest reference/payload/instance ancestor):
+       bbox m3  gprims  size m                 path
+           1.4       1  1.3x1.1x1.0            /Root/forklift/S_ForkliftFork
+           0.4       1  0.2x9.0x0.2            /Root/Warehouse/SM_BeamA_9M27/SM_BeamA_9M
+           0.4       1  0.2x9.0x0.2            /Root/Warehouse/SM_BeamA_9M39/SM_BeamA_9M
+           0.4       1  0.2x9.0x0.2            /Root/Warehouse/SM_BeamA_9M42/SM_BeamA_9M
+           0.4       1  0.2x9.0x0.2            /Root/Warehouse/SM_BeamA_9M58/SM_BeamA_9M
+           0.4       1  0.2x9.0x0.2            /Root/Warehouse/SM_BeamA_9M25/SM_BeamA_9M
+           0.4       1  0.2x9.0x0.2            /Root/Warehouse/SM_BeamA_9M26/SM_BeamA_9M
+           0.4       1  0.2x9.0x0.2            /Root/Warehouse/SM_BeamA_9M37/SM_BeamA_9M
+           0.4       1  0.2x9.0x0.2            /Root/Warehouse/SM_BeamA_9M38/SM_BeamA_9M
+           0.4       1  0.2x9.0x0.2            /Root/Warehouse/SM_BeamA_9M43/SM_BeamA_9M
+           0.4       1  0.2x9.0x0.2            /Root/Warehouse/SM_BeamA_9M59/SM_BeamA_9M
+           0.4       1  0.2x9.0x0.2            /Root/Warehouse/SM_BeamA_9M24_1506/SM_BeamA_9M
+           0.4       1  0.2x9.0x0.2            /Root/Warehouse/SM_BeamA_9M36/SM_BeamA_9M
+           0.4       1  0.2x9.0x0.2            /Root/Warehouse/SM_BeamA_9M41/SM_BeamA_9M
+           0.4       1  0.2x9.0x0.2            /Root/Warehouse/SM_BeamA_9M57/SM_BeamA_9M
+           0.4       1  0.2x9.0x0.2            /Root/Warehouse/SM_BeamA_9M40/SM_BeamA_9M
+           0.4       1  0.2x9.0x0.2            /Root/Warehouse/SM_BeamA_9M56/SM_BeamA_9M
+           0.4       1  0.2x9.0x0.2            /Root/Warehouse/SM_BeamA_9M31/SM_BeamA_9M
+           0.4       1  0.2x9.0x0.2            /Root/Warehouse/SM_BeamA_9M50/SM_BeamA_9M
+           0.4       1  0.2x9.0x0.2            /Root/Warehouse/SM_BeamA_9M30/SM_BeamA_9M
+           0.4       1  0.2x9.0x0.2            /Root/Warehouse/SM_BeamA_9M51/SM_BeamA_9M
+           0.4       1  0.2x9.0x0.2            /Root/Warehouse/SM_BeamA_9M28/SM_BeamA_9M
+           0.4       1  0.2x9.0x0.2            /Root/Warehouse/SM_BeamA_9M49/SM_BeamA_9M
+           0.4       1  0.2x9.0x0.2            /Root/Warehouse/SM_BeamA_9M48/SM_BeamA_9M
+           0.4       1  0.2x9.0x0.2            /Root/Warehouse/SM_BeamA_9M29/SM_BeamA_9M
+
+  by single prim:
+       bbox m3   area m2  size m                 path
+           1.4       7.7  1.3x1.1x1.0            /Root/forklift/S_ForkliftFork/S_ForkliftFork
+           0.4       7.3  0.2x9.0x0.2            /Root/Warehouse/SM_BeamA_9M27/SM_BeamA_9M/SM_BeamA_9M
+           0.4       7.3  0.2x9.0x0.2            /Root/Warehouse/SM_BeamA_9M39/SM_BeamA_9M/SM_BeamA_9M
+           0.4       7.3  0.2x9.0x0.2            /Root/Warehouse/SM_BeamA_9M42/SM_BeamA_9M/SM_BeamA_9M
+           0.4       7.3  0.2x9.0x0.2            /Root/Warehouse/SM_BeamA_9M58/SM_BeamA_9M/SM_BeamA_9M
+           0.4       7.3  0.2x9.0x0.2            /Root/Warehouse/SM_BeamA_9M43/SM_BeamA_9M/SM_BeamA_9M
+           0.4       7.3  0.2x9.0x0.2            /Root/Warehouse/SM_BeamA_9M59/SM_BeamA_9M/SM_BeamA_9M
+           0.4       7.3  0.2x9.0x0.2            /Root/Warehouse/SM_BeamA_9M24_1506/SM_BeamA_9M/SM_BeamA_9M
+           0.4       7.3  0.2x9.0x0.2            /Root/Warehouse/SM_BeamA_9M25/SM_BeamA_9M/SM_BeamA_9M
+           0.4       7.3  0.2x9.0x0.2            /Root/Warehouse/SM_BeamA_9M26/SM_BeamA_9M/SM_BeamA_9M
+           0.4       7.3  0.2x9.0x0.2            /Root/Warehouse/SM_BeamA_9M36/SM_BeamA_9M/SM_BeamA_9M
+           0.4       7.3  0.2x9.0x0.2            /Root/Warehouse/SM_BeamA_9M37/SM_BeamA_9M/SM_BeamA_9M
+           0.4       7.3  0.2x9.0x0.2            /Root/Warehouse/SM_BeamA_9M38/SM_BeamA_9M/SM_BeamA_9M
+           0.4       7.3  0.2x9.0x0.2            /Root/Warehouse/SM_BeamA_9M40/SM_BeamA_9M/SM_BeamA_9M
+           0.4       7.3  0.2x9.0x0.2            /Root/Warehouse/SM_BeamA_9M41/SM_BeamA_9M/SM_BeamA_9M
+           0.4       7.3  0.2x9.0x0.2            /Root/Warehouse/SM_BeamA_9M56/SM_BeamA_9M/SM_BeamA_9M
+           0.4       7.3  0.2x9.0x0.2            /Root/Warehouse/SM_BeamA_9M57/SM_BeamA_9M/SM_BeamA_9M
+           0.4       7.3  0.2x9.0x0.2            /Root/Warehouse/SM_BeamA_9M31/SM_BeamA_9M/SM_BeamA_9M
+           0.4       7.3  0.2x9.0x0.2            /Root/Warehouse/SM_BeamA_9M50/SM_BeamA_9M/SM_BeamA_9M
+           0.4       7.3  0.2x9.0x0.2            /Root/Warehouse/SM_BeamA_9M51/SM_BeamA_9M/SM_BeamA_9M
+           0.4       7.3  0.2x9.0x0.2            /Root/Warehouse/SM_BeamA_9M28/SM_BeamA_9M/SM_BeamA_9M
+           0.4       7.3  0.2x9.0x0.2            /Root/Warehouse/SM_BeamA_9M29/SM_BeamA_9M/SM_BeamA_9M
+           0.4       7.3  0.2x9.0x0.2            /Root/Warehouse/SM_BeamA_9M30/SM_BeamA_9M/SM_BeamA_9M
+           0.4       7.3  0.2x9.0x0.2            /Root/Warehouse/SM_BeamA_9M48/SM_BeamA_9M/SM_BeamA_9M
+           0.4       7.3  0.2x9.0x0.2            /Root/Warehouse/SM_BeamA_9M49/SM_BeamA_9M/SM_BeamA_9M
+
+  by bbox surface area -- a wall or a floor slab has almost no volume and is
+  most of what a camera sees, so volume alone mis-ranks flat geometry:
+       area m2   bbox m3  size m                 path
+           7.7       1.4  1.3x1.1x1.0            /Root/forklift/S_ForkliftFork/S_ForkliftFork
+           7.3       0.4  0.2x9.0x0.2            /Root/Warehouse/SM_BeamA_9M27/SM_BeamA_9M/SM_BeamA_9M
+           7.3       0.4  0.2x9.0x0.2            /Root/Warehouse/SM_BeamA_9M39/SM_BeamA_9M/SM_BeamA_9M
+           7.3       0.4  0.2x9.0x0.2            /Root/Warehouse/SM_BeamA_9M42/SM_BeamA_9M/SM_BeamA_9M
+           7.3       0.4  0.2x9.0x0.2            /Root/Warehouse/SM_BeamA_9M58/SM_BeamA_9M/SM_BeamA_9M
+           7.3       0.4  0.2x9.0x0.2            /Root/Warehouse/SM_BeamA_9M43/SM_BeamA_9M/SM_BeamA_9M
+           7.3       0.4  0.2x9.0x0.2            /Root/Warehouse/SM_BeamA_9M59/SM_BeamA_9M/SM_BeamA_9M
+           7.3       0.4  0.2x9.0x0.2            /Root/Warehouse/SM_BeamA_9M24_1506/SM_BeamA_9M/SM_BeamA_9M
+           7.3       0.4  0.2x9.0x0.2            /Root/Warehouse/SM_BeamA_9M25/SM_BeamA_9M/SM_BeamA_9M
+           7.3       0.4  0.2x9.0x0.2            /Root/Warehouse/SM_BeamA_9M26/SM_BeamA_9M/SM_BeamA_9M
+           7.3       0.4  0.2x9.0x0.2            /Root/Warehouse/SM_BeamA_9M36/SM_BeamA_9M/SM_BeamA_9M
+           7.3       0.4  0.2x9.0x0.2            /Root/Warehouse/SM_BeamA_9M37/SM_BeamA_9M/SM_BeamA_9M
+           7.3       0.4  0.2x9.0x0.2            /Root/Warehouse/SM_BeamA_9M38/SM_BeamA_9M/SM_BeamA_9M
+           7.3       0.4  0.2x9.0x0.2            /Root/Warehouse/SM_BeamA_9M40/SM_BeamA_9M/SM_BeamA_9M
+           7.3       0.4  0.2x9.0x0.2            /Root/Warehouse/SM_BeamA_9M41/SM_BeamA_9M/SM_BeamA_9M
+           7.3       0.4  0.2x9.0x0.2            /Root/Warehouse/SM_BeamA_9M56/SM_BeamA_9M/SM_BeamA_9M
+           7.3       0.4  0.2x9.0x0.2            /Root/Warehouse/SM_BeamA_9M57/SM_BeamA_9M/SM_BeamA_9M
+           7.3       0.4  0.2x9.0x0.2            /Root/Warehouse/SM_BeamA_9M31/SM_BeamA_9M/SM_BeamA_9M
+           7.3       0.4  0.2x9.0x0.2            /Root/Warehouse/SM_BeamA_9M50/SM_BeamA_9M/SM_BeamA_9M
+           7.3       0.4  0.2x9.0x0.2            /Root/Warehouse/SM_BeamA_9M51/SM_BeamA_9M/SM_BeamA_9M
+           7.3       0.4  0.2x9.0x0.2            /Root/Warehouse/SM_BeamA_9M28/SM_BeamA_9M/SM_BeamA_9M
+           7.3       0.4  0.2x9.0x0.2            /Root/Warehouse/SM_BeamA_9M29/SM_BeamA_9M/SM_BeamA_9M
+           7.3       0.4  0.2x9.0x0.2            /Root/Warehouse/SM_BeamA_9M30/SM_BeamA_9M/SM_BeamA_9M
+           7.3       0.4  0.2x9.0x0.2            /Root/Warehouse/SM_BeamA_9M48/SM_BeamA_9M/SM_BeamA_9M
+           7.3       0.4  0.2x9.0x0.2            /Root/Warehouse/SM_BeamA_9M49/SM_BeamA_9M/SM_BeamA_9M
+
+------------------------------------------------------------------------------
+5. AVATAR -- does /Root/Avatar carry its 'person' label?
+------------------------------------------------------------------------------
+  UsdSemantics.LabelsAPI     class=person         /Root/Avatar/body_mesh
+  UsdSemantics.LabelsAPI     class=person         /Root/Avatar/character
+  UsdSemantics.LabelsAPI     class=person         /Root/Avatar/character/rig/ManRoot/Worker/CC_Base_Tongue/CC_Base_Tongue/CC_Base_Tongue
+  UsdSemantics.LabelsAPI     class=person         /Root/Avatar/character/rig/ManRoot/Worker/CC_Base_Body/CC_Base_Body/CC_Base_Body
+  UsdSemantics.LabelsAPI     class=person         /Root/Avatar/character/rig/ManRoot/Worker/CC_Base_Teeth/CC_Base_Teeth/CC_Base_Teeth
+  UsdSemantics.LabelsAPI     class=person         /Root/Avatar/character/rig/ManRoot/Worker/CC_Base_EyeOcclusion/CC_Base_EyeOcclusion/CC_Base_EyeOcclusion
+  UsdSemantics.LabelsAPI     class=person         /Root/Avatar/character/rig/ManRoot/Worker/CC_Base_TearLine/CC_Base_TearLine/CC_Base_TearLine
+  UsdSemantics.LabelsAPI     class=person         /Root/Avatar/character/rig/ManRoot/Worker/CC_Base_Eye/CC_Base_Eye/CC_Base_Eye
+  UsdSemantics.LabelsAPI     class=person         /Root/Avatar/character/rig/ManRoot/Worker/V_Neck_Scrub_Shirt/V_Neck_Scrub_Shirt/V_Neck_Scrub_Shirt
+  UsdSemantics.LabelsAPI     class=person         /Root/Avatar/character/rig/ManRoot/Worker/Field_Jacket/Field_Jacket/Field_Jacket
+  UsdSemantics.LabelsAPI     class=person         /Root/Avatar/character/rig/ManRoot/Worker/Cargo_pant/Cargo_pant/Cargo_pant
+  UsdSemantics.LabelsAPI     class=person         /Root/Avatar/character/rig/ManRoot/Worker/Basketball_Shoes/Basketball_Shoes/Basketball_Shoes
+  UsdSemantics.LabelsAPI     class=person         /Root/Avatar/character/rig/ManRoot/Worker/Baseball_cap/Baseball_Cap/Baseball_Cap
+  renderable gprims under the avatar: 11
+     carrying 'person' directly     : 11
+     inheriting it from an ancestor : 0
+     carrying nothing               : 0
+  VERDICT: YES -- 'person' is direct on 11 of 11 renderable gprims
+
+------------------------------------------------------------------------------
+6. ROBOTS -- do the 3 declared robots carry any label at all?
+------------------------------------------------------------------------------
+  BOT_01   not on the stage (referenced at runtime); opening https://omniverse-content-production.s3-us-west-2.amazonaws.com/Assets/Isaac/6.0/Isaac/Robots/Turtlebot/Turtlebot3/turtlebot3_burger.usd
+  BOT_01   asset    geometry    11   NO LABEL of any kind (11 geometry prims)
+  BOT_02   not on the stage (referenced at runtime); opening https://omniverse-content-production.s3-us-west-2.amazonaws.com/Assets/Isaac/6.0/Isaac/Robots/Unitree/Go2/go2.usd
+  BOT_02   asset    geometry    17   NO LABEL of any kind (17 geometry prims)
+  BOT_03   not on the stage (referenced at runtime); opening https://omniverse-content-production.s3-us-west-2.amazonaws.com/Assets/Isaac/6.0/Isaac/Robots/Unitree/H1/h1.usd
+  BOT_03   asset    geometry    27   NO LABEL of any kind (27 geometry prims)
+
+==============================================================================
+VERDICT
+==============================================================================
+  3441 of 3493 renderable prims carry a direct label (98.5%); 41 carry none at all
+  11 more are labelled ONLY through an ancestor, in /Root/Worker -- those read as UNLABELLED to an annotator
+    unless hierarchical labels are switched on. Labelled in USD, absent from
+    the ground truth: the silent half of this failure mode.
+  37 distinct classes exist across 1 taxonomies
+  schemas: LabelsAPI 13, SemanticsAPI 3467
+  avatar : YES -- 'person' is direct on 11 of 11 renderable gprims
+  BOT_01 : NO LABEL of any kind (11 geometry prims)  (from the asset)
+  BOT_02 : NO LABEL of any kind (17 geometry prims)  (from the asset)
+  BOT_03 : NO LABEL of any kind (27 geometry prims)  (from the asset)
+
+  Nothing on this stage was created, changed, or saved.
+==============================================================================

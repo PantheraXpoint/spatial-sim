@@ -296,6 +296,23 @@ Ranked by how much time they cost.
    installs fine, Isaac Sim cannot see it.
 9. **Cache volumes mapped to 4.5-era paths.** Docker creates them happily; they
    cache nothing; every restart costs ~10 minutes.
+10. **Capturing with the timeline stopped.** In exec mode on this host,
+    Replicator captures **nothing** until `play()` is called. Measured
+    2026-08-25: **40 stopped frames produced no data on any of four render
+    products; all four filled at frame 49 — the first frame after `play()`.**
+    Filling one frame later is what rules out "it just needed a longer warm-up".
+
+    Nothing raises. `get_data()` returns an empty buffer, which is
+    indistinguishable from a sensor that is working and sees nothing. **So a
+    capture script that samples a fixed number of frames and exits writes a
+    complete, well-formed, entirely empty dataset** — and empty is a plausible
+    reading, so it does not look like a bug. This is a **capture-mode
+    invariant**: press Play, warm up, *then* sample. See
+    `sim/spikes/FINDINGS.md`.
+
+    Last in this list because it was measured last, not because it costs least.
+    The numbering above is cited by number from `sim/observation_adapter.py`,
+    `tests/contract.py` and `sim/spikes/`, so it is deliberately append-only.
 
 ---
 
