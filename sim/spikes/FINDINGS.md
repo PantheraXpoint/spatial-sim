@@ -5,6 +5,158 @@ sensor behaviour, environment facts, and performance sessions. **Newest
 first** — a new dated section goes directly under this heading, not at the
 end of the file.
 
+## AVATAR POSE WRITES — 2026-08-26, and the lidar was five to ten frames behind the pose
+
+Conditions: idle host, all four 3090s free, no other GPU tenant, exec mode under
+`runheadless.sh`, `observatory_avatar.usd`, capture-mode configuration (no
+collider mask, no raised `minFrameRate`, render products at the registry's
+declared resolution). Driver: `sim/verify_avatar_pose.py`, which writes poses
+through the new `avatar.set_avatar_pose()` and reads INFRA_01's camera and
+lidar back through `sim/observation_adapter.py`. Four waypoints on an arc
+centred on the station — constant distance, so Example_Rotary's −15..+10°
+elevation band holds by construction — the fourth returning to the first.
+Output: `logs/verify_avatar_pose.jsonl`. Three runs; the two after the fixes
+agree to the frame.
+
+**Headline: after a pose write the RTX lidar keeps describing the previous
+pose for 5 to 10 frames, while the camera at the same station tracks the write
+immediately.** This is failure mode 10 one layer along and it is worse, because
+what comes back is not empty.
+
+### The table that started it, at a 4-frame settle
+
+Rows are where the avatar was standing; columns are how many returns fell in
+the box around each waypoint. W3 is W0's pose again, so their boxes are the
+same box. The station camera's `person` centroid is on the right, taken from
+the same tick.
+
+```
+                     lidar returns in the box around      camera
+avatar standing at     W0     W1     W2     W3        person centroid px
+W0 start             1133      0      0   1133             (640, 354)
+W1 +arc              1037      0      0   1037             (409, 363)
+W2 -arc                 0    840      0      0             (869, 359)
+W3 back to start        0      0    725      0             (640, 354)
+```
+
+Every row after the first has its returns in the box the avatar **just left**.
+The camera's centroid, same station, same tick, same settle, is correct at all
+four. Nothing in the cloud says so: ~1,000 returns, right density, right
+extent, genuinely on a body — just not the body's current position. **A stale
+cloud is full and plausible where an empty one is at least obviously empty.**
+
+### The measured crossover, and why it is measured every run
+
+`sim/verify_avatar_pose.py` does not assume a settle constant. After each pose
+write it counts, on every frame of the settle, the returns in the box the
+avatar is standing in now against the box it just left, and reports the frame
+they cross over. Two consecutive runs, identical numbers. Read
+`frame:here/there` as "on this frame of the settle, this many returns in the
+box the avatar is in now, this many in the box it left":
+
+```
+W0 -> W1   crossover at frame  5     1:0/1038  4:0/1038  5:852/0
+W1 -> W2   crossover at frame 10     3:0/882   4:65/907  9:65/907  10:773/0
+W2 -> W3   crossover at frame  9     8:0/781   9:1018/0
+```
+
+The W1→W2 row is the one to read twice. From frame 4 to frame 9 the cloud
+holds **65 returns at the new pose and 907 at the old one simultaneously** —
+the rotary sweep caught mid-rotation. So the transition has three states, not
+two: old, both, new. A settle chosen anywhere in that window yields a cloud
+containing an avatar in two places, which is not a state any consumer models.
+
+The default settle is now **30 frames**, and the check is spelled "the lidar
+caught up within 30 frames" with the crossover frame in its detail, so a
+regression names the number instead of failing an opaque box count.
+
+### Why this matters beyond the spike
+
+`core/observation.py` hands a consumer one `Observation` per sensor per tick,
+each carrying a `pose` and a `timestamp`. **The pose is current and the
+`points` payload is 5–10 frames old**, and there is nothing in the object that
+says so. Any benchmark that writes a pose at episode start — which is every
+benchmark this project is aimed at, since that is what episode reset *is* —
+gets stale geometry in its opening frames from the lidar and correct geometry
+from the camera beside it. The two modalities then disagree with each other
+about where the avatar is, at exactly the moment a fusion module is least able
+to notice, because it has no earlier frame to compare against.
+
+`tests/contract.py` does not catch this and would not: it checks shape, dtype,
+units, frame and that readings react to the avatar, and temporal alignment
+between a reading's pose and its payload is not among them. The S11 contract
+run used `OA_SETTLE=2`, well inside the stale window, and passed.
+
+### `runheadless.sh` enables `omni.physx.cct` itself
+
+Measured from the extension startup log of a run whose command line was
+exactly `./runheadless.sh --exec /workspace/sim/verify_avatar_pose.py`, with no
+`--enable` anywhere on it:
+
+```
+[35.597s] [ext: omni.physx.cct-110.1.13] startup
+```
+
+The belief that no shipped experience enables it comes from grepping
+`/isaac-sim/apps/*.kit`, which is a statement about `.kit` files and not about
+what a launcher script adds on top. It is untested against `python.sh` and it
+is now **measured false for `runheadless.sh`** — which is the launcher
+everything that reads sensor data runs under. Corrected in place in
+`sim/observation_adapter.py`, whose `_CircuitWalk` docstring asserted the
+opposite. Ask the extension manager; never infer this from argv.
+
+Corroborated by effect rather than only by the log: with the extension up, the
+capsule's **authored** z of 0.925 becomes 0.895 within the first frames of
+Play. Something is simulating the prim. That is the resting height of a
+controller with `contactOffset` 0.02 on a capsule of half-height 0.875, so it
+is the character controller and not a coincidence.
+
+**What it changes about the S11 contract result: nothing that the contract
+asserts, and one sentence of the reasoning behind it.** No contract check
+depends on which agency moved the capsule — they are about payload shape,
+units, frame, and that readings react. What is retracted is the *reason the
+scripted walk was called safe*: "nothing contends for the capsule's transform"
+was false, and the walk was contended and won anyway rather than by design.
+Two residues, both small and both worth knowing:
+
+- `_CircuitWalk` reads the capsule's z once, in `Run.setup()`, **before**
+  `play()` — so it captures the authored 0.925 and re-asserts it every tick
+  while physics pulls the controller to 0.895. A ~3 cm disagreement, refreshed
+  every frame. Which value the renderer sees was not measured.
+- The existing caveat is unchanged and now sharper. "A scripted walk, not CCT
+  collide-and-slide — it says nothing about the character controller" was
+  written on the assumption that no controller was there. One was, and the
+  walk's positions were applied anyway: `sim/verify_avatar_pose.py` writes the
+  same transform under the same live controller and reads it back at **0.000
+  mm error** at every waypoint. So a USD transform write is not overridden by
+  the controller's own position — the caveat stands for the reason it always
+  did, that a write is a placement and not a swept move, and not because
+  nothing was listening.
+
+### A PhysX character controller has no rotation, so the capsule cannot be yawed
+
+Third finding, briefly, because it cost the first run of the verification
+script. Commanding yaw 0 / 90 / −90 / 0° produced a first-person camera
+heading of **0.00° at all four waypoints** while the visible character — which
+physics does not touch — turned by exactly the commanded angle each time. The
+capsule's `xformOp:orient` reads back as `(1, 0, 0, 0)` at every sample no
+matter what was written, so this is not a Fabric-versus-USD problem that
+reading somewhere else would fix: PhysX simulates the prim as a character
+controller, a controller has a position and an up direction and no
+orientation, and the writeback puts identity back every frame.
+
+Nothing raises. The write succeeds, the attribute exists, the type is right,
+and the value is gone before the renderer sees it.
+
+Consequence, and it is general: **anything that must turn with the avatar has
+to live on a prim physics does not own.** The cameras are those prims, and
+they are also the half that matters — what the avatar sees is the camera's own
+aim. `avatar.set_avatar_pose()` therefore writes each camera's `rotateXYZ`
+directly, pitch preserved, and keeps the capsule write only for the cases
+where physics is not holding the capsule.
+
+---
+
 ## SEMANTICS AUDIT AND RENDER PROBE — 2026-08-25, and the recon was wrong by a factor of 313
 
 Conditions: idle host, all four 3090s free, no other GPU tenant, exec mode under

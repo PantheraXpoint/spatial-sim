@@ -109,6 +109,19 @@ Environment (argv is ambiguous after ``--exec``, so config is env vars):
     OA_SETTLE       frames between advancing the world and sampling (default 2)
     OA_STEPS        smoke mode only: how many steps to sample (default 20)
     OA_NO_AUTORUN=1 import this module without running anything
+
+**OA_SETTLE's default of 2 is inside the RTX lidar's staleness window and has
+not been raised here.** Measured 2026-08-26: after the avatar's transform is
+written, the lidar's cloud keeps describing the PREVIOUS pose for 5 to 10
+frames, while the camera at the same station tracks the write immediately. So
+every lidar reading this module has produced is 5-10 frames older than the
+``pose`` and ``timestamp`` stamped on it beside it, and the two modalities
+disagree about where the avatar is. Nothing catches it: a stale cloud is full,
+plausible, and genuinely on a body -- and the contract checks shape, dtype,
+units, frame and reactivity, not temporal alignment. Left at 2 rather than
+changed as a side-effect of writing this note; the number is a decision, and
+raising it costs frames on every step of every trace. Derivation and the
+measured crossover frames: sim/spikes/FINDINGS.md.
 """
 
 from __future__ import annotations
@@ -979,12 +992,40 @@ class _CircuitWalk:
     for the same reason. A circle, because constant speed makes distance over
     time something a test can reason about in closed form.
 
-    USD writes, not physics: this driver runs WITHOUT
-    ``--enable omni.physx.cct``, so the character-controller node type is
-    unregistered, the Controls graph loads and does nothing, and nothing
-    contends for the capsule's transform. The visible character follows via
-    ``avatar.install_character_follow``, and it is the character -- render
-    geometry -- that lidar and cameras actually see.
+    USD writes, not physics -- but NOT because nothing else is writing. This
+    paragraph used to say that the driver runs without ``--enable
+    omni.physx.cct``, so the node type is unregistered, the Controls graph
+    loads and does nothing, and nothing contends for the capsule's transform.
+    **The last clause is false under this launcher.** Measured 2026-08-26:
+    ``runheadless.sh`` starts ``omni.physx.cct`` on its own -- it is in the
+    extension startup log of a run whose command line carried no ``--enable``
+    at all -- and the capsule's authored z of 0.925 becomes 0.895 within the
+    first frames of Play, which is a controller's resting height and not a
+    coincidence. A character controller is live under this walk. It always
+    was.
+
+    What that does and does not change (see sim/spikes/FINDINGS.md):
+
+      * It changes **nothing the contract asserts**. No check in
+        tests/contract.py depends on which agency moved the capsule; they are
+        about payload shape, dtype, units, frame, and that readings react.
+      * It retracts the *reason* this walk was called safe. It was contended
+        and won anyway, rather than by design.
+      * ``__init__`` reads the capsule's z once, before ``play()``, so it
+        captures the authored 0.925 and re-asserts it every tick while physics
+        pulls the controller to 0.895 -- a ~3 cm disagreement, refreshed every
+        frame. Which value the renderer sees was not measured.
+      * The caveat below is unchanged and now sharper: a controller was there,
+        and a USD transform write went straight through it.
+
+    Still a scripted walk and still not CCT collide-and-slide -- it says
+    nothing about what the character controller does when you walk into a
+    shelf. ``avatar.set_avatar_pose()`` is the deliberate version of this same
+    write, for episode reset, and carries the same caveat.
+
+    The visible character follows via ``avatar.install_character_follow``, and
+    it is the character -- render geometry -- that lidar and cameras actually
+    see.
 
     Deliberately a function of SIMULATED time and not of frames: two runs at
     different frame rates then produce the same trajectory, which is what

@@ -89,6 +89,22 @@ Controls, once you press Play (defaults from
                               Movement is world-axis: it does not follow the
                               view, because the view cannot be turned.)
 
+The second entry point: :func:`set_avatar_pose`
+------------------------------------------------
+Episode reset needs to place the avatar from code, repeatedly, without
+restarting the simulator, and every benchmark this project is aimed at
+(HM3D, MP3D, GOAT-Bench, HM3D-OVON, A-EQA) begins each episode by doing
+exactly that. :func:`set_avatar_pose` is that call. It is an **addition**, not
+a replacement: it touches neither the Controls graph nor the controller's
+registration, so the keyboard keeps working and simply carries on from
+wherever the pose was written.
+
+It is a pose WRITE, which is not the same thing as a walk. See that function's
+docstring for which route it takes through -- or around -- the character
+controller, and for what "not collide-and-slide" costs.
+``sim/verify_avatar_pose.py`` is the headless check that it lands and that a
+fixed sensor sees it land.
+
 Run::
 
     docker compose -f docker/docker-compose.yml run --rm sim \\
@@ -108,6 +124,7 @@ else:
     _APP = None
 
 import argparse  # noqa: E402
+import math  # noqa: E402
 import os  # noqa: E402
 import sys  # noqa: E402
 from pathlib import Path  # noqa: E402
@@ -338,6 +355,31 @@ _FORWARD_X = -1.0
 # -Y. Rotating -90 deg about Z sends -Y to -X; +90 would send it to +X.
 _CHARACTER_YAW_DEG = 90.0 * _FORWARD_X
 
+# Which way the referenced Worker asset faces in ITS OWN frame, expressed the
+# way set_avatar_pose() expresses every heading: degrees about +Z, 0 = world
+# +X, counter-clockwise positive. The toes lead towards -Y (the ankle/toe
+# measurement above), and the heading of -Y is atan2(-1, 0) = -90 deg. Same
+# measurement as _CHARACTER_YAW_DEG, stated in the units the pose API uses.
+_ASSET_FACING_DEG = -90.0
+
+# The heading the avatar is BUILT facing, and therefore the heading its cameras
+# already look along before any yaw is written: the direction W drives, which
+# is _FORWARD_X. Both halves of the rig agree on it by construction --
+# _ASSET_FACING_DEG + _CHARACTER_YAW_DEG is -180 for _FORWARD_X = -1 and 0 for
+# +1 -- and set_avatar_pose() re-derives the character half from the stage and
+# complains if that identity has stopped holding.
+_DEFAULT_HEADING_DEG = 0.0 if _FORWARD_X > 0 else 180.0
+
+# A USD camera authored the way both _camera() below and
+# sensor_factory.look_at_rotate_xyz() author one carries
+# ``rotateXYZ = (90 - pitch, 0, heading - 90)``: the camera looks down its own
+# -Z, and that composition sends -Z to the horizontal bearing `heading` with a
+# downward pitch. So the heading a camera looks along is its rz plus this.
+# MEASURED against the built stage rather than derived: cam_first_person holds
+# rotateXYZ (90, 0, 90) and its world forward is (-1, 0, 0), i.e. heading 180,
+# which is _DEFAULT_HEADING_DEG.
+_CAMERA_RZ_TO_HEADING_DEG = 90.0
+
 # A human is between these, in metres. Used to decide whether Kit's metrics
 # assembler already resolved the asset's centimetre units for us -- see
 # _add_character. Wide on purpose: this is a units check, not a height check.
@@ -508,6 +550,367 @@ def install_character_follow(
     )
     print(f"  character follow installed: {body.GetPath()} -> {char.GetPath()}", flush=True)
     return sub
+
+
+# ---------------------------------------------------------------------------
+# Runtime pose control -- the second entry point, alongside the keyboard
+# ---------------------------------------------------------------------------
+def _cct_extension_enabled() -> bool:
+    """Is ``omni.physx.cct`` enabled in THIS process?
+
+    The discriminator for whether :func:`set_avatar_pose` has a controller to
+    talk to at all.
+
+    NOT the same question as "did the launch line pass ``--enable
+    omni.physx.cct``". MEASURED 2026-08-26: ``runheadless.sh`` starts
+    ``omni.physx.cct`` on its own -- it appears in the extension startup log of
+    a plain ``--exec`` run that passed no such flag. The elsewhere-recorded
+    belief that no shipped experience enables it holds for ``python.sh``, not
+    for this launcher. Ask the extension manager; do not infer it from argv.
+    """
+    try:
+        import omni.kit.app
+
+        mgr = omni.kit.app.get_app().get_extension_manager()
+        return bool(mgr.is_extension_enabled("omni.physx.cct"))
+    except Exception:
+        return False
+
+
+def _yaw_attr_value(attr, angle_deg: float):
+    """A quaternion of `angle_deg` about +Z, in whatever precision `attr` is.
+
+    ``AddOrientOp()`` authors ``quatf`` and that is what sim/avatar.py builds,
+    but a stage that arrived any other way may hold ``quatd``, and setting the
+    wrong one raises rather than converting.
+    """
+    half = math.radians(angle_deg) / 2.0
+    if attr.GetTypeName() == Sdf.ValueTypeNames.Quatd:
+        return Gf.Quatd(math.cos(half), Gf.Vec3d(0.0, 0.0, math.sin(half)))
+    return Gf.Quatf(math.cos(half), Gf.Vec3f(0.0, 0.0, math.sin(half)))
+
+
+def set_avatar_pose(
+    stage: Usd.Stage,
+    position,
+    yaw_deg: float | None = None,
+    *,
+    avatar_path: str = f"{ROOT}/Avatar",
+    verbose: bool = False,
+) -> dict:
+    """Place the avatar at `position` facing `yaw_deg`. Repeatable, no restart.
+
+    The entry point episode reset needs. The keyboard stays exactly as it was:
+    nothing here touches the Controls graph, deactivates the character
+    controller, or unbinds an action, so W/A/S/D keeps working and simply
+    carries on from wherever this put the avatar.
+
+    THROUGH THE CHARACTER CONTROLLER, OR AROUND IT?
+    -----------------------------------------------
+    **Both, and which one is not a preference -- it is whichever one is not a
+    silent no-op in the caller's process.** Each single-route design has its
+    own way of doing nothing while looking correct:
+
+      * **USD write alone, with the CCT active.** Physics owns this prim while
+        it is being simulated and writes its own answer back over what you
+        authored. That it does so is measured, not supposed: the capsule's
+        authored z of 0.925 becomes 0.895 within a few frames of Play, and the
+        yaw written to its ``orient`` is put back to identity every frame (see
+        the yaw block below). A translation the controller disagreed with
+        would go the same way, and it would look like a pose write that worked
+        and then quietly un-worked.
+      * **``set_position()`` alone, with the CCT inactive.** There is then no
+        controller registered for this path, the call lands nowhere, and the
+        avatar does not move at all.
+
+    So this writes the USD transform first -- authoritative when nothing else
+    owns the capsule -- and then, if and only if the extension is enabled,
+    also asks the controller to place itself at the same point via
+    ``omni.physxcct``'s ``set_position()``. The two never disagree, because
+    they are handed the same number.
+
+    Note which of those two the project actually runs in, because it is not
+    what the code around it assumes: **``runheadless.sh`` starts
+    ``omni.physx.cct`` on its own**, with no ``--enable`` flag anywhere on the
+    line. Measured 2026-08-26 from the extension startup log of a plain
+    ``--exec`` run. So a headless capture is the *first* case, not the second,
+    and ``sim/observation_adapter.py``'s note that its driver "runs WITHOUT
+    ``--enable omni.physx.cct``, so the character-controller node type stays
+    unregistered and nothing contends for the capsule's transform" does not
+    hold under that launcher. Nothing here depends on which case it is --
+    that is the point of doing both -- but do not read the flag and conclude.
+
+    **Neither route is collide-and-slide, and that is the caveat this function
+    inherits.** Collide-and-slide is what ``set_move()`` does -- the shipped
+    keyboard path, a swept move that stops against a shelf. ``set_position()``
+    is a different entry point: a placement, not a sweep. So a pose written
+    here can be a pose no walk could have reached, and can put the capsule
+    inside static geometry. Whether PhysX depenetrates a controller that lands
+    there on its next ``move()`` is **not something this project has
+    measured** -- do not assume it does. The existing statement of the same
+    caveat is in ``sim/spikes/FINDINGS.md``, about the scripted circuit walk
+    the S11 contract run uses: "a scripted walk, not CCT collide-and-slide --
+    it says nothing about the character controller". This function does not
+    change that; it makes the pose write deliberate and reusable instead of
+    something each driver reimplements.
+
+    WHAT IT WRITES, AND WHY IT IS FOUR PRIMS AND NOT ONE
+    -----------------------------------------------------
+    ``body_mesh``   translate + orient. The capsule is what physics moves.
+                    Yaw about the up axis leaves a Z-axis capsule's collision
+                    shape identical, so the orient costs nothing -- but see
+                    the note in the code: with the timeline playing it does
+                    not survive, because PhysX owns this prim's rotation and a
+                    character controller has no rotation to own.
+    the cameras     rotateXYZ, on every ``UsdGeom.Camera`` under the capsule,
+                    pitch preserved. This is what actually turns the view, and
+                    it is what an observation depends on.
+    ``character``   translate + rotateXYZ. The visible rigged body -- and what
+                    RTX lidar, radar and cameras actually trace, since they
+                    see RENDER geometry, not colliders. Written directly
+                    rather than left to :func:`install_character_follow` so
+                    the pose is coherent in the SAME frame: a sensor read on
+                    the next tick must not see the body still standing where
+                    the episode used to start. The follow then writes the same
+                    translate again next frame, which is a no-op.
+
+    WHAT A CALLER OWES AFTER CALLING THIS: FRAMES
+    ----------------------------------------------
+    The pose is in USD the instant this returns. **The sensors are not.**
+    Measured 2026-08-26 with ``sim/verify_avatar_pose.py``: the fixed
+    station's camera tracks a pose write immediately, and its RTX lidar's
+    point cloud keeps describing the PREVIOUS pose for **5 to 10 frames**
+    afterwards -- a whole waypoint's worth, at three waypoints out of three.
+
+    This is the shape of failure mode 10 one layer along, and it is worse than
+    an empty buffer: a cloud of the wrong moment is a perfectly well-formed
+    cloud, with the right density, the right extent, and returns on a body
+    that is genuinely there -- just not where the episode says it is. An
+    episode reset that samples immediately therefore records its first
+    observations against the END of the previous episode.
+
+    So: write the pose, spend frames, then sample. The verification script
+    budgets 30 and reports the crossover frame every run rather than trusting
+    the number, which is what the number is worth.
+
+    One thing it deliberately does NOT do: orbit the third-person camera's
+    MOUNT POINT. That camera sits 3 m along the capsule's local -X, and while
+    physics is holding the capsule at identity there is no rotation for that
+    offset to ride. Yaw turns what it looks along, not where it stands, so at
+    yaw far from the built heading it becomes a side view rather than a chase
+    view. Fixing that means writing the camera's translate too, which is a
+    change to where a declared sensor is mounted -- a registry decision, not
+    something a pose setter should make on its own.
+
+    Args:
+        stage: The stage the avatar is on.
+        position: ``(x, y)`` or ``(x, y, z)`` in world **metres**. Two
+            components keep the capsule's current standing height, which is
+            what an episode reset almost always wants. Three set it
+            explicitly, and z is the **capsule centre**, not the feet:
+            ``centre = feet + height/2`` for the capsule this module builds.
+        yaw_deg: Heading in degrees about +Z, 0 = world +X, counter-clockwise
+            positive, applied to the cameras and the visible body alike.
+            ``None`` leaves the current heading untouched.
+        avatar_path: Root of the avatar rig. Read from the stage, never
+            invented (hard rule 1) -- every prim below it must already exist.
+        verbose: Print what was written. Off by default: an episode reset runs
+            thousands of times.
+
+    Returns:
+        What was actually done, for a caller that needs to log or assert on it
+        -- including which routes ran, so "the pose write did nothing" is
+        answerable from the record rather than by re-deriving it.
+
+    Raises:
+        RuntimeError: the rig is not where it says it is, the stage is not
+            Z-up, or ``avatar_path`` is not at identity (see below).
+        ValueError: `position` is not 2 or 3 components.
+    """
+    body_path = f"{avatar_path}/body_mesh"
+    body = stage.GetPrimAtPath(body_path)
+    char = stage.GetPrimAtPath(f"{avatar_path}/character")
+    if not body.IsValid():
+        raise RuntimeError(
+            f"no capsule at {body_path} -- set_avatar_pose() only moves an "
+            f"avatar that sim/avatar.py built"
+        )
+    if UsdGeom.GetStageUpAxis(stage) != UsdGeom.Tokens.z:
+        raise RuntimeError(
+            "set_avatar_pose() writes yaw about +Z and treats index 2 as "
+            "vertical; this stage is not Z-up"
+        )
+
+    # /Root/Avatar is deliberately identity (see the module docstring), and a
+    # non-identity parent would silently make every number below a LOCAL pose
+    # wearing a world pose's name. Refuse rather than convert: converting the
+    # translation is easy and converting the caller's intent for yaw is not.
+    parent_to_world = UsdGeom.Xformable(body).ComputeParentToWorldTransform(
+        Usd.TimeCode.Default())
+    identity = Gf.Matrix4d(1.0)
+    skew = max(abs(parent_to_world[i][j] - identity[i][j])
+               for i in range(4) for j in range(4))
+    if skew > 1e-6:
+        raise RuntimeError(
+            f"{avatar_path} is not at identity (max element delta {skew:.6g}). "
+            f"set_avatar_pose() writes world poses onto the capsule's LOCAL "
+            f"transform, which is only the same thing while the Avatar Xform "
+            f"stays at identity -- as sim/avatar.py builds it and as the "
+            f"character controller requires."
+        )
+
+    # Poses cross this boundary in metres (core/observation.py LENGTH_UNIT);
+    # USD holds stage units. Same conversion sim/observation_adapter.py makes
+    # in the other direction, and the same silent factor of 100 if skipped.
+    mpu = float(UsdGeom.GetStageMetersPerUnit(stage) or 1.0)
+
+    t_attr = body.GetAttribute("xformOp:translate")
+    if not t_attr:
+        t_attr = UsdGeom.Xformable(body).AddTranslateOp().GetAttr()
+    current = t_attr.Get() or Gf.Vec3d(0.0, 0.0, 0.0)
+
+    vals = [float(v) for v in position]
+    if len(vals) == 2:
+        x_u, y_u = vals[0] / mpu, vals[1] / mpu
+        z_u = float(current[2])
+    elif len(vals) == 3:
+        x_u, y_u, z_u = (v / mpu for v in vals)
+    else:
+        raise ValueError(
+            f"position must be (x, y) or (x, y, z) in metres, got {len(vals)} "
+            f"components"
+        )
+    target = Gf.Vec3d(x_u, y_u, z_u)
+    t_attr.Set(target)
+
+    report: dict = {
+        "position_m": (x_u * mpu, y_u * mpu, z_u * mpu),
+        "yaw_deg": None if yaw_deg is None else float(yaw_deg),
+        "avatar_path": avatar_path,
+        "usd_write": True,
+        "character_written": False,
+        "cct_extension_enabled": _cct_extension_enabled(),
+        "cct_set_position": "not attempted (omni.physx.cct is not enabled)",
+        "via_character_controller": False,
+    }
+
+    # --- yaw: three prims, because only two of them survive physics --------
+    char_rotate_z = None
+    if yaw_deg is not None:
+        yaw = float(yaw_deg)
+        o_attr = body.GetAttribute("xformOp:orient")
+        if not o_attr:
+            o_attr = UsdGeom.Xformable(body).AddOrientOp().GetAttr()
+        # The cameras are already aimed along _DEFAULT_HEADING_DEG by their
+        # authored rotateXYZ, so the capsule only carries the DIFFERENCE.
+        o_attr.Set(_yaw_attr_value(o_attr, yaw - _DEFAULT_HEADING_DEG))
+
+        # ...and then aim each camera itself, which is NOT belt and braces.
+        #
+        # MEASURED 2026-08-26, and it is a silent one: with the timeline
+        # PLAYING, the write above never reaches the renderer. The capsule
+        # carries PhysxCharacterControllerAPI, so PhysX simulates it as a
+        # character controller -- and a PhysX controller has a position and an
+        # up direction and no orientation at all, so its per-frame writeback
+        # puts identity back over whatever was authored. Nothing raises, and
+        # the ATTRIBUTE ITSELF reads back as (1, 0, 0, 0) -- so this is not a
+        # Fabric-versus-USD problem you could work around by reading somewhere
+        # else. Four waypoints commanding 0/90/-90/0 deg produced a
+        # first-person camera heading of 0.00 deg at every single one, while
+        # the character -- which PhysX does not touch -- turned by exactly the
+        # commanded angle each time.
+        #
+        # So the heading has to live on a prim physics does not own. The
+        # cameras are those prims. This is also the only half that matters to
+        # an observation: what the avatar SEES is the camera's own aim.
+        #
+        # The capsule write above is kept because it is correct and effective
+        # wherever physics is not simulating the capsule -- a stopped
+        # timeline, or a stage without the CCT schema applied -- and because
+        # it costs one attribute.
+        aimed = []
+        for child in body.GetChildren():
+            if not child.IsA(UsdGeom.Camera):
+                continue
+            r_attr = child.GetAttribute("xformOp:rotateXYZ")
+            if not r_attr:
+                r_attr = UsdGeom.Xformable(child).AddRotateXYZOp().GetAttr()
+            rot = r_attr.Get() or Gf.Vec3f(0.0, 0.0, 0.0)
+            # rx is the camera's PITCH and is preserved: the third-person
+            # camera is pitched down 25 deg and levelling it on every episode
+            # reset would be a different camera by the tenth episode.
+            r_attr.Set(Gf.Vec3f(float(rot[0]), float(rot[1]),
+                                yaw - _CAMERA_RZ_TO_HEADING_DEG))
+            aimed.append(child.GetPath().pathString)
+        report["cameras_aimed"] = aimed
+        if not aimed:
+            print(f"  ! no camera under {body_path} -- yaw turned the visible "
+                  f"body but no view", flush=True)
+
+        # The character's own offset is read off the rig rather than recalled,
+        # because it is the one number here that a change to the asset would
+        # invalidate without touching this file.
+        rig = stage.GetPrimAtPath(f"{avatar_path}/character/rig")
+        rig_yaw = _CHARACTER_YAW_DEG
+        rig_rot = rig.GetAttribute("xformOp:rotateXYZ") if rig.IsValid() else None
+        if rig_rot and rig_rot.Get() is not None:
+            rig_yaw = float(rig_rot.Get()[2])
+        built = (_ASSET_FACING_DEG + rig_yaw) % 360.0
+        if abs((built - _DEFAULT_HEADING_DEG) % 360.0) > 0.5:
+            print(
+                f"  ! avatar rig faces {built:.1f} deg but the cameras are "
+                f"aimed at {_DEFAULT_HEADING_DEG:.1f} deg -- the visible body "
+                f"and the first-person view will disagree by "
+                f"{(built - _DEFAULT_HEADING_DEG) % 360.0:.1f} deg",
+                flush=True,
+            )
+        char_rotate_z = yaw - (_ASSET_FACING_DEG + rig_yaw)
+        report["character_rotate_z_deg"] = char_rotate_z
+
+    if char.IsValid():
+        c_attr = char.GetAttribute("xformOp:translate")
+        if not c_attr:
+            c_attr = UsdGeom.Xformable(char).AddTranslateOp().GetAttr()
+        c_attr.Set(target)
+        if char_rotate_z is not None:
+            r_attr = char.GetAttribute("xformOp:rotateXYZ")
+            if not r_attr:
+                # Appended, so xformOpOrder becomes [translate, rotateXYZ]:
+                # USD applies the LAST op first, which is rotate-about-own-
+                # origin then translate. The other order orbits the character
+                # around the world origin.
+                r_attr = UsdGeom.Xformable(char).AddRotateXYZOp().GetAttr()
+            r_attr.Set(Gf.Vec3f(0.0, 0.0, float(char_rotate_z)))
+        report["character_written"] = True
+    else:
+        print(
+            f"  ! no character at {avatar_path}/character -- the capsule "
+            f"moved but nothing visible did, and the capsule does not render",
+            flush=True,
+        )
+
+    # --- and now the controller, if one can possibly be listening ------------
+    if report["cct_extension_enabled"]:
+        try:
+            from omni.physxcct.scripts.ifaces import get_physx_cct_interface
+
+            get_physx_cct_interface().set_position(body_path, (x_u, y_u, z_u))
+            report["cct_set_position"] = "called"
+            report["via_character_controller"] = True
+        except Exception as exc:                             # noqa: BLE001
+            # Not fatal: the USD write above already placed the capsule, and a
+            # controller that is not registered for this path was never going
+            # to overwrite it either.
+            report["cct_set_position"] = f"failed: {exc!r}"
+
+    if verbose:
+        yaw_txt = "unchanged" if yaw_deg is None else f"{float(yaw_deg):.1f} deg"
+        print(
+            f"  avatar -> ({x_u * mpu:.3f}, {y_u * mpu:.3f}, {z_u * mpu:.3f}) m "
+            f"yaw {yaw_txt}; cct={report['cct_set_position']}",
+            flush=True,
+        )
+    return report
 
 
 def _camera(stage: Usd.Stage, path: str, translate: Gf.Vec3d, *, pitch: float, focal: float) -> None:
