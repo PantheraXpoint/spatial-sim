@@ -24,6 +24,15 @@ Deliberately NOT here: anything about values. This suite asserts shape,
 typing, key presence, and the two invariants the whole design rests on (one
 moving mount; sensors that react to it). Whether the pixels are pretty is not
 a contract.
+
+AND NOTHING ABOUT A SOURCE'S SHAPE -- cloud density, point count, sampling
+pattern, resolution. Only about what its numbers MEAN. A test that leans on
+the fixture it was written against is not a contract, and it fails in the
+worst direction: it accuses the other source. Measured 2026-08-25
+(sim/spikes/FINDINGS.md): a nearest-point discriminator for the world-frame
+convention separated cleanly against the mock's ~2,000 points and dissolved
+against the simulator's 290,160, where "some point is within 1.5 m of X" is
+true for almost any X. It called a correct adapter broken.
 """
 
 from __future__ import annotations
