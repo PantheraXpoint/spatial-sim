@@ -85,6 +85,25 @@ LENGTH_UNIT: Final[str] = "metre"
 #: `inf` is the legal value for "this ray hit nothing". NaN never is.
 DEPTH_CONVENTION: Final[str] = "euclidean_range_from_sensor_origin"
 
+#: The frame the `points` payload key arrives in: WORLD, in metres, the same
+#: frame and units as `Pose.position`. Not the sensor frame.
+#:
+#: This was the last open question on the list below and is now closed, in the
+#: direction the rest of this file already pointed: every other quantity that
+#: crosses the boundary is world-frame and metric, and a cloud that is not is
+#: the odd one out. Isaac hands you the opposite -- `generic-model-output` is
+#: sensor-local by default -- so `sim/observation_adapter.py` applies the
+#: sensor-to-world matrix, and `core/mock_source.py` adds the mount position.
+#:
+#: What it costs to skip is specifically FUSION. One cloud in the sensor frame
+#: is self-consistent, varies with the scene, and plots correctly; it is only
+#: when two stations are combined that both land on the origin, overlapping,
+#: and neither looks wrong on its own. Checked by
+#: `test_range_clouds_are_in_the_world_frame` in tests/contract.py, which needs
+#: a sensor away from the origin and a target of known world position to see
+#: the difference at all.
+POINTS_FRAME: Final[str] = "world"
+
 #: What the `semantic` payload key holds: CLASS ids. One id per category,
 #: shared by every instance of it -- two people are both id 1 -- and every id
 #: that appears in the map has a name in `semantic_labels`.
@@ -141,20 +160,20 @@ ANNOTATOR_DATA_KEYS: dict[str, str] = {
 #
 # Enforced by tests/contract.py, which is where a source finds out.
 
-# STILL NOT PINNED DOWN -- found while building core/memory/ (M5) against
-# these keys, and left here because this is where the next adapter author
-# looks. Renaming an Isaac annotator to a portable key buys portability and
-# spends the definition that used to live in the name; these are what is left
-# to say out loud. Units, up-axis and depth semantics were the rest of this
-# list and are now fixed above.
+# NOTHING LEFT UNPINNED -- and the last entry is worth recording, because of
+# how it closed. Renaming an Isaac annotator to a portable key buys
+# portability and spends the definition that used to live in the name; units,
+# up-axis, depth semantics and semantic ids were the earlier entries and are
+# all fixed above.
 #
-#   points     Sensor-local or world frame? The mock says sensor-local in a
-#              comment. Anything comparing two clouds -- a residual, say -- is
-#              assuming they agree, and for a FIXED sensor the two conventions
-#              are indistinguishable, so nothing will notice until an
-#              avatar-mounted range sensor exists. Pin it then, with a test
-#              that can actually fail; pinning it now would be a claim no
-#              suite could check.
+# `points` was the last, and stayed open on the grounds that pinning it "would
+# be a claim no suite could check" -- true only for as long as the check was
+# imagined as a property of one cloud. It is not. It needs a sensor at a known
+# non-origin pose and a target at a known world position, and then it is
+# decidable in one tick. See POINTS_FRAME above and
+# test_range_clouds_are_in_the_world_frame in tests/contract.py. The
+# generalisation is the useful part: "no suite could check it" is worth
+# doubting once, in case what it means is that the fixture was too symmetric.
 
 #: Modality -> payload keys any source MUST provide, whatever its annotators.
 #: A source may always add more; it may never provide less.

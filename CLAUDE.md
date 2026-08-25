@@ -176,8 +176,10 @@ migration guide against anything you recall. Specifically in 6.x:
   1. check `elementsCoordsType`, convert spherical→Cartesian;
   2. check `frameOfReference`, apply the sensor pose;
   3. mask on `flags & VALID` (`ElementFlags.VALID == 64`).
-  `IsaacExtractRTXSensorPointCloud` does 1 and 2 for you and hands back the
-  sensor→world matrix — **prefer it whenever you want a metric cloud.**
+  `IsaacExtractRTXSensorPointCloud` does **1 only** — it hands back the
+  sensor→world matrix as `outputs:transform` rather than applying it, and
+  publishes no `flags` — so **prefer it for the conversion and still owe 2 and
+  3 yourself.**
   Both conventions are settable per prim
   (`omni:sensor:WpmDmat:elementsCoordsType`, `...:outputFrameOfReference`), so
   read them from the buffer header rather than assuming.
@@ -242,9 +244,17 @@ Ranked by how much time they cost.
    **multi-sensor fusion specifically**: every station's cloud lands on the
    origin, and each cloud still looks plausible on its own. And `flags & VALID`
    does not mean "a real return" — the radar's empty-scene sentinel at exactly
-   100.000 m carries that bit; see the next item. Prefer
-   `IsaacExtractRTXSensorPointCloud`, which does the first two and hands back
-   the sensor→world matrix. Derivation: `sim/spikes/FINDINGS.md`.
+   100.000 m carries that bit; see the next item.
+
+   **`IsaacExtractRTXSensorPointCloud` does step 1 only.** Measured 2026-08-25
+   (an earlier version of this line said it did 1 and 2). It converts
+   spherical→Cartesian and *publishes* `outputs:transform`, the capture-time
+   sensor→world matrix, without applying it — NVIDIA's own
+   `test_point_cloud_annotator.py` asserts its output equals
+   `r·cos(el)·cos(az)`, i.e. sensor-local. **And it publishes no `flags`**, so
+   the raw GMO buffer must still be read every tick for the VALID mask and the
+   sentinel drop. Prefer it for step 1 and the matrix; owe 2 and 3 yourself.
+   Derivation: `sim/spikes/FINDINGS.md`.
 3. **Trusting `flags & VALID` to mean "a real return". It does not.** With
    nothing in front of it, the RTX radar emits one element per frame at
    **exactly `azimuth 0°, elevation 0°, range 100.000 m`** — a round number with
@@ -265,13 +275,26 @@ Ranked by how much time they cost.
    will hit it. Drop the sentinel explicitly — it is identifiable by its exact
    `(0, 0, 100.0)` triple — rather than assuming any single flag or range bound
    will do it for you.
-4. **RTX sensor without its own viewport.** It silently does not simulate.
-5. **Missing semantic label.** Segmentation and bbox annotators return empty.
-6. **Dynamic instead of kinematic avatar.** Ragdolls, trips on shelves, falls
+4. **`distance_to_camera` writes 0, not `inf`, where the ray hit nothing.**
+   Replicator's own annotator documentation: "0 in the 2d array represents
+   infinity". `core/observation.py` specifies `inf` for that, and NaN never.
+   Measured 2026-08-25: **29% of BOT_01_CAM's pixels**, which sees open space
+   above the racking. Untreated they read as a surface at **zero range** —
+   nearer than anything real, so they win every min-depth, every
+   nearest-obstacle and every collision-margin query in the project, and the
+   more open the space the more confident the reading that something is
+   touching the lens. Nothing raises: 0.0 is a legal float, it is non-negative,
+   and the buffer still passes shape, dtype and "is this metric" checks. Map it
+   in the adapter. `sim/observation_adapter.py` does; see
+   `sim/spikes/FINDINGS.md`.
+
+5. **RTX sensor without its own viewport.** It silently does not simulate.
+6. **Missing semantic label.** Segmentation and bbox annotators return empty.
+7. **Dynamic instead of kinematic avatar.** Ragdolls, trips on shelves, falls
    through floors.
-7. **pip install into system python instead of `./python.sh`.** Package
+8. **pip install into system python instead of `./python.sh`.** Package
    installs fine, Isaac Sim cannot see it.
-8. **Cache volumes mapped to 4.5-era paths.** Docker creates them happily; they
+9. **Cache volumes mapped to 4.5-era paths.** Docker creates them happily; they
    cache nothing; every restart costs ~10 minutes.
 
 ---

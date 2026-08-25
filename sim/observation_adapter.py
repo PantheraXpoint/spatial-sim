@@ -55,13 +55,15 @@ Derivations for 1-3: ``sim/spikes/FINDINGS.md``.
 
 FRAMES AND UNITS
 ----------------
-``points`` leave here in the **world** frame, in metres, per the promise in
-``core/observation.py``. ``core/mock_source.py`` emits its clouds
-sensor-local, and says so in a comment -- the two sources disagree, the
-contract cannot see it (for a FIXED sensor the two conventions are
-indistinguishable), and ``core/observation.py``'s own "STILL NOT PINNED DOWN"
-note is about exactly this. Every range reading records which frame it is in,
-under ``intrinsics["frame"]``, so a consumer can at least ask.
+``points`` leave here in the **world** frame, in metres -- ``POINTS_FRAME`` in
+``core/observation.py``, which this adapter is what pinned. ``core/mock_source``
+emitted its clouds sensor-local until 2026-08-25, and the two sources
+contradicted each other for as long as they did because no test could see it:
+a fixed translation breaks none of ``(N, 3)``, finite, non-empty, or
+reacts-to-the-avatar, and for a sensor at the origin the two conventions are
+the same numbers. ``test_range_clouds_are_in_the_world_frame`` is the check
+that can, and it needed a target of known world position to exist at all.
+Every range reading also records its frame under ``intrinsics["frame"]``.
 
 Poses come from USD and are therefore in **stage units**, which is a different
 statement: they are scaled by ``UsdGeom.GetStageMetersPerUnit`` here.

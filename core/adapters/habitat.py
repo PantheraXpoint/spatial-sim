@@ -343,8 +343,10 @@ def points_from_depth(euclidean: Any, intrinsics: dict[str, Any]) -> Any:
     Comparing it against a rotary lidar is comparing fields of view, not
     modalities, and any benchmark that does so should say which.
 
-    The frame this returns in is the open question the contract has not
-    settled -- see the `points` note in `core/observation.py`. Sensor-local,
-    to match `core/mock_source.py`, until that is pinned.
+    Returns WORLD metres, per POINTS_FRAME in `core/observation.py`. That was
+    an open question when this sketch was written and is now settled: the
+    unprojection is naturally sensor-local, so this owes the sensor-to-world
+    step exactly as `sim/observation_adapter.py` does -- and skipping it is
+    invisible until two sensors are fused.
     """
     raise NotImplementedError(_SKETCH)

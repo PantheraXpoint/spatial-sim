@@ -257,6 +257,89 @@ class ObservationSourceContract:
             assert obs.intrinsics is not None
             assert obs.intrinsics.get("config") == spec.config
 
+    def test_range_clouds_are_in_the_world_frame(self, trace, avatar_eye_height):
+        """
+        `points` is WORLD metres (POINTS_FRAME), and this is the only test
+        here that can tell.
+
+        Nothing else in this file can. Every other assertion about a cloud --
+        (N, 3), float, finite, non-empty, reacts to the avatar -- survives a
+        fixed translation untouched, and sensor-local differs from world by
+        exactly one: the mount position. For a sensor AT the origin they are
+        the same numbers. That is why the mock and the live adapter
+        contradicted each other for as long as they did, each looking correct
+        on its own.
+
+        The known target is the FLOOR. A sensor mounted `h` above it sees it
+        below: in world coordinates those returns sit at the floor's own
+        height, and read as sensor-local they sit at `-h`, underground -- which
+        is not somewhere a range sensor can put a return. The floor's height is
+        not assumed either; it is the avatar's own camera height less the
+        `eye_height` that scene.yaml declares, so this measures the cloud
+        against a pose the same tick reported.
+
+        WHAT THIS CANNOT SEE, said plainly: a translation with no vertical
+        component, and a mount too low for `-h` to clear the tolerance. Those
+        are excluded by the guard below rather than quietly passed, and if no
+        sensor qualifies the test fails as vacuous instead of green.
+
+        A first version of this compared the nearest return to the avatar
+        under both readings. It is unsound and was measured to be: a 290,000
+        point cloud spanning a warehouse has a return within a metre of almost
+        anywhere, under either reading, so it accused a correct adapter. Cloud
+        density is not something a contract may assume.
+
+        Skipping sensor->world costs FUSION specifically: every station's cloud
+        lands on the origin, mutually overlapping, and each still looks
+        plausible plotted alone. Failure mode 2 in CLAUDE.md; derived in
+        sim/spikes/FINDINGS.md.
+        """
+        below_floor_m = 0.5
+        checked: list[str] = []
+        wrong: list[str] = []
+
+        for tick in trace:
+            # The lowest avatar camera stands `eye_height` above the floor; a
+            # third-person one legitimately floats higher, so the minimum is
+            # the honest estimate and it errs downward, which is the safe
+            # direction for a threshold.
+            eyes = [o.pose.position[UP_AXIS] - avatar_eye_height
+                    for o in tick if o.mount is MountType.AVATAR]
+            if not eyes:
+                continue
+            floor = min(eyes)
+            for obs in tick:
+                if obs.mount is MountType.AVATAR or "points" not in obs.data:
+                    continue
+                mount = obs.pose.position[UP_AXIS] - floor
+                if mount < 2.0 * below_floor_m:
+                    # Too low for the two readings to differ by more than the
+                    # tolerance. It cannot testify either way.
+                    continue
+                points = np.asarray(obs.data["points"], dtype=np.float64)
+                if points.size == 0:
+                    continue
+                checked.append(obs.sensor_id)
+                lowest = float(points[:, UP_AXIS].min())
+                if lowest < floor - below_floor_m:
+                    wrong.append(
+                        f"{obs.sensor_id} is mounted {mount:.2f} {LENGTH_UNIT}s "
+                        f"above the floor and its lowest return is at "
+                        f"{lowest:.2f} on axis {UP_AXIS}. The floor is at "
+                        f"{floor:.2f}; a cloud still in the SENSOR frame would "
+                        f"put it at {floor - mount:.2f}, which is what this "
+                        f"looks like. A sensor->world transform is owed."
+                    )
+
+        assert checked, (
+            f"no range sensor is mounted more than {2.0 * below_floor_m} "
+            f"{LENGTH_UNIT}s above the floor, so nothing here could tell world "
+            f"coordinates from sensor-local ones -- the two readings differ by "
+            f"the mount height and that is inside the tolerance. This test "
+            f"cannot be satisfied by a scene with no raised range sensor."
+        )
+        assert not wrong, "\n".join(sorted(set(wrong)))
+
     # --- Poses ---------------------------------------------------------------
 
     def test_orientations_are_unit_quaternions(self, source):

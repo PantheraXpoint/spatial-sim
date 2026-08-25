@@ -41,6 +41,7 @@ import yaml
 from core.observation import (
     ANNOTATOR_DATA_KEYS,
     MODALITY_DATA_KEYS,
+    POINTS_FRAME,
     Modality,
     Observation,
     Pose,
@@ -607,7 +608,7 @@ class MockObservationSource:
         profile = _RADAR if radar else _LIDAR
         origin = np.array(pose.position, dtype=np.float64)
 
-        clutter = self._static_cloud(spec, profile)
+        clutter = self._static_cloud(spec, profile, float(origin[2]))
         clouds = [clutter]
         # Radar returns what moves. That is the honest difference between the
         # two range modalities here, and it is why a radar frame is tiny.
@@ -621,15 +622,28 @@ class MockObservationSource:
             clouds.append((obj.centre - origin)
                           + self._scatter_pattern(spec, n) * spread)
 
-        points = np.concatenate(clouds).astype(np.float32)
+        # Everything above is an offset FROM the sensor, because that is how
+        # beam geometry is naturally written. `points` is world metres
+        # (POINTS_FRAME), so the sensor's own position goes on at the end --
+        # and `ranges` is measured before it does, because a range sensor
+        # reports the distance from ITSELF, not from the world origin.
+        #
+        # This used to stop at the sensor-local cloud. Nothing caught it: for
+        # a station at the origin the two conventions are the same numbers,
+        # and a cloud that is wrong by a fixed translation still passes
+        # (N, 3), still varies with the avatar, and still looks right plotted
+        # on its own. It is fusing two stations that breaks. Now pinned, and
+        # checked by test_range_clouds_are_in_the_world_frame.
+        local = np.concatenate(clouds).astype(np.float32)
         if self._noise:
-            points = points + self._rng.normal(
-                0.0, self._noise, points.shape
+            local = local + self._rng.normal(
+                0.0, self._noise, local.shape
             ).astype(np.float32)
-        ranges = np.linalg.norm(points, axis=1).astype(np.float32)
+        ranges = np.linalg.norm(local, axis=1).astype(np.float32)
+        points = (local + origin).astype(np.float32)
 
         data: dict[str, Any] = {
-            "points": points,          # sensor-local metres
+            "points": points,          # world metres -- see POINTS_FRAME
             "ranges": ranges,
             "num_returns": int(points.shape[0]),
         }
@@ -647,19 +661,27 @@ class MockObservationSource:
 
         intrinsics = {
             "config": spec.config,
+            "frame": POINTS_FRAME,
             "max_range_m": profile["max_range_m"],
             "horizontal_resolution_deg": profile["h_res_deg"],
             "vertical_resolution_deg": profile["v_res_deg"],
         }
         return data, intrinsics
 
-    def _static_cloud(self, spec: SensorSpec, profile: dict) -> np.ndarray:
+    def _static_cloud(self, spec: SensorSpec, profile: dict,
+                      height: float) -> np.ndarray:
         """
         The unchanging part of the scene: walls, racking, floor.
 
         Generated once per sensor and cached, so an unchanged world gives a
         bit-identical background. Without that, "nothing moved" and "everything
         moved a little" would look the same to a residual.
+
+        `height` is how far the sensor sits above the floor, and a downward
+        beam TERMINATES there rather than continuing underground. Before this,
+        a mount at 3 m put clutter 1.45 m below the floor -- something no range
+        sensor can do, and invisible for as long as clouds were only ever read
+        one at a time.
         """
         key = spec.sensor_id
         if key not in self._clutter:
@@ -668,6 +690,10 @@ class MockObservationSource:
             azimuth = np.linspace(0.0, 2.0 * math.pi, n, endpoint=False)
             elevation = rng.uniform(-0.25, 0.05, n)
             distance = rng.uniform(4.0, min(18.0, profile["max_range_m"]), n)
+            down = elevation < 0.0
+            if height > 0.0 and down.any():
+                to_floor = height / np.maximum(-np.sin(elevation[down]), 1e-6)
+                distance[down] = np.minimum(distance[down], to_floor)
             self._clutter[key] = np.column_stack([
                 distance * np.cos(elevation) * np.cos(azimuth),
                 distance * np.cos(elevation) * np.sin(azimuth),

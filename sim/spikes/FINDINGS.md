@@ -5,6 +5,192 @@ sensor behaviour, environment facts, and performance sessions. **Newest
 first** — a new dated section goes directly under this heading, not at the
 end of the file.
 
+## S11 OBSERVATION ADAPTER — 2026-08-25, and two conversions nobody had counted
+
+Conditions: idle host, all four 3090s free, exec mode under `runheadless.sh`,
+`observatory_avatar.usd`, no collider mask and no `minFrameRate` (capture mode,
+CLAUDE.md rule 6). Seven sensors resolved: INFRA_01 camera + lidar, three robot
+cameras, two avatar cameras. Radar skipped — it needs the three Motion BVH kit
+flags.
+
+**Result: `tests/contract.py` passes unchanged against the live simulator.**
+`22 passed in 27.59s`, pytest exit 0, the same 22 tests the mock passes. That
+is the S11 gate and the M3 handoff, closed.
+
+### `IsaacExtractRTXSensorPointCloud` does step 1, not steps 1 and 2
+
+CLAUDE.md said it did both. It does not, and the correction matters because
+step 2 is the one that breaks fusion.
+
+Read out of the shipped extension in this image
+(`isaacsim.sensors.rtx.nodes`, Isaac Sim 6.0.1):
+
+- it converts spherical→Cartesian, and **publishes** `outputs:transform` —
+  *"The sensor-to-world transform matrix at the time of capture"* — **without
+  applying it**. NVIDIA's own `test_point_cloud_annotator.py` asserts the
+  output equals `r·cos(el)·cos(az)`, elementwise, i.e. **sensor-local**;
+- its output list is azimuth, elevation, distance, intensity, normals,
+  material/object/channel/echo/emitter/tick ids, `rv_ms`, timestamp,
+  transform — **and no `flags`**. So the raw `generic-model-output` buffer has
+  to be read every tick anyway, or there is no `VALID` mask and no sentinel
+  drop.
+
+The two buffers are element-aligned by construction — the node emits exactly
+`numElements` points in input order, which is what that same NVIDIA test
+asserts — so pairing them per tick is sound. `sim/observation_adapter.py`
+reads both.
+
+Enum values, read from `omni.sensors.generic_model_output` rather than
+recalled: `CoordsType {CARTESIAN 0, SPHERICAL 1}`,
+`FrameOfReference {SENSOR 0, WORLD 1, CUSTOM 2, PARENT 3}`,
+`ElementFlags.VALID 64`.
+
+Measured output, INFRA_01_LIDAR, sensor at world (4.910, 6.610, 2.60):
+
+```
+290,160 points   frame=world   decoded_by=IsaacExtractRTXSensorPointCloud
+sensor_to_world=IsaacExtractRTXSensorPointCloud.transform
+xyz_min [-26.368, -23.433, -0.004]   xyz_max [5.461, 30.625, 9.005]
+```
+
+Floor at z ≈ 0 and a 9 m ceiling, from a sensor at 2.6 m. Degrees would not
+look like that, and neither would a cloud left on the origin.
+
+### `distance_to_camera` writes 0, not `inf`, where the ray hit nothing
+
+Replicator's own annotator documentation, in this image: *"0 in the 2d array
+represents infinity (which means there is no object in that pixel)."*
+`core/observation.py` specifies `inf` for that case and forbids NaN.
+
+Measured share of no-hit pixels, one tick:
+
+```
+BOT_01_CAM   depth_finite_frac 0.7065    <- 29% of the frame is "no hit"
+BOT_02_CAM   depth_finite_frac 1.0000       depth 0.179 .. 35.356 m
+BOT_03_CAM   depth_finite_frac 1.0000       depth 0.152 .. 32.469 m
+INFRA_01_CAM depth_finite_frac 1.0000       depth 5.329 .. 43.565 m
+```
+
+BOT_01 is the TurtleBot at 0.2 m, looking up past the racking into open space.
+Left at 0 those 29% read as **a surface at zero range** — nearer than anything
+real, so they win every min-depth, nearest-obstacle and collision-margin query,
+and the more open the space the more confident the reading that something is
+against the lens. Nothing raises: 0.0 is a legal float, non-negative, and
+survives every shape, dtype and "is this metric, not normalised" check the
+contract makes. The adapter maps `0 → inf` and `NaN → inf`.
+
+The same annotator is euclidean range from the camera origin and already
+applies `metersPerUnit`, so it needs no scaling — only USD-derived poses do.
+
+### `points` is world frame, and the mock had been wrong since M3
+
+`core/mock_source.py` emitted sensor-local clouds; the adapter emits world.
+Both looked correct in isolation for the reason `core/observation.py` had
+already guessed and then mis-concluded: it left the frame unpinned because
+"pinning it now would be a claim no suite could check."
+
+That was true only while the check was imagined as a property of one cloud. A
+fixed translation breaks none of `(N, 3)`, float, finite, non-empty, or
+reacts-to-the-avatar, and for a sensor at the origin the two conventions are
+literally the same numbers. `POINTS_FRAME = "world"` in `core/observation.py`
+is now the pinned convention, and `tests/contract.py` gained
+`test_range_clouds_are_in_the_world_frame`.
+
+**The first version of that test was unsound, and how it failed is the useful
+part.** It compared the nearest return to the avatar under both readings —
+world, and sensor-local-plus-the-mount — expecting them to be separated by the
+mount offset. Against the mock they are, decisively:
+
+```
+INFRA_01_RADAR: nearest return is 7.24 m from the avatar as world coordinates,
+                but 0.55 once the sensor's own position is added.
+```
+
+Against the live simulator it **accused a correct adapter**:
+
+```
+INFRA_01_LIDAR: 0.89 m as world  vs  0.12 m as sensor-local
+                0.99             vs  0.95
+                1.65             vs  1.24
+```
+
+Both readings fit, because the lidar returns **290,160 points spanning the
+whole warehouse**: "some point is within 1.5 m of X" is true for almost any X,
+under either hypothesis. The mock has ~2,000 points and the simulator 290,000,
+and the test had silently assumed the sparse case. **Cloud density is not
+something a contract may assume** — a discriminator that works on a fixture
+with a thousand points can be meaningless on one with a third of a million.
+
+The sound version uses **the floor** as the known target. A sensor mounted `h`
+above it sees it below; in world coordinates those returns sit at the floor's
+height, and read as sensor-local they sit at `-h` — underground, which is not
+somewhere a range sensor can put a return. The floor's height is derived, not
+assumed: the avatar's own lowest camera height less the `eye_height`
+scene.yaml declares, so the cloud is measured against a pose the same tick
+reported. Verified by regression against the mock, where the measured floor
+lands on the predicted one:
+
+```
+INFRA_01_LIDAR mounted 6.50 m above the floor, lowest return -6.70 (predicted -6.50)
+INFRA_02_LIDAR mounted 3.00 m above the floor, lowest return -3.00 (predicted -3.00)
+```
+
+It is honest about its blind spot rather than silent: a translation with no
+vertical component, or a mount too low for `-h` to clear the tolerance, cannot
+be seen — so those sensors are excluded by an explicit guard, and if none
+qualify the test fails as vacuous instead of green.
+
+Fixing the mock exposed a second defect in it: with clutter generated as
+`distance x sin(elevation)` and no floor, a 3 m mount returned points **1.42 m
+underground** (INFRA_02_LIDAR, measured). Downward beams now terminate at the floor. Nothing had ever
+noticed, for the same reason nothing noticed the frame — a cloud is only ever
+checked against itself.
+
+Generalisable, and the reason this is written down: **"no test could check
+this" is worth doubting once**, in case what it really means is that the
+fixture was too symmetric to tell. And the correction to that: a test built on
+one fixture is a hypothesis about the other.
+
+### Two silent failures found by running it, not by reading it
+
+1. **A lidar's GMO carries the radar-only `rv_ms` member as an unfilled
+   pointer, and slicing it returns an EMPTY array rather than raising.** It
+   surfaced ~100 lines from the cause as
+   `boolean index did not match indexed array; size of axis is 0 but size of
+   corresponding boolean axis is 289930`, and every lidar reading was dropped
+   for 300 warm-up frames while the cameras looked fine. Per-element arrays are
+   now length-checked against `numElements`, not assumed.
+2. **pytest inside Kit loads Isaac's bundled ROS 2 `launch_testing` as a
+   `pytest11` entry point, which imports `lark`, which this image does not
+   have.** It died before collecting a single test.
+   `PYTEST_DISABLE_PLUGIN_AUTOLOAD=1` before `pytest.main`.
+
+### How the suite runs at all, given exec mode
+
+`ObservationSource.step()` is synchronous and the contract calls it in a plain
+loop; exec mode forbids `app.update()` and frames come from the update event
+stream. A synchronous loop on Kit's main thread can never yield a frame, so
+both cannot be true at once — unless `step()` is thread-aware:
+
+- **on the main thread** it reads what the renderer last produced (the capture
+  loop is already inside an update callback);
+- **on any other thread** it posts a request, the main thread services it on
+  its next update, and the caller blocks.
+
+Sampling always happens on the main thread; the worker only ever touches numpy
+that was copied there. pytest runs on the worker. Copies are not optional:
+annotator buffers are recycled, and the contract's `trace` fixture holds a
+whole walk at once — handing out views would make every tick identical and
+turn "the sensor never reacted" into a finding about the adapter.
+
+The avatar is keyboard-driven and has no trajectory, so the headless run
+supplies one: a 2.5 m circle written straight to the capsule transform, with
+`omni.physx.cct` deliberately **not** enabled so the character-controller node
+type stays unregistered and nothing contends for it. That is a scripted walk,
+not CCT collide-and-slide — it says nothing about the character controller.
+
+---
+
 ## GUI PERFORMANCE — 2026-08-24, and it is the first uncontended measurement
 
 **Every earlier fps number in this project was taken on a loaded host.** The
