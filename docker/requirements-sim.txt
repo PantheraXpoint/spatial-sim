@@ -3,3 +3,12 @@
 # Sim's own pinned dependencies and break the app in a way that looks like a
 # simulator bug.
 pyyaml>=6.0
+
+# For sim/observation_adapter.py's exec-mode driver, which runs the shared
+# contract suite (tests/contract.py) against the live simulator on a worker
+# thread while Kit keeps rendering. That gate is "the same suite passes
+# against the mock AND the simulator", and it cannot be checked without a
+# test runner inside Kit's own interpreter. pytest only -- no plugins, no
+# pytest-cov: every entry here is a chance to shadow one of Isaac Sim's
+# pinned dependencies.
+pytest>=8.0
