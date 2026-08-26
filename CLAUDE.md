@@ -310,6 +310,31 @@ Ranked by how much time they cost.
     invariant**: press Play, warm up, *then* sample. See
     `sim/spikes/FINDINGS.md`.
 
+11. **Timing a frame that reads an annotator back.** `annotator.get_data()`
+    costs **~16 ms/frame** at 640x480 on this host, and it lands on whichever
+    arm of a comparison happens to sample pixels. Measured 2026-08-26: nine
+    arms in one process, every arm **without** the readback at **16.7-17.8
+    ms** and every arm **with** it at **33.3 ms** — independent of what was
+    being animated.
+
+    Nothing errors. The number is real, stable to two decimal places, and
+    describes the wrong thing. A published +15.9 ms/frame "cost of binding a
+    skeletal animation" was entirely the readback: the arm without it never
+    called `get_data()` and the two arms it was compared against called it
+    every frame. Re-measured with the readback held constant, **the gait
+    itself is -0.55 ms** against a shipped-arm run-to-run spread of **1.10
+    ms** — that is, nothing.
+
+    **The rule: a frame-time measurement must declare whether it reads
+    annotators, and arms compared against each other must agree on that.**
+    A "cost of X" is only a cost of X if every arm samples the same way.
+
+    Time it by differencing whole frames, not by timing the call: only
+    **9.84 ms** of the 16.07 is attributable inside the timed calls (2.48 ms
+    in `get_data()`, 7.36 ms in the numpy difference done with the result).
+    The **6.23 ms residual is unexplained** — repeatable, and appearing in
+    neither timed region. See `sim/spikes/FINDINGS.md`.
+
     Last in this list because it was measured last, not because it costs least.
     The numbering above is cited by number from `sim/observation_adapter.py`,
     `tests/contract.py` and `sim/spikes/`, so it is deliberately append-only.
