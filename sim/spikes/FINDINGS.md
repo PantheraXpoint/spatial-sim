@@ -8,10 +8,12 @@ end of the file.
 ## THE WALK CYCLE — 2026-08-26, and the shipped clips are on a different skeleton
 
 Conditions: idle host, GPU index 3, exec mode under `runheadless.sh`,
-`observatory_avatar.usd`. Two spikes: `sim/spikes/_diag_walk_clip.py` reads
+`observatory_avatar.usd`. Three spikes: `sim/spikes/_diag_walk_clip.py` reads
 assets and renders nothing; `sim/spikes/_diag_walk_render.py` renders the
-avatar's own third-person camera and prices the result. Outputs:
-`logs/walk_clip.json`, `logs/walk_render.json`, `logs/walk_*.png`.
+avatar's own third-person camera and prices the result — **and got the price
+wrong**; `sim/spikes/_diag_walk_timesample.py` re-prices it against its own
+controls and retracts that number. Outputs: `logs/walk_clip.json`,
+`logs/walk_render.json`, `logs/walk_timesample.json{,l}`, `logs/walk*.png`.
 
 ### First, two premises that were wrong, and the pictures that settle them
 
@@ -122,37 +124,140 @@ is mounted on it, so any pixel that changes is a limb.
 Twenty-eight, not ten, and that is the right number: ten driven joints plus
 the eighteen below them in the chain.
 
-### The frame-rate cost, and it is not where it looks
+### The frame-rate cost — RETRACTED THE SAME DAY. It was the instrument.
 
-Measured in one process, back to back, 640x480 render product on the avatar's
-third-person camera, at Play, nothing else attached:
+**What was published first, kept verbatim:**
+
+> Measured in one process, back to back, 640x480 render product on the
+> avatar's third-person camera, at Play, nothing else attached:
+>
+> ```
+>   shipped idle clip bound (the world as it was)   17.37 ms/frame   57.6 fps
+>   our animation bound, and NEVER written          33.30 ms/frame   30.0 fps
+>   our animation bound and written every frame     33.34 ms/frame   30.0 fps
+> ```
+>
+> **The gait costs +0.04 ms. Binding the animation at all costs +15.9 ms.**
+> […] it says where a fix would have to look: at how the animation is
+> authored, not at what is written into it. The shipped clip is TIME-SAMPLED
+> and ours holds values at the default time code, and that is the only
+> structural difference between the two rows that differ by 16 ms. Whether a
+> time-sampled animation would keep the fast path while still being driven by
+> distance is the obvious next question and was not answered here.
+>
+> Read it against the rest of the budget before turning it on for a demo […]
+> It is one keyword — `install_character_follow(..., animate=False)` — and
+> that switch exists because of this number.
+
+That next question was asked — `_diag_walk_timesample.py`, same day, same
+host, same stage. **There was no 15.9 ms to recover.** The row that differs is
+not the row that binds a different animation; it is the row that reads the
+annotator back.
+
+Row A never called `annotator.get_data()`. Rows B and C called it on every
+frame, to count changed pixels. Two variables, one table.
+
+### The measurement that replaces it
+
+A 3×2 matrix — three animation variants × readback off/on — nine arms back to
+back in one process, 40 frames each, 640x480 on the same camera at Play. The
+shipped baseline is measured at both ends of the run in both readback modes,
+because absolute frame times on this shared host are not comparable between
+runs: this baseline alone has measured 17.61, 26.11, 17.37 and 17.63 ms on
+four earlier occasions, and 17.80 then 16.70 twice inside this one. Only a
+delta inside a single process means anything.
 
 ```
-  shipped idle clip bound (the world as it was)   17.37 ms/frame   57.6 fps
-  our animation bound, and NEVER written          33.30 ms/frame   30.0 fps
-  our animation bound and written every frame     33.34 ms/frame   30.0 fps
+  arm                     ms/frame   get_data   pixel diff   changed px
+  shipped_noread_1           17.80         --           --           --
+  shipped_read_1             33.30       2.46         7.38          102
+  default_static_read        33.33       2.47         7.34            0
+  default_write_noread       16.70         --           --           --
+  default_write_read         33.32       2.49         7.39        2,873
+  sampled_write_noread       16.71         --           --           --
+  sampled_write_read         33.57       2.52         7.35        2,464
+  shipped_noread_2           16.70         --           --           --
+  shipped_read_2             33.34       2.48         7.34          150
+
+  shipped baseline, readback OFF   17.25 ms      (its two arms drift -1.10)
+  shipped baseline, readback ON    33.32 ms      (its two arms drift +0.04)
+  PRICE OF THE READBACK           +16.07 ms/frame
+  cost of the gait, readback OFF   default -0.55   sampled -0.54
+  cost of the gait, readback ON    default  0.00   sampled +0.25
+  bound-but-never-written          +0.01 ms against its OWN baseline
+  time-sampled minus default-time  +0.01 ms (no readback)  +0.25 ms (readback)
 ```
 
-**The gait costs +0.04 ms. Binding the animation at all costs +15.9 ms.**
-Sampling the clip, blending 101 quaternions and authoring them is, to within
-the noise of this measurement, free; what halves the frame rate is that the
-character is now re-skinned every frame where before it was not.
+**Three answers, in order of how much they change.**
 
-This matters twice. It says the arithmetic needs no optimising — an
-optimisation went in during this task on the assumption that the write was the
-expensive half, and the comment justifying it has been corrected in place
-rather than deleted. And it says where a fix would have to look: at how the
-animation is authored, not at what is written into it. The shipped clip is
-TIME-SAMPLED and ours holds values at the default time code, and that is the
-only structural difference between the two rows that differ by 16 ms. Whether
-a time-sampled animation would keep the fast path while still being driven by
-distance is the obvious next question and was not answered here.
+1. **The gait is free.** Not "+0.04 ms for the writes and +15.9 for the
+   binding" — free, both halves. Our animation bound and written every frame
+   costs **−0.55 ms** against the shipped clip doing nothing, which is to say
+   nothing at all: the two shipped arms disagree with each other by 1.10 ms.
+   The retracted paragraph's mechanism — *"the character is now re-skinned
+   every frame where before it was not"* — is refuted by the number, and the
+   reason it was never plausible is in `_diag_walk_render.py`'s own docstring:
+   the Worker ships a 582-sample idle and Play advances the timeline, so the
+   character was already being re-skinned every frame. Binding a different
+   animation does not add skinning that was already happening.
+2. **Time-sampling changes nothing: +0.01 ms.** It was a good hypothesis about
+   a real structural difference — after the sampled arm runs, `rotations`
+   carries 81 time samples and no default, exactly like the shipped clip's
+   582, and reading two of those samples back gives quaternions that differ by
+   0.248, so the poses really are distinct per time code — and the difference
+   simply does not cost anything in either direction. `sim/avatar.py` keeps
+   authoring at the default time code.
 
-Read it against the rest of the budget before turning it on for a demo: Play
-already costs this scene most of its frame rate (14-20 fps in the GUI, and
-measured as 100% physics), and this is a further halving of what is left. It
-is one keyword — `install_character_follow(..., animate=False)` — and that
-switch exists because of this number.
+   The `changed px` column is what stops that being a hollow result. A variant
+   that got cheaper by quietly not being applied would show its pixels
+   collapse; the sampled arm renders **2,464** changed pixels per frame
+   against **0** for the bound-but-frozen control and **102–150** for the
+   shipped idle alone. It is running, it is reaching the renderer, and it
+   costs the same.
+3. **Reading the annotator back costs 16.07 ms/frame at 640x480, and timing
+   the call does not show you that.** Of the 16.07, only **9.84 ms** is
+   attributable inside the two calls that were timed directly — 2.48 ms in
+   `get_data()` and 7.36 ms in the numpy pixel difference this spike does with
+   the result. The other **6.23 ms** is a residual: it is a real, repeatable
+   difference between whole frames that does not appear in either timed
+   region. *Why* is not measured here. The obvious candidate is that the
+   readback is a synchronisation point and the CPU stops overlapping the next
+   frame with the GPU's current one — **that is an inference and it is
+   untested**, which is exactly the shape of claim this entry exists to
+   retract. What is measured, and is enough: **price a readback by
+   differencing whole frames, never by timing the call.**
+
+### What this costs elsewhere, and it is not nothing
+
+The readback is not overhead in capture mode — reading the annotator *is* the
+job, and `sim/observation_adapter.py` pays it once per sensor per frame by
+design. It is overhead in a **demo**, and it is a trap in any **measurement**:
+
+> **Never price a scene change while an annotator readback is in the loop
+> unless every arm reads back.** 16 ms is larger than most things worth
+> measuring in this project, and it attaches to whichever arm happens to
+> sample pixels. Here it was mistaken for the cost of a skeletal animation,
+> published, and used to justify a feature switch.
+
+How it scales was not measured: one annotator, one render product, one
+resolution. `sim/observation_adapter.py` calls `get_data()` once per annotator
+per sensor, so a capture run with several sensors plausibly pays several of
+these — **plausibly**, not measured, and worth an arm of its own before any
+capture budget is quoted.
+
+Nothing raises. Both arms are legitimate code doing legitimate work; the table
+lines up; the numbers are stable to two decimal places across 40 frames. It is
+wrong only in what the two rows have in common, and that is not visible from
+the numbers.
+
+### So what is `animate=False` for now
+
+Not frame rate. `install_character_follow(..., animate=False)` stays — as the
+control the comparison above is built from, and as the way to get the
+character posed exactly as the asset ships it — but it buys **0.0 ms**, and any
+demo that turned it off for performance can turn it back on. The real budget
+line is unchanged and is elsewhere: Play costs this scene most of its frame
+rate (14–20 fps in the GUI, measured as 100% physics).
 
 ---
 
@@ -1213,6 +1318,112 @@ Recorded, not edited — they belong to the code that owns them:
   them"*. The measurement it was written for has now been made, and **there is
   no drawing cost to separate.** The parameter is still useful as a control;
   its stated premise is spent.
+
+---
+
+## PEOPLE AND THE WALK CLIPS — 2026-08-17 (SUPERSEDED 2026-08-26)
+
+> **Superseded by the walk-cycle entry at the top of this file.** The note
+> below is kept verbatim because it is the one that cost a session: it was
+> read as settled, it was acted on, and the thing it settled was not true.
+> Its conclusion is wrong and its own log said so on the line above the
+> conclusion.
+
+Entered into this log on 2026-08-26, late. It was written up in a commit
+message (`b7f789a`) and in `_diag_people_and_pose.py`, and never here — which
+is part of why nothing checked it. **A finding that is not in this file does
+not get corrected by this file.**
+
+### What it claimed
+
+> *Isaac/People ships characters on the SAME skeleton the avatar already
+> rides. All ten in `Isaac/People/Characters` report 101 joints with joint
+> names identical to the Worker's `RL_BoneRoot/Hip/...` list, compared element
+> by element rather than eyeballed. `omni.anim.people` itself is absent from
+> this image, but it is not needed: `Isaac/People/Animations` carries the clips
+> directly, including*
+>
+> ```
+> stand_walk_loop_in_place.skelanim.usd     <- the one that matters
+> ```
+>
+> *So this is a reference swap plus a blend, NOT retargeting.*
+>
+> *Caveat kept: the clips are SkelAnimation-only assets with no Skeleton prim,
+> so the joint-list comparison could not run against them directly —
+> `joints=0` in the log means "no Skeleton here", not "different skeleton".
+> They ship in People alongside characters that DO match. Strong inference,
+> not proof; the first ten minutes of that task should confirm it.*
+
+The first half is true. The characters really are on the Worker's skeleton —
+re-measured 2026-08-26, `male_adult_construction_01` is `RL_BoneRoot`, 101
+joints. **The inference from it is false.**
+
+### What was actually true
+
+```
+  the avatar's skeleton     101 joints   RL_BoneRoot/Hip/Pelvis/L_Thigh/...
+  every Isaac/People clip    81 joints   Root/Pelvis/R_UpLeg/R_LoLeg/...
+  joints in common                    0
+```
+
+Zero. Not a different order — no joint name in `stand_walk_loop_in_place` or
+any of its siblings exists on this skeleton. And because People's characters
+ARE the Worker's rig, **People's clips do not fit People's own characters
+either**, without the retarget step `omni.anim.people` would normally supply
+and which is absent from this image. Neither half of that library is what it
+looks like beside the other half.
+
+A `SkelAnimation` carries its own `joints` array — that is how UsdSkel binds a
+clip to a skeleton, by NAME — so the comparison the note called impossible was
+available the whole time, on the clip itself, without a Skeleton prim
+anywhere. `_diag_walk_clip.py` runs it in about a second.
+
+### Why it read as settled, and this is the part worth keeping
+
+Its own log printed the answer directly above the verdict:
+
+```
+  male_adult_construction_01_new: joints=101 anims=0 same_skeleton=True
+  ...
+  stand_walk_loop_in_place.skelanim.usd: joints=0 anims=1 same_skeleton=False
+  ...
+  WALK CLIP: MATCH -> .../Isaac/People/Animations/LookAround.skelanim.usd
+```
+
+**`same_skeleton=False` on every clip, and then `MATCH`.** And the asset it
+matched is `LookAround`, which is not a walk and was never a candidate — it is
+simply first alphabetically. One line of `_diag_people_and_pose.py` does it:
+
+```python
+if anims and (same or joints is None) and out["match"] is None:
+    out["match"] = rec
+```
+
+`joints is None` means *this asset has no Skeleton prim, so its joint list is
+unknown*. It is scored as a match. Unknown is not agreement, and the two must
+never share a branch — the fallback turns "I could not check" into "checked,
+fine", and prints it in the summary line in capitals with an asset path beside
+it, which is exactly what a real result looks like.
+
+Nothing raised. The caveat in the note is a fair description of the gap and it
+was still not enough, because the machine-printed verdict said MATCH and the
+prose caveat said *strong inference*, and between a confident line of output
+and a hedge in a paragraph, the next session believes the output.
+
+**Two things follow, and both are general:**
+
+- **A diagnostic must not have an "unknown" that falls through to a pass.**
+  Where a check cannot run, it reports that it did not run — `UNKNOWN`, its own
+  column, never folded into the affirmative case.
+- **A scoping conclusion goes in this file, marked with what was measured and
+  what was inferred.** This one lived in a commit message for nine days.
+
+The recommendation the note made — retarget People's motion-captured walk onto
+this skeleton with `omni.anim.retarget.core` — survives the correction and is
+still the principled route to a better cycle. What does not survive is
+"reference swap plus a blend": there is no swap that works, and
+`avatar.WalkCycle` exists because of it.
 
 ---
 

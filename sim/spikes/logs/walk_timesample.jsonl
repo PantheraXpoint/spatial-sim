@@ -1,0 +1,9 @@
+{"arm": "shipped_noread_1", "variant": "shipped", "write": false, "readback": false, "frames": 39, "median_ms": 17.8, "readback_ms": null, "pixel_diff_ms": null, "changed_px_median": null, "changed_px_max": null}
+{"arm": "shipped_read_1", "variant": "shipped", "write": false, "readback": true, "frames": 39, "median_ms": 33.3, "readback_ms": 2.46, "pixel_diff_ms": 7.38, "changed_px_median": 102, "changed_px_max": 198}
+{"arm": "default_static_read", "variant": "default", "write": false, "readback": true, "frames": 39, "median_ms": 33.33, "readback_ms": 2.47, "pixel_diff_ms": 7.34, "changed_px_median": 0, "changed_px_max": 235}
+{"arm": "default_write_noread", "variant": "default", "write": true, "readback": false, "frames": 39, "median_ms": 16.7, "readback_ms": null, "pixel_diff_ms": null, "changed_px_median": null, "changed_px_max": null}
+{"arm": "default_write_read", "variant": "default", "write": true, "readback": true, "frames": 39, "median_ms": 33.32, "readback_ms": 2.49, "pixel_diff_ms": 7.39, "changed_px_median": 2873, "changed_px_max": 17673}
+{"arm": "sampled_write_noread", "variant": "sampled", "write": true, "readback": false, "frames": 39, "median_ms": 16.71, "readback_ms": null, "pixel_diff_ms": null, "changed_px_median": null, "changed_px_max": null}
+{"arm": "sampled_write_read", "variant": "sampled", "write": true, "readback": true, "frames": 39, "median_ms": 33.57, "readback_ms": 2.52, "pixel_diff_ms": 7.35, "changed_px_median": 2464, "changed_px_max": 24189}
+{"arm": "shipped_noread_2", "variant": "shipped", "write": false, "readback": false, "frames": 39, "median_ms": 16.7, "readback_ms": null, "pixel_diff_ms": null, "changed_px_median": null, "changed_px_max": null}
+{"arm": "shipped_read_2", "variant": "shipped", "write": false, "readback": true, "frames": 39, "median_ms": 33.34, "readback_ms": 2.48, "pixel_diff_ms": 7.34, "changed_px_median": 150, "changed_px_max": 263}

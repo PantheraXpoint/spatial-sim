@@ -1,0 +1,242 @@
+{
+ "stage": "/workspace/sim/observatory_avatar.usd",
+ "resolution": [
+  640,
+  480
+ ],
+ "frames_per_arm": 40,
+ "time_codes_per_second": 60.0,
+ "skeleton": "/Root/Avatar/character/rig/ManRoot/Worker/Worker",
+ "shipped_animation": "/Root/Avatar/character/rig/ManRoot/Worker/Worker/Animation",
+ "shipped_structure": {
+  "path": "/Root/Avatar/character/rig/ManRoot/Worker/Worker/Animation",
+  "valid": true,
+  "joints": {
+   "time_samples": 0,
+   "has_default": true,
+   "might_be_time_varying": false,
+   "count": 101
+  },
+  "rotations": {
+   "time_samples": 582,
+   "has_default": false,
+   "might_be_time_varying": true
+  },
+  "translations": {
+   "time_samples": 582,
+   "has_default": false,
+   "might_be_time_varying": true
+  },
+  "scales": {
+   "time_samples": 582,
+   "has_default": false,
+   "might_be_time_varying": true
+  }
+ },
+ "arms": {
+  "shipped_noread_1": {
+   "arm": "shipped_noread_1",
+   "variant": "shipped",
+   "write": false,
+   "readback": false,
+   "frames": 39,
+   "median_ms": 17.8,
+   "readback_ms": null,
+   "pixel_diff_ms": null,
+   "changed_px_median": null,
+   "changed_px_max": null
+  },
+  "shipped_read_1": {
+   "arm": "shipped_read_1",
+   "variant": "shipped",
+   "write": false,
+   "readback": true,
+   "frames": 39,
+   "median_ms": 33.3,
+   "readback_ms": 2.46,
+   "pixel_diff_ms": 7.38,
+   "changed_px_median": 102,
+   "changed_px_max": 198
+  },
+  "default_static_read": {
+   "arm": "default_static_read",
+   "variant": "default",
+   "write": false,
+   "readback": true,
+   "frames": 39,
+   "median_ms": 33.33,
+   "readback_ms": 2.47,
+   "pixel_diff_ms": 7.34,
+   "changed_px_median": 0,
+   "changed_px_max": 235
+  },
+  "default_write_noread": {
+   "arm": "default_write_noread",
+   "variant": "default",
+   "write": true,
+   "readback": false,
+   "frames": 39,
+   "median_ms": 16.7,
+   "readback_ms": null,
+   "pixel_diff_ms": null,
+   "changed_px_median": null,
+   "changed_px_max": null
+  },
+  "default_write_read": {
+   "arm": "default_write_read",
+   "variant": "default",
+   "write": true,
+   "readback": true,
+   "frames": 39,
+   "median_ms": 33.32,
+   "readback_ms": 2.49,
+   "pixel_diff_ms": 7.39,
+   "changed_px_median": 2873,
+   "changed_px_max": 17673
+  },
+  "sampled_write_noread": {
+   "arm": "sampled_write_noread",
+   "variant": "sampled",
+   "write": true,
+   "readback": false,
+   "frames": 39,
+   "median_ms": 16.71,
+   "readback_ms": null,
+   "pixel_diff_ms": null,
+   "changed_px_median": null,
+   "changed_px_max": null
+  },
+  "sampled_write_read": {
+   "arm": "sampled_write_read",
+   "variant": "sampled",
+   "write": true,
+   "readback": true,
+   "frames": 39,
+   "median_ms": 33.57,
+   "readback_ms": 2.52,
+   "pixel_diff_ms": 7.35,
+   "changed_px_median": 2464,
+   "changed_px_max": 24189
+  },
+  "shipped_noread_2": {
+   "arm": "shipped_noread_2",
+   "variant": "shipped",
+   "write": false,
+   "readback": false,
+   "frames": 39,
+   "median_ms": 16.7,
+   "readback_ms": null,
+   "pixel_diff_ms": null,
+   "changed_px_median": null,
+   "changed_px_max": null
+  },
+  "shipped_read_2": {
+   "arm": "shipped_read_2",
+   "variant": "shipped",
+   "write": false,
+   "readback": true,
+   "frames": 39,
+   "median_ms": 33.34,
+   "readback_ms": 2.48,
+   "pixel_diff_ms": 7.34,
+   "changed_px_median": 150,
+   "changed_px_max": 263
+  }
+ },
+ "default_cycle_ok": true,
+ "default_structure": {
+  "path": "/Root/Avatar/character/anim_walk",
+  "valid": true,
+  "joints": {
+   "time_samples": 0,
+   "has_default": true,
+   "might_be_time_varying": false,
+   "count": 101
+  },
+  "rotations": {
+   "time_samples": 0,
+   "has_default": true,
+   "might_be_time_varying": false
+  },
+  "translations": {
+   "time_samples": 0,
+   "has_default": true,
+   "might_be_time_varying": false
+  },
+  "scales": {
+   "time_samples": 0,
+   "has_default": true,
+   "might_be_time_varying": false
+  }
+ },
+ "sampled_cycle_ok": true,
+ "sampled_structure": {
+  "path": "/Root/Avatar/character/anim_walk",
+  "valid": true,
+  "joints": {
+   "time_samples": 0,
+   "has_default": true,
+   "might_be_time_varying": false,
+   "count": 101
+  },
+  "rotations": {
+   "time_samples": 1,
+   "has_default": false,
+   "might_be_time_varying": false
+  },
+  "translations": {
+   "time_samples": 0,
+   "has_default": true,
+   "might_be_time_varying": false
+  },
+  "scales": {
+   "time_samples": 0,
+   "has_default": true,
+   "might_be_time_varying": false
+  }
+ },
+ "sampled_structure_after_writing": {
+  "path": "/Root/Avatar/character/anim_walk",
+  "valid": true,
+  "joints": {
+   "time_samples": 0,
+   "has_default": true,
+   "might_be_time_varying": false,
+   "count": 101
+  },
+  "rotations": {
+   "time_samples": 81,
+   "has_default": false,
+   "might_be_time_varying": true
+  },
+  "translations": {
+   "time_samples": 0,
+   "has_default": true,
+   "might_be_time_varying": false
+  },
+  "scales": {
+   "time_samples": 0,
+   "has_default": true,
+   "might_be_time_varying": false
+  }
+ },
+ "sampled_writes": 82,
+ "sampled_readback_max_delta": 0.248123,
+ "sampled_timecodes_first_last": [
+  204.0,
+  284.0
+ ],
+ "sampled_timecodes_monotonic": true,
+ "drift_shipped_noread_ms": -1.1,
+ "baseline_shipped_noread_ms": 17.25,
+ "drift_shipped_read_ms": 0.04,
+ "baseline_shipped_read_ms": 33.32,
+ "cost_of_readback_ms": 16.07,
+ "cost_default_write_ms": -0.55,
+ "cost_sampled_write_ms": -0.54,
+ "cost_default_write_read_ms": 0.0,
+ "cost_sampled_write_read_ms": 0.25,
+ "cost_default_static_read_ms": 0.01,
+ "sampled_minus_default_noread_ms": 0.01,
+ "sampled_minus_default_read_ms": 0.25
+}

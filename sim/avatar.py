@@ -531,8 +531,17 @@ def install_character_follow(
     twice per frame and, worse, allowing the two to disagree about where the
     avatar is on the frame one of them was installed and the other was not.
 
-    ``animate=False`` leaves the character posed exactly as the asset ships it
-    and is what the frame-rate comparison uses to price the gait.
+    ``animate=False`` leaves the character posed exactly as the asset ships it.
+    **It is not a performance lever.** It was documented as one on the
+    strength of a +15.9 ms/frame figure that turned out to be the annotator
+    readback in the measuring spike rather than anything the gait did;
+    re-measured against its own controls the same day, the gait costs
+    **-0.55 ms/frame** against the
+    shipped idle, which is to say nothing -- the character is re-skinned every
+    frame either way, because the Worker ships a 582-sample idle clip and Play
+    advances the timeline. Turn it off to see the asset's own pose, not to buy
+    frame rate; there is none to buy. See ``sim/spikes/FINDINGS.md``,
+    "the frame-rate cost -- RETRACTED THE SAME DAY".
 
     Returns the subscription, which carries the ``WalkCycle`` on
     ``sub.walk_cycle`` for a caller that wants to read the phase back. KEEP A
@@ -942,13 +951,30 @@ class WalkCycle:
         self.anim.CreateTranslationsAttr().Set(t)
         self.anim.CreateScalesAttr().Set(sc)
         self.rot_attr = self.anim.CreateRotationsAttr()
-        self.rot_attr.Set(self._base_rotations(0.0))
+        self._write_rotations(self._base_rotations(0.0))
 
         # Bind on the SKELETON itself. `skel:animationSource` resolves to the
         # nearest authored opinion at or above the prim, so binding here beats
         # whatever the referenced asset bound further up, without editing it.
         UsdSkel.BindingAPI.Apply(self.skel_prim).CreateAnimationSourceRel(
         ).SetTargets([Sdf.Path(anim_path)])
+
+    def _write_rotations(self, rots) -> None:
+        """Author `rots` onto the SkelAnimation. The ONLY place that happens.
+
+        A one-line indirection with one caller reads like an accident, so:
+        it is the seam ``sim/spikes/_diag_walk_timesample.py`` overrides in
+        order to author TIME SAMPLES instead of a value at the default time
+        code. That is the one structural difference between this animation
+        and the shipped clip it rebinds -- the Worker's idle carries 582 time
+        samples on `rotations` and no default -- and it was the leading
+        candidate for a 15.9 ms/frame cost attributed to binding.
+
+        MEASURED 2026-08-26, and the answer is no in both directions: time
+        samples cost **+0.01 ms/frame**, and there was no 15.9 ms to recover
+        in the first place. Authoring at the default time code stays.
+        """
+        self.rot_attr.Set(rots)
 
     # -- per frame ---------------------------------------------------------
     def _base_rotations(self, when: float):
@@ -1032,14 +1058,19 @@ class WalkCycle:
         # plays every pose it has and no pose it does not.
         timeline_now = (self.base_times[self.frames % len(self.base_times)]
                         if self.base_times else 0.0)
-        # Skip a write that would author the pose already authored. Kept, but
-        # NOT for the reason it was added: it went in expecting the write to
-        # be the expensive part, and the three-way measurement says otherwise
-        # -- 17.37 ms/frame with the shipped clip bound, 33.30 with ours bound
-        # and NEVER written, 33.34 written every frame. The whole cost is in
-        # binding a different animation at all; the writes are +0.04 ms. So
-        # this saves almost nothing and is worth keeping only because a pose
-        # that has not changed has no business being re-authored.
+        # Skip a write that would author the pose already authored. Kept, and
+        # by now for neither of the reasons it has been given. It went in
+        # expecting the write to be the expensive part. A three-way
+        # measurement then said the cost was all in BINDING a different
+        # animation -- 17.37 ms/frame shipped, 33.30 ours bound and never
+        # written -- and that was wrong too: those two rows differed in
+        # whether the arm read the annotator back, not in what was bound.
+        # Re-measured against its own controls (_diag_walk_timesample.py,
+        # 2026-08-26): binding costs +0.01 ms, writing every frame costs
+        # -0.55, and the 16 ms was `annotator.get_data()`. NOTHING HERE IS
+        # EXPENSIVE. So this saves nothing measurable and is worth keeping
+        # only because a pose that has not changed has no business being
+        # re-authored.
         key = (round(self.phase, 4) if weight > 0 else None,
                round(weight, 3), timeline_now)
         if key == self._last_written:
@@ -1055,7 +1086,7 @@ class WalkCycle:
             offset = self._gait_offset(name, weight)
             if offset is not None:
                 rots[idx] = rots[idx] * offset
-        self.rot_attr.Set(rots)
+        self._write_rotations(rots)
 
         if self.heading_deg is not None:
             self._face(self.heading_deg)
