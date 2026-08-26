@@ -135,7 +135,7 @@ import yaml  # noqa: E402
 from isaacsim.core.experimental.materials import NonVisualMaterial, PreviewSurfaceMaterial  # noqa: E402
 from isaacsim.core.experimental.utils.app import enable_extension  # noqa: E402
 from isaacsim.core.experimental.utils.semantics import add_labels  # noqa: E402
-from pxr import Gf, PhysxSchema, Sdf, Usd, UsdGeom, UsdShade  # noqa: E402
+from pxr import Gf, PhysxSchema, Sdf, Usd, UsdGeom, UsdShade, Vt  # noqa: E402
 
 REPO = Path(__file__).resolve().parent.parent
 SCENE_YAML = REPO / "config" / "scene.yaml"
@@ -508,7 +508,8 @@ def _add_character(
 
 
 def install_character_follow(
-    stage: Usd.Stage, avatar_path: str = f"{ROOT}/Avatar"
+    stage: Usd.Stage, avatar_path: str = f"{ROOT}/Avatar", *,
+    animate: bool = True, walk: "WalkCycle | None" = None,
 ):
     """Make the visible character track the collision capsule, every frame.
 
@@ -522,8 +523,21 @@ def install_character_follow(
     first-person camera follows this same capsule with a per-frame callback
     reading UsdGeom.XformCache.
 
-    Returns the subscription. KEEP A REFERENCE: dropping it unsubscribes and
-    the character silently stops following.
+    ALSO DRIVES THE WALK CYCLE, unless ``animate=False``. Not a second
+    subscription, because this one already has the only thing a gait needs:
+    it reads the capsule's world position every frame in order to copy it, and
+    the difference between this frame's position and last frame's IS how far
+    the avatar walked. Splitting them would mean reading the same transform
+    twice per frame and, worse, allowing the two to disagree about where the
+    avatar is on the frame one of them was installed and the other was not.
+
+    ``animate=False`` leaves the character posed exactly as the asset ships it
+    and is what the frame-rate comparison uses to price the gait.
+
+    Returns the subscription, which carries the ``WalkCycle`` on
+    ``sub.walk_cycle`` for a caller that wants to read the phase back. KEEP A
+    REFERENCE: dropping it unsubscribes and the character silently stops
+    following.
     """
     import omni.kit.app
 
@@ -538,18 +552,538 @@ def install_character_follow(
         attr = UsdGeom.Xform(char).AddTranslateOp().GetAttr()
     cache = UsdGeom.XformCache()
 
+    cycle = walk
+    if animate and cycle is None:
+        try:
+            cycle = WalkCycle(stage, avatar_path)
+        except Exception as exc:                                  # noqa: BLE001
+            print(f"  ! walk cycle unavailable: {exc!r}", flush=True)
+            cycle = None
+    if cycle is not None and not cycle.ok:
+        print(f"  ! walk cycle not running: {cycle.why} -- the character will "
+              f"follow the capsule but its legs will not move", flush=True)
+
     def _follow(_e) -> None:
         # Clear() every frame or the cache returns the pose it saw first --
         # the same staleness, one layer down.
         cache.Clear()
         t = cache.GetLocalToWorldTransform(body).ExtractTranslation()
         attr.Set(Gf.Vec3d(float(t[0]), float(t[1]), float(t[2])))
+        if cycle is not None and cycle.ok:
+            # After the translate, not before: the gait reads the position it
+            # was just moved to, so phase and pose belong to the same frame.
+            cycle.update((float(t[0]), float(t[1])))
 
     sub = omni.kit.app.get_app().get_update_event_stream().create_subscription_to_pop(
         _follow, name="avatar_character_follow"
     )
-    print(f"  character follow installed: {body.GetPath()} -> {char.GetPath()}", flush=True)
+    # Carried on the subscription so a caller that kept the one reference it
+    # was told to keep also has the gait, without a second thing to hold.
+    try:
+        sub.walk_cycle = cycle
+    except Exception as exc:                                      # noqa: BLE001
+        # A carb subscription is a C++ binding and need not accept a Python
+        # attribute. Losing the convenience is not losing the gait -- the
+        # closure above holds the only reference that matters.
+        print(f"  (walk cycle not attached to the subscription: {exc!r})", flush=True)
+    print(f"  character follow installed: {body.GetPath()} -> {char.GetPath()}"
+          + (f" (walk cycle on {len(cycle.driven)} joints)"
+             if cycle is not None and cycle.ok else " (no walk cycle)"),
+          flush=True)
     return sub
+
+
+# ---------------------------------------------------------------------------
+# The walk cycle
+# ---------------------------------------------------------------------------
+# WHY THIS IS AUTHORED MOTION AND NOT A SHIPPED CLIP, WHICH IS NOT WHAT RULE 4
+# WANTS AND IS WHAT THE ASSETS ALLOW. Measured 2026-08-26,
+# sim/spikes/_diag_walk_clip.py:
+#
+#   the avatar's skeleton      101 joints, RL_BoneRoot/Hip/Pelvis/L_Thigh/...
+#   Isaac/People/Animations    stand_walk_loop_in_place and every other clip:
+#                              81 joints, Root/Pelvis/R_UpLeg/R_LoLeg/...
+#   overlap                    ZERO. Not "a different order" -- no joint name
+#                              in the walk clip exists on this skeleton.
+#
+# This contradicts the 2026-08-17 scoping note, which called the walk "a
+# reference swap plus a blend, NOT retargeting". That note compared People's
+# CHARACTERS to the Worker and found 101 matching joints, then inferred the
+# clips beside them matched too, and flagged the inference as unproven. It was
+# wrong: People's characters are on the Worker's skeleton (re-measured here --
+# male_adult_construction_01 is RL_BoneRoot, 101 joints) and People's clips are
+# not, so those clips do not fit their own characters either without a
+# retarget step.
+#
+# Nor does one ship elsewhere. Every walk-shaped asset within reach was listed:
+#
+#   Reallusion/Worker/Motions       Kitchen_CleanTable, Market_Sales_Assisting,
+#                                   Market_Sales_SortOut, StandingDiscussion,
+#                                   TrafficGuard, Worker_Idle_Pose -- no walk
+#   Reallusion/Debra, Orc/Motions   idles, a superpower fist, a sword shout
+#   full_warehouse_worker_and_anim_cameras.usd
+#                                   the same 101-joint rig carrying the same
+#                                   idle: its root travels 0.0042 over the
+#                                   whole clip, i.e. sway, not locomotion
+#
+# `omni.anim.retarget.core` and `omni.anim.graph.core` ARE enabled in this
+# image (`omni.anim.people` is not), so retargeting People's motion-captured
+# walk onto this skeleton is the principled route to a better-looking cycle
+# and is the recommended next step. It is an authoring workflow, it cannot be
+# checked without a human looking at it, and it is a bigger job than this one.
+#
+# What is below instead: the shipped idle clip supplies the whole body's pose,
+# and a gait is overlaid on ten joints. So the character still stands, breathes
+# and sways as the asset's animator intended, and its legs and arms swing on
+# top of that -- driven by DISTANCE TRAVELLED, so the cycle cannot drift out of
+# step with the ground no matter what the frame rate does.
+
+#: Joints the gait drives, matched by the LAST component of the joint path so
+#: that a rig which re-parents an arm still resolves. Everything else keeps the
+#: shipped clip's pose exactly.
+_GAIT_JOINTS = ("L_Thigh", "R_Thigh", "L_Calf", "R_Calf",
+                "L_Foot", "R_Foot", "L_Upperarm", "R_Upperarm",
+                "L_Forearm", "R_Forearm")
+
+#: Peak swing, degrees, at full walking speed. A human hip swings roughly
+#: +/-20 deg at a normal pace and the knee flexes about 60 deg through swing;
+#: these are at the quiet end of that on purpose, because an overstated gait
+#: on a mesh whose feet cannot be checked against the floor reads as a stomp.
+_GAIT_AMPLITUDE_DEG = {"Thigh": 22.0, "Calf": 45.0, "Foot": 10.0,
+                       "Upperarm": 18.0, "Forearm": 12.0}
+
+#: Metres of ground per complete cycle -- one stride, both feet. This is the
+#: number that decides whether the feet skate: the phase advances by
+#: distance/this, so at any speed the same fraction of the cycle passes per
+#: metre. 1.5 m is a walking adult's stride and it is a CHOICE, not a
+#: measurement, because no shipped clip on this skeleton exists to measure one
+#: from. It is the first thing to tune if the feet look wrong.
+_STRIDE_M = 1.5
+
+#: Speed at which the gait reaches full amplitude, m/s. Below it the swing is
+#: scaled down, so a slow shuffle does not throw its legs around; at zero the
+#: overlay vanishes entirely and the character is exactly the shipped idle.
+_GAIT_FULL_SPEED_MPS = 1.2
+
+#: How quickly measured speed and heading follow the truth. The capsule's
+#: position comes from a physics controller and is not smooth; without this the
+#: character twitches on every frame where the controller happened to move it
+#: slightly less.
+_GAIT_SMOOTHING = 0.25
+
+#: Below this, treat the avatar as standing still: do not turn it, do not swing
+#: it. A character that spins to face the direction of a millimetre of physics
+#: jitter is worse than one that does not turn at all.
+_GAIT_MIN_SPEED_MPS = 0.05
+
+
+def _quatf(q) -> Gf.Quatf:
+    """A Gf.Quatf from any precision of Gf quaternion, built component-wise.
+
+    Explicit because the cross-precision constructor is not uniformly bound:
+    `Gf.Quatf(Gf.Quatd)` raises here, and `Gf.Rotation` has no Matrix3d
+    overload at all, so the tidy-looking spellings of this are the ones that
+    fail at runtime.
+    """
+    i = q.GetImaginary()
+    return Gf.Quatf(float(q.GetReal()),
+                    Gf.Vec3f(float(i[0]), float(i[1]), float(i[2])))
+
+
+def _quat(axis, angle_rad: float) -> Gf.Quatf:
+    """A quatf rotating `angle_rad` about a (unit) local axis."""
+    half = angle_rad * 0.5
+    s = math.sin(half)
+    a = Gf.Vec3f(axis[0], axis[1], axis[2]).GetNormalized()
+    return Gf.Quatf(math.cos(half), Gf.Vec3f(a[0] * s, a[1] * s, a[2] * s))
+
+
+class WalkCycle:
+    """Swing the avatar's legs and arms in step with how far it has walked.
+
+    Reads the capsule's world position every frame, differences it, and turns
+    the distance into a phase. Nothing here is driven by wall-clock or by the
+    timeline: at 60 fps and at 6 fps the same metre of travel advances the
+    cycle by the same amount, which is the property that keeps the feet
+    matched to the ground and makes a capture reproducible.
+
+    WHAT IT WRITES, AND WHY EACH IS SAFE
+    -------------------------------------
+    ``character/anim_walk``   a new SkelAnimation, bound to the existing
+                              skeleton. Not renderable geometry, so it changes
+                              nothing about segmentation: the meshes that carry
+                              the ``person`` label are the ones the asset
+                              already shipped and this only poses them.
+    ``character`` rotateXYZ   the facing. It has to go here and nowhere else:
+                              PhysX owns the capsule and a character controller
+                              has a position and an up direction and NO
+                              rotation, so a yaw written to the capsule never
+                              reaches the renderer (measured 2026-08-26). The
+                              character Xform is a prim physics does not own.
+
+    WHAT IT DOES NOT TOUCH: the capsule. Not its transform, not its collision,
+    not its visibility. It is the collision representation and what the lidar
+    and radar bounce off -- failure mode 1 -- and this class never addresses it
+    except to read where it is.
+
+    The gait's swing axis is DERIVED from the rest pose rather than assumed.
+    A rotation about the wrong local axis produces a leg that swings sideways,
+    which is not an error, does not raise, and looks like a rig bug rather than
+    a maths bug. See :meth:`_derive_axes`.
+    """
+
+    def __init__(self, stage: Usd.Stage, avatar_path: str = f"{ROOT}/Avatar",
+                 *, stride_m: float = _STRIDE_M, verbose: bool = True) -> None:
+        from pxr import UsdSkel
+
+        self.stage = stage
+        self.ok = False
+        self.why = ""
+        self.stride_m = float(stride_m)
+        self.phase = 0.0
+        self.speed = 0.0
+        self.heading_deg: float | None = None
+        self.last_xy: tuple[float, float] | None = None
+        self.distance_m = 0.0
+        self.frames = 0
+
+        char_path = f"{avatar_path}/character"
+        self.char = stage.GetPrimAtPath(char_path)
+        if not self.char.IsValid():
+            self.why = f"no character at {char_path}"
+            return
+
+        skels = [p for p in Usd.PrimRange(self.char)
+                 if p.IsA(UsdSkel.Skeleton)]
+        if not skels:
+            self.why = f"no UsdSkel.Skeleton under {char_path}"
+            return
+        self.skel_prim = skels[0]
+        skel = UsdSkel.Skeleton(self.skel_prim)
+        self.joints = [str(j) for j in (skel.GetJointsAttr().Get() or [])]
+        if not self.joints:
+            self.why = f"{self.skel_prim.GetPath()} lists no joints"
+            return
+
+        # The pose everything else is layered on. Read from whatever the asset
+        # had bound BEFORE this class rebinds anything -- that clip is the
+        # character standing like a person rather than in its bind pose, which
+        # for this rig is a T-pose.
+        binding = UsdSkel.BindingAPI(self.skel_prim)
+        source = binding.GetAnimationSource()
+        self.base_anim = UsdSkel.Animation(source) if source else None
+        self.base_joints: list[str] = []
+        self.base_rot_attr = None
+        if self.base_anim:
+            self.base_joints = [str(j) for j in
+                                (self.base_anim.GetJointsAttr().Get() or [])]
+            self.base_rot_attr = self.base_anim.GetRotationsAttr()
+        self.base_times = (list(self.base_rot_attr.GetTimeSamples())
+                           if self.base_rot_attr else [])
+        #: our joint index -> index into the shipped clip's arrays, or -1.
+        #: Built once. Rebuilding it per frame is 101 dict lookups a frame for
+        #: an answer that cannot change.
+        self.base_index: list[int] = []
+        self._last_written: tuple | None = None
+
+        try:
+            self._derive_axes()
+        except Exception as exc:                                  # noqa: BLE001
+            self.why = f"could not derive the swing axes: {exc!r}"
+            return
+        if not self.driven:
+            self.why = ("none of the gait's joints are on this skeleton: "
+                        f"looked for {list(_GAIT_JOINTS)}")
+            return
+
+        idx = {name: i for i, name in enumerate(self.base_joints)}
+        self.base_index = [idx.get(name, -1) for name in self.joints]
+        #: The rest pose as quaternions, computed once. This used to be
+        #: rebuilt every frame -- 101 matrix decompositions for a constant.
+        self.rest_quats = [_quatf(m.ExtractRotationQuat())
+                           for m in self.rest_local]
+        try:
+            self._author_animation(char_path)
+        except Exception as exc:                                  # noqa: BLE001
+            self.why = f"could not author the animation: {exc!r}"
+            return
+        self.ok = True
+        if verbose:
+            print(f"  walk cycle: {len(self.driven)} joints driven "
+                  f"({', '.join(sorted(self.driven))}), stride {self.stride_m} m, "
+                  f"base pose from "
+                  f"{self.base_anim.GetPrim().GetPath() if self.base_anim else '<rest>'}",
+                  flush=True)
+
+    # -- setup ------------------------------------------------------------
+    def _derive_axes(self) -> None:
+        """Find, per joint, the local axis whose rotation swings it FORWARD.
+
+        Not assumed, because assuming it is invisible when wrong. A hip
+        rotated about the wrong local axis abducts instead of flexing -- the
+        leg swings out sideways -- and that renders as a broken rig, raises
+        nothing, and is indistinguishable from a bad asset until somebody
+        looks.
+
+        Two measurements off the skeleton's own rest pose:
+
+        1. **the axis.** Walking happens in the sagittal plane, so the swing
+           axis is the body's left-right axis. Expressed in the joint's own
+           frame that is ``R_rest^-1 * lateral``, and R_rest comes from the
+           rest transforms the asset ships.
+        2. **the sign.** Rotating +theta about that axis swings the limb one
+           way and nobody knows which. So: rotate the joint by a small test
+           angle, run the rest of the chain forward, and see which way the end
+           of the limb actually moved. If it went backwards, flip.
+
+        The rig faces -Y in its own space (``_ASSET_FACING_DEG``, itself
+        measured off the ankle and toe joints), so lateral is -Y x +Z.
+        """
+        from pxr import UsdSkel
+
+        skel = UsdSkel.Skeleton(self.skel_prim)
+        topo = UsdSkel.Topology(self.joints)
+        rest = skel.GetRestTransformsAttr().Get()
+        if rest is None or len(rest) != len(self.joints):
+            raise RuntimeError(
+                f"restTransforms has {0 if rest is None else len(rest)} entries "
+                f"for {len(self.joints)} joints -- cannot run the chain forward")
+        self.rest_local = [Gf.Matrix4d(m) for m in rest]
+
+        # Rest pose in skeleton space, by walking parents. UsdSkel guarantees
+        # a joint's parent precedes it, so one pass in order is enough.
+        parents = [topo.GetParent(i) for i in range(len(self.joints))]
+        world = []
+        for i, m in enumerate(self.rest_local):
+            p = parents[i]
+            world.append(m if p < 0 else m * world[p])
+        self.rest_world = world
+        self.parents = parents
+
+        facing = Gf.Vec3d(0.0, -1.0, 0.0)      # the toes lead -Y; measured
+        up = Gf.Vec3d(0.0, 0.0, 1.0)
+        lateral = Gf.Cross(facing, up).GetNormalized()
+
+        # index of every joint whose path ends in a name the gait drives
+        by_name: dict[str, int] = {}
+        for i, path in enumerate(self.joints):
+            by_name.setdefault(path.rsplit("/", 1)[-1], i)
+        self.driven: dict[str, int] = {n: by_name[n] for n in _GAIT_JOINTS
+                                       if n in by_name}
+        # the tip whose motion decides the sign: for a leg the foot, for an
+        # arm the forearm. Falls back to the joint itself.
+        tips = {"L_Thigh": "L_Foot", "R_Thigh": "R_Foot",
+                "L_Calf": "L_Foot", "R_Calf": "R_Foot",
+                "L_Upperarm": "L_Forearm", "R_Upperarm": "R_Forearm"}
+
+        self.axis: dict[str, Gf.Vec3f] = {}
+        self.sign: dict[str, float] = {}
+        for name, idx in self.driven.items():
+            rot = self.rest_world[idx].ExtractRotationMatrix()
+            # Row-vector convention, which is USD's: v_world = v_local * R, so
+            # v_local = v_world * R^T. Written this way round on purpose --
+            # the other order compiles, runs, and swings the leg sideways.
+            local_axis = lateral * rot.GetTranspose()
+            if local_axis.GetLength() < 1e-9:
+                local_axis = Gf.Vec3d(1.0, 0.0, 0.0)
+            local_axis = local_axis.GetNormalized()
+            self.axis[name] = Gf.Vec3f(*[float(v) for v in local_axis])
+
+            tip_name = tips.get(name, name)
+            tip = by_name.get(tip_name, idx)
+            before = self.rest_world[tip].ExtractTranslation()
+            after = self._tip_after_test_rotation(idx, tip, local_axis, math.radians(10.0))
+            moved = Gf.Vec3d(after - before)
+            self.sign[name] = 1.0 if (moved * facing) >= 0.0 else -1.0
+
+    def _tip_after_test_rotation(self, idx: int, tip: int,
+                                 local_axis, angle_rad: float):
+        """Where `tip` ends up if joint `idx` is rotated by the test angle."""
+        m = Gf.Matrix4d().SetRotate(
+            Gf.Rotation(Gf.Vec3d(local_axis), math.degrees(angle_rad)))
+        # Recompute only the chain from idx down to tip.
+        chain = []
+        j = tip
+        while j >= 0:
+            chain.append(j)
+            if j == idx:
+                break
+            j = self.parents[j]
+        chain.reverse()
+        acc = (self.rest_world[self.parents[idx]]
+               if self.parents[idx] >= 0 else Gf.Matrix4d(1.0))
+        for j in chain:
+            local = self.rest_local[j]
+            if j == idx:
+                local = m * local
+            acc = local * acc
+        return acc.ExtractTranslation()
+
+    def _author_animation(self, char_path: str) -> None:
+        """Create the SkelAnimation this class writes, and bind it."""
+        from pxr import UsdSkel
+
+        anim_path = f"{char_path}/anim_walk"
+        self.anim = UsdSkel.Animation.Define(self.stage, anim_path)
+        # token[], not SdfPath[]. UsdSkel matches an animation to a skeleton
+        # by joint NAME, and the names are tokens even though they read as
+        # paths; handing it paths raises a type mismatch at Set() time.
+        self.anim.CreateJointsAttr().Set(Vt.TokenArray(self.joints))
+
+        # Translations and scales come from the rest pose and never change:
+        # a gait is rotation. Authoring them anyway because UsdSkel wants a
+        # complete animation, and a missing array is a silent fallback to the
+        # bind pose for every joint rather than an error.
+        t, sc = [], []
+        for m in self.rest_local:
+            t.append(Gf.Vec3f(*[float(v) for v in m.ExtractTranslation()]))
+            row = [Gf.Vec3d(m[i][0], m[i][1], m[i][2]).GetLength() for i in range(3)]
+            sc.append(Gf.Vec3h(*[float(v) for v in row]))
+        self.anim.CreateTranslationsAttr().Set(t)
+        self.anim.CreateScalesAttr().Set(sc)
+        self.rot_attr = self.anim.CreateRotationsAttr()
+        self.rot_attr.Set(self._base_rotations(0.0))
+
+        # Bind on the SKELETON itself. `skel:animationSource` resolves to the
+        # nearest authored opinion at or above the prim, so binding here beats
+        # whatever the referenced asset bound further up, without editing it.
+        UsdSkel.BindingAPI.Apply(self.skel_prim).CreateAnimationSourceRel(
+        ).SetTargets([Sdf.Path(anim_path)])
+
+    # -- per frame ---------------------------------------------------------
+    def _base_rotations(self, when: float):
+        """The shipped clip's pose at `when`, as a list indexed like `joints`.
+
+        Falls back to the rest pose for any joint the clip does not animate,
+        which is the same thing UsdSkel would have done.
+        """
+        rest = self.rest_quats
+        if not (self.base_rot_attr and self.base_joints):
+            return list(rest)
+        sample = self.base_rot_attr.Get(Usd.TimeCode(when))
+        if sample is None or len(sample) != len(self.base_joints):
+            return list(rest)
+        return [sample[j] if j >= 0 else rest[i]
+                for i, j in enumerate(self.base_index)]
+
+    def _gait_offset(self, name: str, weight: float) -> Gf.Quatf | None:
+        """The swing to add to one joint at the current phase, or None."""
+        if weight <= 0.0:
+            return None
+        theta = self.phase * 2.0 * math.pi
+        side = -1.0 if name.startswith("R_") else 1.0     # legs alternate
+        kind = name.split("_", 1)[-1]
+        amp = math.radians(_GAIT_AMPLITUDE_DEG.get(kind, 0.0)) * weight
+        if amp <= 0.0:
+            return None
+
+        if kind == "Thigh":
+            angle = amp * math.sin(theta + (0.0 if side > 0 else math.pi))
+        elif kind == "Calf":
+            # A knee only bends one way. Peak flexion sits a quarter cycle
+            # after the thigh's most-rearward point, which is when the foot is
+            # being picked up; -amp because flexion is heel-towards-buttock,
+            # the opposite sense to the hip's forward swing.
+            angle = -amp * max(0.0, math.sin(
+                theta + (0.0 if side > 0 else math.pi) + math.pi * 0.5))
+        elif kind == "Foot":
+            angle = amp * math.sin(theta + (0.0 if side > 0 else math.pi)
+                                   + math.pi)
+        else:
+            # Arms counter-swing against the leg on the SAME side, which is
+            # what makes a walk read as a walk rather than a march.
+            angle = amp * math.sin(theta + (math.pi if side > 0 else 0.0))
+        return _quat(self.axis[name], angle * self.sign[name])
+
+    def update(self, world_xy, dt: float | None = None) -> dict:
+        """Advance the cycle to wherever the avatar now is. Main thread.
+
+        Returns what it did, so a caller can log or assert on it rather than
+        inferring the state of the animation from a picture.
+        """
+        if not self.ok:
+            return {"ok": False, "why": self.why}
+        self.frames += 1
+        x, y = float(world_xy[0]), float(world_xy[1])
+        step = 0.0
+        if self.last_xy is not None:
+            dx, dy = x - self.last_xy[0], y - self.last_xy[1]
+            step = math.hypot(dx, dy)
+            self.distance_m += step
+            # Phase is DISTANCE, not time. Two frames that cover the same
+            # ground advance the cycle equally however long they took.
+            self.phase = (self.phase + step / max(self.stride_m, 1e-6)) % 1.0
+            inst = step / dt if dt and dt > 0 else step * 60.0
+            self.speed += (inst - self.speed) * _GAIT_SMOOTHING
+            if step > _GAIT_MIN_SPEED_MPS * (dt or 1.0 / 60.0):
+                want = math.degrees(math.atan2(dy, dx))
+                if self.heading_deg is None:
+                    self.heading_deg = want
+                else:
+                    d = (want - self.heading_deg + 180.0) % 360.0 - 180.0
+                    self.heading_deg += d * _GAIT_SMOOTHING
+        self.last_xy = (x, y)
+
+        weight = max(0.0, min(1.0, self.speed / _GAIT_FULL_SPEED_MPS))
+        # Keep the shipped idle running underneath, so a standing avatar still
+        # breathes instead of freezing into a mannequin. Indexed by frame into
+        # the clip's own sample times rather than computed from a span, so a
+        # clip that does not start at 0 or is not sampled every frame still
+        # plays every pose it has and no pose it does not.
+        timeline_now = (self.base_times[self.frames % len(self.base_times)]
+                        if self.base_times else 0.0)
+        # Skip a write that would author the pose already authored. Kept, but
+        # NOT for the reason it was added: it went in expecting the write to
+        # be the expensive part, and the three-way measurement says otherwise
+        # -- 17.37 ms/frame with the shipped clip bound, 33.30 with ours bound
+        # and NEVER written, 33.34 written every frame. The whole cost is in
+        # binding a different animation at all; the writes are +0.04 ms. So
+        # this saves almost nothing and is worth keeping only because a pose
+        # that has not changed has no business being re-authored.
+        key = (round(self.phase, 4) if weight > 0 else None,
+               round(weight, 3), timeline_now)
+        if key == self._last_written:
+            return {"ok": True, "phase": round(self.phase, 4),
+                    "speed_mps": round(self.speed, 4), "weight": round(weight, 3),
+                    "distance_m": round(self.distance_m, 3), "skipped": True,
+                    "heading_deg": (None if self.heading_deg is None
+                                    else round(self.heading_deg, 2))}
+        self._last_written = key
+
+        rots = self._base_rotations(timeline_now)
+        for name, idx in self.driven.items():
+            offset = self._gait_offset(name, weight)
+            if offset is not None:
+                rots[idx] = rots[idx] * offset
+        self.rot_attr.Set(rots)
+
+        if self.heading_deg is not None:
+            self._face(self.heading_deg)
+        return {"ok": True, "phase": round(self.phase, 4),
+                "speed_mps": round(self.speed, 4), "weight": round(weight, 3),
+                "distance_m": round(self.distance_m, 3),
+                "heading_deg": (None if self.heading_deg is None
+                                else round(self.heading_deg, 2))}
+
+    def _face(self, heading_deg: float) -> None:
+        """Turn the visible body to `heading_deg`, the way set_avatar_pose does.
+
+        The same derivation, deliberately: the rig's own yaw offset is read off
+        the stage and subtracted, so the two entry points cannot drift apart
+        into an avatar that faces one way when it is placed and another way
+        when it walks.
+        """
+        rig = self.stage.GetPrimAtPath(f"{self.char.GetPath()}/rig")
+        rig_yaw = _CHARACTER_YAW_DEG
+        rig_rot = rig.GetAttribute("xformOp:rotateXYZ") if rig.IsValid() else None
+        if rig_rot and rig_rot.Get() is not None:
+            rig_yaw = float(rig_rot.Get()[2])
+        attr = self.char.GetAttribute("xformOp:rotateXYZ")
+        if not attr:
+            attr = UsdGeom.Xformable(self.char).AddRotateXYZOp().GetAttr()
+        current = attr.Get() or Gf.Vec3f(0.0, 0.0, 0.0)
+        attr.Set(Gf.Vec3f(float(current[0]), float(current[1]),
+                          heading_deg - (_ASSET_FACING_DEG + rig_yaw)))
 
 
 # ---------------------------------------------------------------------------

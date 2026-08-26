@@ -5,6 +5,157 @@ sensor behaviour, environment facts, and performance sessions. **Newest
 first** — a new dated section goes directly under this heading, not at the
 end of the file.
 
+## THE WALK CYCLE — 2026-08-26, and the shipped clips are on a different skeleton
+
+Conditions: idle host, GPU index 3, exec mode under `runheadless.sh`,
+`observatory_avatar.usd`. Two spikes: `sim/spikes/_diag_walk_clip.py` reads
+assets and renders nothing; `sim/spikes/_diag_walk_render.py` renders the
+avatar's own third-person camera and prices the result. Outputs:
+`logs/walk_clip.json`, `logs/walk_render.json`, `logs/walk_*.png`.
+
+### First, two premises that were wrong, and the pictures that settle them
+
+**"The avatar is an invisible capsule, so in third person there is no body."**
+No. `body_mesh` is indeed invisible, but it is not the body: `/Root/Avatar/character/rig`
+references the warehouse's own rigged Worker, renders, carries `person` on
+every mesh, and follows the capsule every frame. `logs/walk_A_shipped_idle.png`
+is the third-person camera before any change in this entry — a man in blue
+overalls and a cap, seen from behind, standing.
+
+**"The skeleton falls back to a T-pose."** That is what `sim/avatar.py`'s own
+docstring says, and it is not what happens. The Worker's 582-sample idle clip
+is bound and running, so he stands like a person with his arms down. The
+T-pose is what you would get if the clip were unbound, and nothing unbinds it.
+
+So S6's second gate was closer to passing than the file believed. What was
+actually missing is narrower and real: **his legs did not move.** He slid.
+
+### The finding: no shipped clip fits this skeleton
+
+The 2026-08-17 scoping note concluded the walk was "a reference swap plus a
+blend, NOT retargeting", from an inference it flagged as untested. The test
+was possible after all — a `SkelAnimation` carries its own `joints` array,
+which is how UsdSkel maps a clip to a skeleton, by NAME — and the inference
+was false:
+
+```
+  the avatar's skeleton     101 joints   RL_BoneRoot/Hip/Pelvis/L_Thigh/...
+  every Isaac/People clip    81 joints   Root/Pelvis/R_UpLeg/R_LoLeg/...
+  joints in common                    0
+```
+
+Zero. Not a different order — no joint name in `stand_walk_loop_in_place` or
+any of its siblings exists on this skeleton. The earlier note compared
+People's CHARACTERS to the Worker, found 101 matching joints, and assumed the
+clips beside them matched too. Re-measured here: `male_adult_construction_01`
+is `RL_BoneRoot`, 101 joints — so People's clips do not fit People's own
+characters either, without a retarget step that `omni.anim.people` would
+normally provide and which is **absent from this image**.
+
+Nor does a walk ship anywhere else within reach. Everything was listed:
+
+| library | contents |
+|---|---|
+| `Reallusion/Worker/Motions` | Kitchen_CleanTable, Market_Sales_Assisting, Market_Sales_SortOut, StandingDiscussion, TrafficGuard, Worker_Idle_Pose |
+| `Reallusion/Debra`, `Orc` | idles, a superpower fist, a sword shout |
+| `Isaac/People/Animations` | the walks — on the 81-joint rig |
+| `full_warehouse_worker_and_anim_cameras.usd` | the same 101-joint rig, carrying the same idle: its root travels **0.0042** over the whole clip, i.e. sway |
+
+That last row answers the obvious suggestion directly: the sample stage's
+"animated worker" is animated, and what it is animated *doing* is standing
+still.
+
+**`omni.anim.retarget.core` and `omni.anim.graph.core` ARE enabled here.**
+Retargeting People's motion-captured walk onto this skeleton is therefore the
+principled route to a better cycle, and it is the recommended next step. It
+was not taken: it is an authoring workflow, its Python surface is not the part
+that is documented, and its output cannot be checked without a human looking —
+which makes it a poor thing to land blind at the end of a session.
+
+### What was built instead
+
+A gait, authored, on the joints the avatar actually has —
+`avatar.WalkCycle` — layered **on top of** the shipped idle rather than
+replacing it. The clip supplies the whole body's pose, and ten joints
+(thighs, calves, feet, upper arms, forearms) get a swing added. Standing
+still, the character is exactly the shipped asset; walking, its legs swing.
+
+Three properties worth stating because each was a decision:
+
+- **Driven by distance, not time.** The phase advances by
+  `distance / stride`, so the same metre of travel turns the cycle by the same
+  amount at 60 fps and at 6 fps. Feet cannot drift out of step with the ground
+  because the frame rate moved, and a capture reproduces.
+- **The swing axis is derived, not assumed.** Rotating a hip about the wrong
+  local axis abducts instead of flexing — the leg swings out sideways — and
+  that raises nothing and reads as a broken rig. So the axis is taken from the
+  rest pose (`R_rest^-1 · lateral`, in USD's row-vector convention) and the
+  SIGN is measured: rotate the joint a test angle, run the chain forward, see
+  which way the foot actually went. Confirmed in the render: the stride is in
+  the sagittal plane.
+- **The facing is written to `character`, never to the capsule.** A PhysX
+  character controller has a position and an up direction and no rotation, so
+  a yaw written to the capsule never reaches the renderer. The character Xform
+  is a prim physics does not own. Before this, the body never turned at all —
+  it slid sideways when you walked sideways.
+
+The capsule is untouched: not its transform, not its collision, not its
+visibility. It is what the lidar and radar bounce off (failure mode 1) and the
+gait only reads where it is. No new renderable geometry exists either — a
+SkelAnimation does not render — so the `person` labels are exactly the ones
+the asset shipped and segmentation is unchanged.
+
+### Does it reach the renderer? Yes, and it is measured rather than looked at
+
+The risk with posing a skeleton by writing `rotations` on a bound
+SkelAnimation every frame is that USD accepts the writes whether or not
+anything downstream re-skins. So: hold the world still, advance ONLY the
+phase, and count pixels. The avatar does not move and the third-person camera
+is mounted on it, so any pixel that changes is a limb.
+
+```
+  changed pixels, phase FROZEN      median 0      max 34
+  changed pixels, phase ADVANCING   median 2,338  max 4,257
+  UsdSkel joints resolving differently between phase 0.0 and 0.5:  28
+```
+
+Twenty-eight, not ten, and that is the right number: ten driven joints plus
+the eighteen below them in the chain.
+
+### The frame-rate cost, and it is not where it looks
+
+Measured in one process, back to back, 640x480 render product on the avatar's
+third-person camera, at Play, nothing else attached:
+
+```
+  shipped idle clip bound (the world as it was)   17.37 ms/frame   57.6 fps
+  our animation bound, and NEVER written          33.30 ms/frame   30.0 fps
+  our animation bound and written every frame     33.34 ms/frame   30.0 fps
+```
+
+**The gait costs +0.04 ms. Binding the animation at all costs +15.9 ms.**
+Sampling the clip, blending 101 quaternions and authoring them is, to within
+the noise of this measurement, free; what halves the frame rate is that the
+character is now re-skinned every frame where before it was not.
+
+This matters twice. It says the arithmetic needs no optimising — an
+optimisation went in during this task on the assumption that the write was the
+expensive half, and the comment justifying it has been corrected in place
+rather than deleted. And it says where a fix would have to look: at how the
+animation is authored, not at what is written into it. The shipped clip is
+TIME-SAMPLED and ours holds values at the default time code, and that is the
+only structural difference between the two rows that differ by 16 ms. Whether
+a time-sampled animation would keep the fast path while still being driven by
+distance is the obvious next question and was not answered here.
+
+Read it against the rest of the budget before turning it on for a demo: Play
+already costs this scene most of its frame rate (14-20 fps in the GUI, and
+measured as 100% physics), and this is a further halving of what is left. It
+is one keyword — `install_character_follow(..., animate=False)` — and that
+switch exists because of this number.
+
+---
+
 ## THE SETTLE CONSTANT IS GONE — 2026-08-26, and a step now waits for the buffer, not the clock
 
 Conditions: idle host, GPU index 3, exec mode under `runheadless.sh`,
