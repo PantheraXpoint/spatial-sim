@@ -5,6 +5,246 @@ sensor behaviour, environment facts, and performance sessions. **Newest
 first** — a new dated section goes directly under this heading, not at the
 end of the file.
 
+## MOVING A WAREHOUSE OBJECT — 2026-08-26, and the lidar's cloud only changes every sixth frame
+
+Conditions: idle host, GPU index 3 only, no other GPU tenant, exec mode under
+`runheadless.sh`, `observatory_avatar.usd`, capture-mode configuration (no
+collider mask, no raised `minFrameRate`, render products at the registry's
+declared resolution, debug draw attached — the same sensor rig the avatar pose
+run used, so the frame counts below are comparable rather than merely similar).
+Driver: `sim/spikes/move_object_exec.py`, which displaces one warehouse prop by
+writing its group Xform's `xformOp:translate` while the timeline plays, and
+reads INFRA_01's camera and lidar back through `sim/observation_adapter.py`.
+Settle 30 frames, warm-up complete after 5, 319 frames end to end. Output:
+`logs/move_object.jsonl`. **89 checks, 0 failed, 0 unanswerable.** Three
+consecutive runs of the finished script agree on every crossover frame below,
+to the frame.
+
+Two objects, chosen by the script from the stage's own semantics and then
+ranked by what the lidar actually returned off them, not named in any file:
+
+| arm | prop | physics as it runs | at rest |
+|---|---|---|---|
+| as authored | `/Root/Warehouse/Box_21821` | `UsdPhysics.CollisionAPI`, no rigid body — a STATIC collider | 1,424 returns, 10.9 m, elev −10.2° |
+| kinematic | `/Root/Warehouse/Box_33988` | plus `RigidBodyAPI` + `kinematicEnabled`, applied BEFORE Play | 406 returns, 9.3 m, elev −13.3° |
+
+Each ran four waypoints — its own position (a no-op write, which is how the
+noise floor is measured rather than assumed), two free positions found by
+searching arcs about the station and screening them with a PhysX overlap, and
+back to where the asset put it. Six transitions in total.
+
+### The move works, and both modalities register it
+
+Every waypoint landed at **0.000 mm** from what was asked for, read back off
+the stage's world bounding box, and both objects returned to their authored
+pose exactly after three intervening writes. Nothing overwrote the transform:
+unlike the avatar capsule, whose `xformOp:orient` PhysX puts back to identity
+every frame, a warehouse prop's translate survives — including on the arm
+where PhysX owns the prim as a kinematic body.
+
+Lidar returns in the box around each waypoint, **net of the background that
+box holds with the object out of it**, as the object stands at each waypoint
+(as-authored arm):
+
+```
+  as authored             P0      P1      P2      P3      raw at P0's box
+  P0 origin              834       0       0     834      1427
+  P1 away                 10     401       0      10       603
+  P2 away                  0       0     799       0       593
+  P3 back                845       0       0     845      1438
+  background             593       0       0     593
+```
+
+P0 and P3 are the same position, so they are the same box; the raw column on
+the right is what that box reads before the background is taken off, and is
+the whole reason the correction below exists. The kinematic arm's matrix has
+the identical shape at a quarter of the density: 117 / 209 / 226 / 120 net
+against a background of 287.
+
+### Headline: the "5 to 10 frame lidar lag" is a SIX-FRAME REFRESH
+
+The 2026-08-26 avatar run measured the lidar catching up 5, 10 and 9 frames
+after a pose write and called it a lag. It is not a lag, or not only one.
+Every one of the twelve profiles measured here — six transitions, each 30
+frames sampled one per application frame — is **piecewise constant in blocks
+of exactly six frames**. Run-lengths of the net return count, per transition:
+
+```
+  as authored  P1     0x4   402x6  396x6  402x6  399x6  401x2
+  as authored  P2     0x3   750x6  787x6  791x6  796x6  799x3
+  as authored  P3     0x2     7x6  849x6  830x6  824x6  845x4
+  kinematic    P1     0x6   211x6  214x12 212x6
+  kinematic    P2     0x5   224x6  230x6  228x6  225x6  226x1
+  kinematic    P3     6x4   114x6  119x6  116x6  115x6  120x2
+```
+
+Not one block is any other length. The ragged first and last blocks are the
+phase the write landed on and the cut at frame 30; the `214x12` is two
+consecutive refreshes that happened to agree. **The RTX lidar's
+`generic-model-output` buffer changes once every six application frames**, and
+`get_data()` hands back the same buffer in between — so what the earlier run
+measured as a variable 5-to-10-frame lag is a fixed cadence sampled at
+whatever phase the write happened to land on.
+
+That reading also predicts the spread, and the spread is what was measured.
+Crossover, per transition, against the camera at the same station:
+
+```
+  arm                       transition   lidar   camera   lag
+  as-authored static        P1 away          5        1    +4
+  as-authored static        P2 away          4        1    +3
+  as-authored static        P3 back          9        1    +8
+  kinematic rigid body      P1 away          7        1    +6
+  kinematic rigid body      P2 away          6        1    +5
+  kinematic rigid body      P3 back          5        1    +4
+```
+
+**So yes, the same lag applies to a moved object, and it is the same size**:
+4 to 9 frames here against the avatar's 5, 10 and 9. And the camera does not
+merely win — its pixel count at the object's new range is *identical on all
+thirty frames* (kinematic P1: 3,569 px at frame 1 and at frame 30, unchanged),
+so the camera had finished tracking before the first frame this script could
+sample. The two modalities disagree about where that object is for between
+three and eight frames, every time anything moves.
+
+**A likely mechanism, stated as a hypothesis because it was not measured:**
+six is what a 10 Hz rotary scan sampled at 60 application frames per second
+would give. Neither the scan rate nor the app's frame rate was read out on
+this run, so that arithmetic is a candidate explanation and not a finding.
+
+### The three-state transition is here too, and six frames is its length as well
+
+`P3` of the as-authored arm: the box at the destination reads **0** for two
+frames, then **7** net returns for exactly one refresh, then **849**. Seven
+returns is a refresh that caught the sweep part-way across the object — the
+same shape as the avatar run's 65-at-the-new-pose-and-907-at-the-old, which
+also held for six frames, and the same as this spike's own earlier runs (11
+new against 397 old, and 1,723 new against 36 old, both for frames 4 through 9
+of the settle). Across the twelve transitions measured while building this,
+the dual state appeared in two, and both times it lasted exactly one refresh.
+
+So the transition has three states for a moved object exactly as it does for a
+moved avatar, it is not present in every transition, and its duration is one
+refresh rather than a number that needs measuring separately.
+
+The detector itself sits close to its own threshold and should be read that
+way: the two final runs, which agree on every crossover frame, disagree about
+whether the tail of one transition counts — one flagged two frames holding 401
+returns at the new position against 10 at the old, the other saw 401 against
+nothing. Ten returns is where "a cluster on a body" stops being distinguishable
+from a stray ray, and that boundary is a choice, not a measurement.
+
+### Collision follows the move — and the object does NOT have to be kinematic
+
+The question this spike existed to close, and the answer is clean. Probed with
+a PhysX `overlap_box` over the object's own footprint at every waypoint, on
+every sample:
+
+```
+  arm                     P0        P1              P2              P3
+  as-authored static    present   present/left    present/left    present/left
+  kinematic rigid body  present   present/left    present/left    present/left
+```
+
+Identical. **A plain `UsdPhysics.CollisionAPI` collider with no rigid body at
+all follows a USD transform write made while the simulation is running, and
+vacates the position it left.** Adding `RigidBodyAPI` with `kinematicEnabled`
+changed nothing that was measured — not the collision behaviour, not the
+sensor latency, not the return counts. On Isaac Sim 6.0.1, for a scripted
+placement, kinematic is not required.
+
+Two limits on that, both real:
+
+- **A move here is a PLACEMENT, not a swept motion.** The object is teleported
+  and nothing sweeps the space in between, so this says nothing about pushing
+  an object through or into something else. It is the same caveat that applies
+  to `set_avatar_pose`.
+- **Nothing was dropped.** Neither arm is a dynamic body, so this says nothing
+  about whether a moved object then falls, settles or topples — which is what
+  a scenario system would eventually want to know.
+
+### What it took to make the measurement honest
+
+Four corrections, each of which produced a confident wrong answer first.
+
+1. **A box count counts a VOLUME, not an object.** For an avatar standing in
+   an aisle the volume empties when it walks away. A warehouse prop stands in
+   a stack: when it leaves, the shelf and the cartons beside it are revealed
+   and the box settles at a few hundred returns that were never the object.
+   Measured: P0's box read **1,423 with the carton in it and 604 without**, so
+   a raw here-versus-there comparison had the object's new position (396)
+   losing to the furniture it had left behind (604) — and reported that the
+   lidar never caught up on a transition whose trace plainly shows it catching
+   up at frame 5. Every count above is net of a background measured with the
+   object elsewhere.
+2. **A downward raycast is the wrong collision probe in a warehouse.** It asks
+   what the topmost collider above a spot is, and in a stack the answer is the
+   carton on top: it hit a NEIGHBOUR for all seven visible candidates —
+   `Box_21821`'s probe came back holding `Box_21803`, 0.195 m down — and every
+   one of them was rejected as unprobeable while its collider sat exactly
+   where it belonged. An overlap over the object's own footprint asks the
+   question that was meant.
+3. **"Which pixels got nearer" is blind to a move along the camera's own sight
+   line.** A carton pushed from 11.04 m to 13.18 m on the same bearing gave
+   **8,489 pixels farther and 149 nearer** — it re-occupied the pixels it had
+   just left, only farther away, so nothing in the frame got nearer. The lidar
+   had 400 returns on it at the new position at the same instant. The camera
+   signal is now gated on RANGE — a pixel that changed and now reads the
+   object's new distance — which covers the sideways and the radial case with
+   one definition.
+4. **A prop whose box holds 61 returns may hold 61 returns of its
+   neighbours.** One did: moving it away left the count at 63. Below a couple
+   of hundred there is no way to tell an object from its stack before the
+   move, so the selection floor is 150.
+
+### Constraints hit, and they cost most of the runs
+
+- **`sensor_factory` aims every station camera at the AVATAR**, which is right
+  for every other script in this repo and wrong for this one: **1,778 of 3,137
+  props were outside that frame** and the first run rejected every candidate
+  on the stage. The spike now re-aims the station camera at the object it is
+  about to move, once per arm, before that arm's first reference frame — never
+  while a transition is in flight, so the camera is still fixed in the sense
+  the claim needs.
+- **Occlusion is the binding constraint on which object can be used, and no
+  amount of geometry predicts it.** Of 40 props that passed every geometric
+  filter — size, floor-standing, inside the lidar's −15..+10° band, 6 to 25 m
+  out — **11 were visible to the lidar.** A barrel fully in band at 10 m
+  returned exactly zero points out of a 290,057-point cloud because a rack
+  stands in front of it. The run now records the distance to the nearest
+  return for every candidate it cannot see, because "occluded" (nearest return
+  2.2 m away) and "the counting box is in the wrong place" (nearest return
+  0.6 m away) are different problems and the count alone cannot tell them
+  apart. Two of forty fell in that second category and are unexplained.
+- **Reading semantics with `prim.GetProperties()` cost four minutes** over
+  3,137 props, because on a mesh that returns its points, normals, uvs and
+  every primvar. Reading the applied-schema list instead is effectively free.
+  Safe here only because the 2026-08-25 audit measured **zero** prims on this
+  stage carrying semantics attributes without the matching API applied — a
+  coverage audit must still scan properties, since the schema-less case is
+  what it exists to find.
+- **A `--rm` container that has been `docker stop`ped can still hold its
+  name.** One run never started: `Conflict. The container name
+  "/spatial-sim-move" is already in use`. Nothing about it looked like a
+  failed launch from the outside — the log file simply stayed empty. With
+  exactly one sim container permitted host-wide this is a real trap; do not
+  pass `--name` to `docker compose run`, and check `docker ps -a`.
+- Computing world bounding boxes is **not** the expensive part, contrary to
+  the fifteen-minute figure quoted for the collider-mask pass: 1,600 of them
+  took 0.3 s here. Whatever cost that pass fifteen minutes, it was not the
+  bounding boxes on their own.
+
+### What this does not establish
+
+The radar was not involved — `sensor_factory` skips it without the three
+Motion BVH kit flags. Nothing here is a scenario system, an episode, or a
+schedule: it moves one object at a time, on command, and reports what each
+sensor said and when. And the six-frame cadence is measured on this rig — one
+rotary lidar, four render products, debug draw attached — not shown to be
+independent of any of them.
+
+---
+
 ## AVATAR POSE WRITES — 2026-08-26, and the lidar was five to ten frames behind the pose
 
 Conditions: idle host, all four 3090s free, no other GPU tenant, exec mode under
