@@ -5,6 +5,150 @@ sensor behaviour, environment facts, and performance sessions. **Newest
 first** — a new dated section goes directly under this heading, not at the
 end of the file.
 
+## THE SETTLE CONSTANT IS GONE — 2026-08-26, and a step now waits for the buffer, not the clock
+
+Conditions: idle host, GPU index 3, exec mode under `runheadless.sh`,
+`observatory_avatar.usd`, the adapter's own rig (robot platforms referenced in
+and pinned, seven sensors live). Driver:
+`sim/observation_adapter.py` at `OA_MODE=freshness`. Evidence for the change
+this entry is about, and it exists because **`tests/contract.py` cannot be
+that evidence** — it checks shape, dtype, units, frame and reactivity, and a
+payload six frames behind the pose beside it satisfies every one of them.
+Output: `logs/observation_adapter_freshness.jsonl`.
+
+`OA_SETTLE` — "frames between advancing the world and sampling", default 2 —
+has been removed. `IsaacObservationSource.step()` now advances the world and
+then waits until **every sensor whose buffer can be tracked has published two
+new buffers**, using the sensor's own refresh counter.
+
+### The measurement that justifies it
+
+The avatar walks a circle. After each `step(dt)` the lidar's cloud is counted
+in the box the avatar is in **now** against the box it was in **one step ago**.
+Both behaviours ran in the same session, on the same rig, against the same
+walk — the fixed wait that was replaced, then the refresh wait that replaced
+it:
+
+```
+  replaced: fixed 2-frame settle            new: wait for 2 buffer refreshes
+       t    here   there  frame_id              t    here   there  frame_id
+     1.2     234    1033       120            1.2    1050       0       156
+     2.4      24     234       120            2.4     354       0       168
+     3.6       0     203       126            3.6     483       0       180
+     4.8       0     488       132            4.8     479       0       192
+     6.0       0       0       132            6.0     467       0       204
+     7.2       0       0       138            7.2     459       0       216
+     8.4       0     458       144            8.4     593       0       228
+     9.6       0       0       144            9.6     790       0       240
+  returns at the CURRENT position: 0/8     returns at the CURRENT position: 8/8
+  frames waited 3..3                       frames waited 7..11
+```
+
+**Nought out of eight.** Not "sometimes stale" — under the constant that was
+in the file, *no step in the run* returned a cloud of the world that step had
+asked for. Every one described where the avatar had been a step earlier, at
+full density, on a real body, with a `pose` and a `timestamp` beside it that
+were current.
+
+Read the `frame_id` column of the left-hand table, which is new and is half
+the point: **120, 120, 126, 132, 132, 138, 144, 144.** Three of those eight
+steps were handed a buffer that a previous step had already been handed. Two
+readings a caller had every reason to believe were two observations were one
+observation returned twice, and nothing in either of them said so.
+
+The right-hand column advances by exactly **12** every step — two refreshes of
+six frames — which is the mechanism doing precisely what it claims.
+
+### Why a counter and not a comparison
+
+The obvious implementation is to compare buffers and call it changed when the
+contents differ. It cannot work, and the reason is worth stating because it is
+not obvious: **in a static scene two consecutive refreshes are identical**, so
+content comparison cannot distinguish "has not refreshed yet" from "refreshed
+while nothing moved". A source built on it blocks forever the first time the
+world happens to be still — which is the state a benchmark is in at every
+episode reset.
+
+`sim/spikes/_diag_buffer_clock.py` was written to find something better, and
+held the scene deliberately still for 72 frames to do it:
+
+| field | distinct values in 72 static frames | run lengths |
+|---|---|---|
+| `gmo.frameId` | 13 | exactly 6 |
+| `gmo.timestampNs` | 13 | exactly 6, +100,000,000 ns each |
+| `gmo.numElements` | 13 | exactly 6 |
+| 48 other header fields | 1 | — |
+| camera `rgb` / `depth` / `semantic` | 72 | 1 |
+
+So `frameId` and `timestampNs` tick on publication and on nothing else, and
+they tick while the world is frozen. That is the signal. It is also free: two
+header integers against a digest of 290,000 points.
+
+Three things that entry settles as a side effect:
+
+- **The camera has no cadence.** Its annotator buffers changed on all 72
+  frames with nothing moving. Nothing waits on the cameras, and the
+  "the camera tracked immediately" half of the avatar-pose finding is now
+  measured directly rather than inferred from a centroid.
+- **10 Hz × 60 fps = 6.** `timestampNs` steps 0.1 s per refresh and `frameId`
+  goes 28, 34, 40. The arithmetic offered as an unverified hypothesis in the
+  object-motion entry above is now a measurement.
+- **Two fields that look like counters and are not.** `frameStart` and
+  `frameEnd` are `FrameAtTime` **objects**, so anything that stringifies them
+  sees a fresh memory address every frame and reads as a per-frame tick — the
+  probe's own first output made exactly that mistake. `scanComplete` and
+  `scanIdx` were 0 on all 72 frames.
+
+### Why two refreshes and not one
+
+A sweep takes time. Advance the world at application frame T and the next
+buffer covers an interval that *started* before T, so it can hold the old
+world and the new one at once — which is the three-state transition the
+object-motion entry measured directly (7 returns at the new position for one
+refresh, then 849). The second refresh is the first whose whole interval lies
+after T. One is enough only when the advance happens to land on a publication
+boundary, and nothing controls the phase.
+
+The cost is bounded and was measured: **7 frames on the first step, 11
+thereafter**, against 3 for the constant. That is the honest price of the
+guarantee, and it is a price per step rather than a risk per step.
+
+### What the readings say now
+
+Every reading carries `intrinsics["freshness"]` — refreshes required,
+refreshes waited, frames spent, whether the wait completed — and every range
+reading carries the `frame_id` and `timestamp_ns` of the buffer it came from.
+A reading that could **not** be made fresh (`OA_MAX_WAIT` spent, or a sensor
+with no counter) says so in the data rather than only in a log. The whole
+class of bug this replaces was invisible precisely because the reading said
+nothing about itself.
+
+`step()` called on Kit's own main thread still cannot wait — blocking there
+would block the loop that produces the refreshes — and now says so in the same
+field rather than quietly looking like the off-thread path.
+
+### Constraints and caveats
+
+- **Setting `OA_SETTLE` now prints an obsolescence notice** instead of being
+  silently ignored. A caller who set it was asking for a freshness guarantee
+  and would otherwise have got a different one without being told.
+- **The old behaviour is still reachable**, as `OA_SETTLE_FRAMES`, and exists
+  for one reason: so the comparison above can be run rather than argued. It
+  defaults to 0.
+- **A sensor with no `frameId` is not waited on.** It is reported once,
+  loudly, and its readings carry the same `freshness` block saying what did
+  not happen. Nothing silently degrades.
+- **The cadence is not assumed anywhere in the code.** Six is a fact about
+  this rig; the adapter waits for a counter to change and never for a number
+  of frames, so a different scan rate, frame rate or render-product count
+  needs no change here.
+- **The spikes keep their fixed settles on purpose.**
+  `sim/verify_avatar_pose.py` and `sim/spikes/move_object_exec.py` profile a
+  30-frame window because they are *measuring* the cadence. A spike that
+  waited for the answer could not report it.
+
+---
+
 ## MOVING A WAREHOUSE OBJECT — 2026-08-26, and the lidar's cloud only changes every sixth frame
 
 Conditions: idle host, GPU index 3 only, no other GPU tenant, exec mode under
@@ -107,10 +251,22 @@ so the camera had finished tracking before the first frame this script could
 sample. The two modalities disagree about where that object is for between
 three and eight frames, every time anything moves.
 
-**A likely mechanism, stated as a hypothesis because it was not measured:**
-six is what a 10 Hz rotary scan sampled at 60 application frames per second
-would give. Neither the scan rate nor the app's frame rate was read out on
-this run, so that arithmetic is a candidate explanation and not a finding.
+**The mechanism, and it is no longer a hypothesis.** This entry originally
+offered "six is what a 10 Hz rotary scan sampled at 60 application frames per
+second would give" as a candidate explanation, flagged as unmeasured. It was
+measured the same day, by reading the buffer's own header instead of its
+payload (`sim/spikes/_diag_buffer_clock.py`): over 72 frames with the scene
+held still, `gmo.timestampNs` stepped **exactly 100,000,000 ns** per refresh —
+10 Hz — and `gmo.frameId` went 28, 34, 40, i.e. **six application frames**
+apart, which is 60 fps. The arithmetic was right and is now a finding.
+
+That measurement also produced the thing this cadence made necessary: a way
+to know which refresh you are holding. `frameId` and `timestampNs` tick on
+publication and on nothing else — including while nothing in the scene moves,
+which is the case no comparison of the payload can handle. 48 other header
+fields never changed at all across those 72 frames. `sim/observation_adapter.py`
+now waits on that counter instead of on a settle constant; see **THE SETTLE
+CONSTANT IS GONE** above.
 
 ### The three-state transition is here too, and six frames is its length as well
 
@@ -247,6 +403,47 @@ independent of any of them.
 
 ## AVATAR POSE WRITES — 2026-08-26, and the lidar was five to ten frames behind the pose
 
+> **SUPERSEDED, 2026-08-26, on the reading of the numbers — not on the
+> numbers.** The measurements below stand and were reproduced. Their
+> INTERPRETATION does not: this entry calls the effect a *lag* that *varies
+> between 5 and 10 frames*, and it is neither. The RTX lidar's
+> `generic-model-output` buffer refreshes **once every six application
+> frames** — 10 Hz scan, 60 fps application, both read off the buffer's own
+> `frameId` and `timestampNs` while the scene was held still
+> (`sim/spikes/_diag_buffer_clock.py`). `get_data()` returns the same buffer
+> in between and says nothing about it. So the crossover frames recorded
+> here, 5 / 10 / 9, are one fixed cadence sampled at three different phases,
+> not a latency that changed three times.
+>
+> What that changes, concretely:
+>
+> - **"5 to 10 frames" is not a range to design against.** The quantity is
+>   "up to one refresh, plus the refresh that is already in flight". A settle
+>   of 11 would be as arbitrary as a settle of 2 and would still be a bet on
+>   phase.
+> - **The advice at the end of "The measured crossover" — raise the settle to
+>   30 — was the wrong fix and has been withdrawn.** No constant is the right
+>   constant. `sim/observation_adapter.py` now waits for the sensor's own
+>   refresh counter to advance instead, which is exact and needs no tuning;
+>   `OA_SETTLE` is gone. `sim/verify_avatar_pose.py` still profiles a fixed
+>   30-frame window on purpose — it is measuring the cadence, not consuming
+>   it, and a spike that waited for the answer could not report it.
+> - **The three-state transition below is explained rather than merely
+>   observed.** A refresh published while the sweep is part-way across the
+>   change carries both poses; that is why it lasted six frames, and six is
+>   the cadence.
+>
+> Everything the entry says about *consequences* — that a stale cloud is full
+> and plausible, that the pose is current while the payload is not, that
+> `tests/contract.py` cannot see it — is unchanged and is the reason the
+> adapter was changed. See **MOVING A WAREHOUSE OBJECT** above for the
+> cadence measurement and **THE SETTLE CONSTANT IS GONE** for what replaced
+> the constant.
+>
+> The original text is left below exactly as written, including the two
+> sentences this box contradicts, so that what was believed and what corrected
+> it are both readable.
+
 Conditions: idle host, all four 3090s free, no other GPU tenant, exec mode under
 `runheadless.sh`, `observatory_avatar.usd`, capture-mode configuration (no
 collider mask, no raised `minFrameRate`, render products at the registry's
@@ -262,6 +459,12 @@ agree to the frame.
 pose for 5 to 10 frames, while the camera at the same station tracks the write
 immediately.** This is failure mode 10 one layer along and it is worse, because
 what comes back is not empty.
+
+> *Superseded reading:* the lidar keeps describing the previous pose until its
+> next buffer refresh, and refreshes come every six frames. "5 to 10" is where
+> in that cycle these three writes happened to land. The camera half is
+> unchanged and was later measured directly: its annotator buffers change on
+> every single frame, so it has no cadence to be behind.
 
 ### The table that started it, at a 4-frame settle
 
@@ -310,12 +513,25 @@ The default settle is now **30 frames**, and the check is spelled "the lidar
 caught up within 30 frames" with the crossover frame in its detail, so a
 regression names the number instead of failing an opaque box count.
 
+> *Superseded, for consumers.* Thirty frames is fine for a SPIKE that is
+> measuring the cadence — it has to outlast the thing it is timing, and
+> `sim/verify_avatar_pose.py` and `sim/spikes/move_object_exec.py` both keep
+> it for that reason. It is the wrong answer for a SOURCE. Any constant is:
+> it is a duration standing in for an event, it has to be re-derived whenever
+> the scan rate or frame rate changes, and it is either too short or wasteful
+> at every step of every trace. `sim/observation_adapter.py` waits for
+> `frameId` to advance instead.
+
 ### Why this matters beyond the spike
 
 `core/observation.py` hands a consumer one `Observation` per sensor per tick,
 each carrying a `pose` and a `timestamp`. **The pose is current and the
-`points` payload is 5–10 frames old**, and there is nothing in the object that
-says so. Any benchmark that writes a pose at episode start — which is every
+`points` payload is up to one refresh — six frames — old**, and there is
+nothing in the object that says so. *(Written here as "5–10 frames old"; the
+quantity is a refresh, not a frame count. Both halves of the complaint stand:
+the payload is older than the pose, and the object does not say so. The second
+half has since been fixed — every reading now carries
+`intrinsics["freshness"]` and every range reading its buffer's `frame_id`.)* Any benchmark that writes a pose at episode start — which is every
 benchmark this project is aimed at, since that is what episode reset *is* —
 gets stale geometry in its opening frames from the lidar and correct geometry
 from the camera beside it. The two modalities then disagree with each other
@@ -325,7 +541,10 @@ to notice, because it has no earlier frame to compare against.
 `tests/contract.py` does not catch this and would not: it checks shape, dtype,
 units, frame and that readings react to the avatar, and temporal alignment
 between a reading's pose and its payload is not among them. The S11 contract
-run used `OA_SETTLE=2`, well inside the stale window, and passed.
+run used `OA_SETTLE=2`, well inside the stale window, and passed. *(`OA_SETTLE`
+no longer exists; setting it now prints an obsolescence notice rather than
+being quietly ignored. The contract still cannot see freshness and still is
+not evidence about it — which is why `OA_MODE=freshness` exists.)*
 
 ### `runheadless.sh` enables `omni.physx.cct` itself
 

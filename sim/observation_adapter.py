@@ -103,25 +103,59 @@ Run the contract suite against the live simulator::
 Environment (argv is ambiguous after ``--exec``, so config is env vars):
 
     OA_STAGE        stage to open  (default: /workspace/sim/observatory_avatar.usd)
-    OA_MODE         contract | smoke        (default: contract)
+    OA_MODE         contract | smoke | freshness    (default: contract)
     OA_OUT          results directory       (default: the logs volume)
     OA_WARMUP       max frames to wait for every sensor to fill (default 300)
-    OA_SETTLE       frames between advancing the world and sampling (default 2)
+    OA_REFRESHES    sensor buffer refreshes a step waits for    (default 2)
+    OA_MAX_WAIT     frames to wait for those before giving up   (default 120)
+    OA_SETTLE_FRAMES  reproduce the REPLACED fixed wait, for comparison (0)
     OA_STEPS        smoke mode only: how many steps to sample (default 20)
     OA_NO_AUTORUN=1 import this module without running anything
 
-**OA_SETTLE's default of 2 is inside the RTX lidar's staleness window and has
-not been raised here.** Measured 2026-08-26: after the avatar's transform is
-written, the lidar's cloud keeps describing the PREVIOUS pose for 5 to 10
-frames, while the camera at the same station tracks the write immediately. So
-every lidar reading this module has produced is 5-10 frames older than the
-``pose`` and ``timestamp`` stamped on it beside it, and the two modalities
-disagree about where the avatar is. Nothing catches it: a stale cloud is full,
-plausible, and genuinely on a body -- and the contract checks shape, dtype,
-units, frame and reactivity, not temporal alignment. Left at 2 rather than
-changed as a side-effect of writing this note; the number is a decision, and
-raising it costs frames on every step of every trace. Derivation and the
-measured crossover frames: sim/spikes/FINDINGS.md.
+FRESHNESS: WHAT ``step()`` WAITS FOR, AND WHY IT IS NOT A NUMBER OF FRAMES
+--------------------------------------------------------------------------
+An off-thread ``step()`` advances the world and then **waits until every
+sensor that can be tracked has published a new buffer**, twice. It does not
+wait a fixed number of frames, and the constant it used to wait -- ``OA_SETTLE``,
+default 2 -- is gone.
+
+The reason is measured, not stylistic. The RTX lidar's
+``generic-model-output`` buffer changes **once every six application frames**
+on this rig, and ``get_data()`` returns the same buffer in between without
+saying so: 10 Hz scan, 60 fps application, both read off the buffer's own
+header (``sim/spikes/_diag_buffer_clock.py``, 2026-08-26). A fixed settle is
+therefore a bet on which phase of that cycle the write lands in, and the
+earlier measurement of "a 5 to 10 frame lag" was that bet losing by different
+amounts each time rather than a lag that varied. ``OA_SETTLE=2`` never once
+cleared a refresh, so **every lidar reading this module produced before
+2026-08-26 was up to six frames older than the pose and timestamp stamped
+beside it** -- and nothing in the reading said so.
+
+Waiting on the sensor's own counter fixes both halves of that. It is exact:
+``frameId`` and ``timestampNs`` tick on publication and on nothing else,
+including while the scene is completely still, which is the case a "has the
+content changed" test cannot handle at all. And it is scene-independent --
+nothing here needs re-tuning when the scan rate, the frame rate or the number
+of render products changes, because what is being waited for is not a
+duration.
+
+Two refreshes rather than one, because a sweep takes time: the first buffer
+published after a change covers an interval that began before it, and can
+hold both worlds at once. See ``IsaacObservationSource._on_update``.
+
+Every reading now carries ``intrinsics["freshness"]`` -- refreshes required,
+refreshes waited, frames spent, whether the wait completed -- and every range
+reading carries the ``frame_id`` of the buffer it came from. A reading that
+could not be made fresh says so in the data, not only in a log.
+
+**``tests/contract.py`` cannot see any of this and is not evidence for it.**
+It checks shape, dtype, units, frame and that readings react to the avatar;
+temporal alignment between a payload and the pose beside it is not among them,
+which is why the S11 contract run passed at ``OA_SETTLE=2`` from well inside
+the stale window. The evidence is ``OA_MODE=freshness``, which walks the
+avatar, steps the source, and counts returns in the box the avatar is in now
+against the box it was in one step ago -- under the replaced behaviour and the
+new one, in the same run, on the same rig.
 """
 
 from __future__ import annotations
@@ -169,8 +203,30 @@ STAGE = os.environ.get("OA_STAGE", str(REPO / "sim" / "observatory_avatar.usd"))
 MODE = os.environ.get("OA_MODE", "contract")
 OUT_DIR = Path(os.environ.get("OA_OUT", "/isaac-sim/.nvidia-omniverse/logs"))
 WARMUP_FRAMES = int(os.environ.get("OA_WARMUP", "300"))
-SETTLE_FRAMES = int(os.environ.get("OA_SETTLE", "2"))
+#: How many buffer REFRESHES a step waits for before it samples. Not frames:
+#: see `_RangeReader.version` and the docstring above. Two, because one is not
+#: enough and the reason is measured -- a refresh published while a sweep is
+#: part-way across the change carries both worlds at once.
+SETTLE_REFRESHES = int(os.environ.get("OA_REFRESHES", "2"))
+#: Hard ceiling on that wait. A sensor whose buffer never advances -- Play off,
+#: render product detached, a dead renderer -- must not hang the caller
+#: forever. On this rig a refresh is six frames, so 120 is twenty of them.
+MAX_WAIT_FRAMES = int(os.environ.get("OA_MAX_WAIT", "120"))
+#: The old fixed wait. Kept, defaulting to OFF, for exactly one purpose: the
+#: freshness verification reproduces the behaviour being replaced with it, so
+#: the improvement is measured on this rig rather than argued from the change.
+LEGACY_SETTLE_FRAMES = int(os.environ.get("OA_SETTLE_FRAMES", "0"))
 SMOKE_STEPS = int(os.environ.get("OA_STEPS", "20"))
+
+if os.environ.get("OA_SETTLE") is not None:
+    # Refuse to be quietly misconfigured. OA_SETTLE named a fixed frame count
+    # and no longer does anything; a caller who set it was asking for a
+    # freshness guarantee and would otherwise get a different one in silence.
+    print(f"[observation_adapter] ! OA_SETTLE={os.environ['OA_SETTLE']} is "
+          f"OBSOLETE and IGNORED. The fixed settle it named was replaced by "
+          f"waiting for the sensor buffer to actually change -- see "
+          f"OA_REFRESHES (now {SETTLE_REFRESHES}). To reproduce the old "
+          f"behaviour for comparison, set OA_SETTLE_FRAMES.", flush=True)
 
 # The Replicator annotator that converts the GMO buffer to Cartesian and hands
 # back the capture-time sensor-to-world matrix. Registered by
@@ -397,6 +453,75 @@ class _RangeReader:
             self._warned.add(key)
             log(msg)
 
+    # -- which frame is this buffer? ---------------------------------------
+    def version(self):
+        """A token that changes exactly when this sensor publishes a new buffer.
+
+        `(frameId, timestampNs)` off the GMO header, or None if neither field
+        is there. This is the whole basis of the freshness wait, so what it is
+        and what it is NOT both matter.
+
+        MEASURED 2026-08-26, `sim/spikes/_diag_buffer_clock.py`, with the
+        scene deliberately held still for 72 frames:
+
+            gmo.frameId       13 distinct values, in runs of exactly 6
+            gmo.timestampNs   13 distinct, same runs, stepping 0.1 s each time
+            gmo.numElements   13 distinct, same runs
+            48 other header fields   never changed at all
+
+        So `frameId` counts APPLICATION FRAMES -- it went 28, 34, 40, six
+        apart -- and names the frame the sweep was published on, while
+        `timestampNs` is the sensor's own clock and steps 100,000,000 ns per
+        refresh. A 10 Hz scan published every six frames is a 60 fps
+        application, which is where the six comes from and it is now measured
+        rather than inferred.
+
+        **The point of using the header and not the payload:** the scene in
+        that run never moved, and the two fields ticked anyway. A "has the
+        content changed" test cannot do that -- it cannot tell a buffer that
+        has not refreshed from one that refreshed while nothing moved, and a
+        source built on it would block forever the first time the world
+        happened to be still. It is also free: two header ints against a
+        digest of 290,000 points.
+
+        **Two fields that look like this and are not:** `frameStart` and
+        `frameEnd` are `FrameAtTime` OBJECTS, so anything that stringifies
+        them sees a new memory address every frame and reads as a per-frame
+        tick. `scanComplete` and `scanIdx` were 0 on every one of the 72
+        frames. Neither is a refresh counter.
+        """
+        from isaacsim.sensors.experimental.rtx import parse_generic_model_output_data
+
+        if self.sensor is None:
+            return None
+        try:
+            got = self.sensor.get_data("generic-model-output")
+            buf = got[0] if isinstance(got, tuple) else got
+            if buf is None:
+                return None
+            gmo = parse_generic_model_output_data(buf)
+            if gmo is None:
+                return None
+        except Exception as exc:                                  # noqa: BLE001
+            self._warn_once("version", f"! {self.sensor_id}: could not read a "
+                                       f"buffer version: {exc!r}")
+            return None
+        token = []
+        for name in ("frameId", "timestampNs"):
+            try:
+                token.append(int(getattr(gmo, name)))
+            except Exception:                                     # noqa: BLE001
+                continue
+        if not token:
+            self._warn_once(
+                "noversion",
+                f"! {self.sensor_id}: the buffer carries neither frameId nor "
+                f"timestampNs, so its refreshes cannot be counted and step() "
+                f"will not wait for it. Readings from it may be older than "
+                f"the pose stamped beside them.")
+            return None
+        return tuple(token)
+
     # -- the read ----------------------------------------------------------
     def read(self, stage, xform_cache, mpu: float) -> tuple[dict, dict] | None:
         """One tick's payload and intrinsics, or None if nothing is ready."""
@@ -502,6 +627,13 @@ class _RangeReader:
             "valid": n_valid,
             "sentinel_dropped": n_sentinel,
             "max_range_m": self._maybe_float(gmo, "maxRangeM"),
+            # WHICH buffer this is, carried out with the payload. The reading
+            # could say what its pose was and when it was asked for, and not
+            # which sweep it came from -- so two readings a caller believed
+            # were different could be one buffer handed out twice, and nothing
+            # in either of them said so.
+            "frame_id": self._enum(gmo, "frameId", -1),
+            "timestamp_ns": self._enum(gmo, "timestampNs", -1),
         }
         return data, intrinsics
 
@@ -601,17 +733,40 @@ class _RangeReader:
 # The source
 # ---------------------------------------------------------------------------
 class _Request:
-    """One off-thread ``step()`` waiting for the main loop to service it."""
+    """One off-thread ``step()`` waiting for the main loop to service it.
 
-    __slots__ = ("t", "settle", "advanced", "result", "error", "done")
+    Carries the freshness bookkeeping because the wait is per REQUEST, not per
+    source: what a step is waiting for is that every trackable sensor has
+    published a new buffer since the world was advanced for THIS step.
+    """
 
-    def __init__(self, t: float, settle: int) -> None:
+    __slots__ = ("advanced", "baseline", "done", "error", "frames",
+                 "max_frames", "refreshes", "result", "seen", "t", "timed_out")
+
+    def __init__(self, t: float, refreshes: int, max_frames: int) -> None:
         self.t = t
-        self.settle = settle
+        self.refreshes = refreshes
+        self.max_frames = max_frames
         self.advanced = False
+        #: sensor_id -> the version token that sensor last showed
+        self.baseline: dict[str, Any] = {}
+        #: sensor_id -> how many times it has changed since the advance
+        self.seen: dict[str, int] = {}
+        self.frames = 0
+        self.timed_out = False
         self.result: list[Observation] | None = None
         self.error: BaseException | None = None
         self.done = threading.Event()
+
+    def freshness(self) -> dict:
+        """What this step actually waited for, in a form a reading can carry."""
+        return {
+            "refreshes_required": self.refreshes,
+            "refreshes_waited": (min(self.seen.values()) if self.seen else 0),
+            "frames_waited": self.frames,
+            "wait_complete": not self.timed_out,
+            "tracked_sensors": sorted(self.seen),
+        }
 
 
 class IsaacObservationSource:
@@ -639,7 +794,9 @@ class IsaacObservationSource:
         created: dict[str, dict],
         *,
         dt: float = _DEFAULT_DT,
-        settle_frames: int = SETTLE_FRAMES,
+        settle_refreshes: int = SETTLE_REFRESHES,
+        settle_frames: int = LEGACY_SETTLE_FRAMES,
+        max_wait_frames: int = MAX_WAIT_FRAMES,
         timeout_s: float = 600.0,
         advance_world: Callable[[float], None] | None = None,
         action_source: Callable[[float], Any] | None = None,
@@ -651,7 +808,12 @@ class IsaacObservationSource:
         self._registry = registry
         self._created = dict(created)
         self._dt = float(dt)
+        self._refreshes = max(0, int(settle_refreshes))
         self._settle = max(0, int(settle_frames))
+        self._max_wait = max(1, int(max_wait_frames))
+        #: What the last serviced step waited for. Read by drivers that report
+        #: on freshness; never used to make a decision here.
+        self.last_wait: dict = {}
         self._timeout = float(timeout_s)
         self._advance_world = advance_world
         self._action_source = action_source
@@ -726,7 +888,18 @@ class IsaacObservationSource:
         if threading.get_ident() == _MAIN_THREAD:
             if self._advance_world is not None:
                 self._advance_world(self._t)
-            return self._read_all()
+            # No wait is possible here and none is claimed. This call is
+            # already inside an update callback: blocking for a refresh would
+            # block the loop that produces refreshes. The readings say
+            # `waited: false` rather than carrying the freshness of a wait
+            # that did not happen.
+            return self._read_all(freshness={
+                "refreshes_required": self._refreshes,
+                "refreshes_waited": 0,
+                "frames_waited": 0,
+                "wait_complete": False,
+                "why": "sampled on Kit's main thread, where step() cannot block",
+            })
         return self._step_off_thread()
 
     def close(self) -> None:
@@ -787,7 +960,7 @@ class IsaacObservationSource:
 
     # --- the frame pump ------------------------------------------------------
     def _step_off_thread(self) -> list[Observation]:
-        request = _Request(self._t, self._settle)
+        request = _Request(self._t, self._refreshes, self._max_wait)
         with self._lock:
             if self._request is not None:
                 raise RuntimeError("a step is already pending -- one caller at a time")
@@ -804,7 +977,40 @@ class IsaacObservationSource:
         return request.result or []
 
     def _on_update(self, _event) -> None:
-        """Main thread. Services at most one pending step per frame."""
+        """Main thread. Services at most one pending step per frame.
+
+        WAITS FOR THE BUFFER TO CHANGE, not for a number of frames. The
+        difference is the point of this method.
+
+        A fixed settle has to be chosen against the slowest sensor in the
+        scene and is wrong in both directions at once: too small and the
+        payload describes the world before the step's own action -- measured
+        2026-08-26, an RTX lidar keeps handing back the same buffer for six
+        application frames and `get_data()` says nothing about it -- and too
+        large and every tick of every trace pays for the worst case. It is
+        also not a property of anything: the right number changes with the
+        scan rate, the frame rate and how many render products are up.
+
+        Waiting on the sensor's own refresh counter is none of those. It is
+        exact, it costs what it needs to and no more, and it moves with the
+        rig instead of having to be re-tuned when the rig changes.
+
+        WHY TWO REFRESHES AND NOT ONE. A rotary lidar publishes a sweep, and a
+        sweep takes time. Advance the world at application frame T and the
+        next buffer covers an interval that STARTED before T -- so it holds
+        the old world and the new one at once, which is exactly the state the
+        object-motion spike caught: 7 returns at the new position for one
+        refresh, then 849 at the next. The second refresh is the first whose
+        whole interval is after T. One is enough only when the advance happens
+        to land on a publication boundary, and nothing here controls the
+        phase.
+
+        Cameras are not waited on, and that is measured rather than assumed:
+        their annotator buffers changed on every one of 72 consecutive frames
+        with the scene held still, so they carry no cadence to wait for. A
+        sensor whose version token is None is likewise not waited on -- it is
+        reported once, loudly, by `_RangeReader.version`.
+        """
         request = self._request
         if request is None or self._closed:
             return
@@ -818,20 +1024,65 @@ class IsaacObservationSource:
                     # capture-mode requirement (CLAUDE.md rule 6), not a
                     # nicety.
                     self._advance_world(request.t)
-            if request.settle > 0:
-                # Let the renderer see the pose that was just written before
-                # anything is read off it.
-                request.settle -= 1
+                # The baseline is taken AFTER the advance, in the same
+                # callback. Any refresh counted from here was published by a
+                # render that ran after the world moved; one taken before the
+                # advance could be satisfied by a buffer that predates it.
+                request.baseline = self._versions()
+                request.seen = {k: 0 for k in request.baseline}
+                if not request.baseline:
+                    self._warn_missing(
+                        "step", "no sensor exposes a refresh counter -- step() "
+                        "cannot wait for fresh data and will sample "
+                        "immediately")
                 return
-            request.result = self._read_all()
+
+            if self._settle > 0 and request.frames < self._settle:
+                # The replaced behaviour, off by default. Only the freshness
+                # verification turns it on, and only to measure what it used
+                # to do.
+                request.frames += 1
+                return
+
+            request.frames += 1
+            current = self._versions()
+            for sensor_id, token in current.items():
+                if sensor_id in request.baseline and token != request.baseline[sensor_id]:
+                    request.baseline[sensor_id] = token
+                    request.seen[sensor_id] = request.seen.get(sensor_id, 0) + 1
+
+            if request.seen and min(request.seen.values()) < request.refreshes:
+                if request.frames < request.max_frames:
+                    return
+                request.timed_out = True
+                self._warn_missing(
+                    "wait",
+                    f"waited {request.frames} frames and "
+                    f"{ {k: v for k, v in request.seen.items()} } refreshes "
+                    f"arrived of the {request.refreshes} needed -- sampling "
+                    f"anyway. The readings say so in "
+                    f"intrinsics['freshness']; they are not necessarily "
+                    f"newer than the pose beside them.")
+
+            self.last_wait = request.freshness()
+            request.result = self._read_all(freshness=self.last_wait)
         except BaseException as exc:                        # noqa: BLE001
             request.error = exc
         with self._lock:
             self._request = None
         request.done.set()
 
+    def _versions(self) -> dict:
+        """Every trackable sensor's current buffer token. Main thread."""
+        out = {}
+        for sensor_id, reader in self._range.items():
+            token = reader.version()
+            if token is not None:
+                out[sensor_id] = token
+        return out
+
     # --- reading -------------------------------------------------------------
-    def _read_all(self) -> list[Observation]:
+    def _read_all(self, freshness: dict | None = None) -> list[Observation]:
         # A FRESH cache every tick. A retained XformCache returns the pose it
         # saw first, forever -- the avatar then never moves, every sensor
         # keeps reporting, and nothing raises. sim/avatar.py hit exactly this
@@ -858,6 +1109,14 @@ class IsaacObservationSource:
                 self._warn_missing(sensor_id, "no data yet (warm-up, or Play is off)")
                 continue
             data, intrinsics = payload
+            if freshness is not None:
+                # The reading carries what its step waited for. Before this,
+                # an Observation could say what its pose was and when it was
+                # asked for and nothing at all about whether its payload had
+                # caught up -- which is precisely how a cloud five frames
+                # behind the pose beside it went unnoticed for a week.
+                intrinsics = dict(intrinsics or {})
+                intrinsics["freshness"] = dict(freshness)
             pose = _pose_from_matrix(
                 xform_cache.GetLocalToWorldTransform(prim), self._mpu)
             # ONLY the avatar acts. The contract forbids an action on a FIXED
@@ -1089,6 +1348,7 @@ class Run:
         self.thread: threading.Thread | None = None
         self.exit_code: int | None = None
         self.smoke = 0
+        self.fresh: list[dict] = []
         self.sub = None
 
     # -- setup ------------------------------------------------------------
@@ -1131,7 +1391,9 @@ class Run:
         LIVE.clear()
         LIVE.update(
             stage=stage, registry=registry, created=created,
-            kwargs={"settle_frames": SETTLE_FRAMES,
+            kwargs={"settle_refreshes": SETTLE_REFRESHES,
+                    "settle_frames": LEGACY_SETTLE_FRAMES,
+                    "max_wait_frames": MAX_WAIT_FRAMES,
                     "advance_world": self.walk.at,
                     "action_source": self.walk.action},
         )
@@ -1192,6 +1454,154 @@ class Run:
 
         self.thread = threading.Thread(target=_run, name="contract", daemon=True)
         self.thread.start()
+
+    # -- the freshness verification ---------------------------------------
+    #: How far the avatar walks between steps in freshness mode. Chosen so the
+    #: two boxes are disjoint rather than by feel: 1.2 s at 1.4 m/s on a
+    #: 2.5 m circle is a 1.65 m chord, and the boxes are 1.2 m across.
+    FRESH_DT = 1.2
+    FRESH_STEPS = 8
+    #: Half-width of the box a step's returns are counted in, and the band it
+    #: spans. Same numbers as sim/verify_avatar_pose.py, so the counts here
+    #: and there mean the same thing.
+    FRESH_BOX_HALF = 0.60
+    FRESH_BOX_Z = (0.30, 1.80)
+
+    def start_freshness(self) -> None:
+        """Measure whether a step's payload describes the world that step asked for.
+
+        THE evidence for replacing the settle constant, and it exists because
+        `tests/contract.py` cannot be that evidence: it checks shape, dtype,
+        units, frame and reactivity, and a payload six frames behind the pose
+        beside it satisfies every one of them. So this asks the one question
+        the contract does not.
+
+        The avatar walks a circle. After each `step(dt)` the lidar's cloud is
+        counted in the box the avatar is in NOW against the box it was in one
+        step ago. A source that returns fresh data puts the returns in the
+        first box; a source that hands back whatever buffer happened to be
+        sitting there puts them in the second, and the reading looks
+        completely normal either way -- right density, right extent, genuinely
+        on a body, just not this step's body.
+
+        Both behaviours run in the same session on the same rig: the fixed
+        wait that was replaced, then the refresh wait that replaced it. One
+        arm is not a measurement of the other's absence.
+        """
+        def _run() -> None:
+            try:
+                self.fresh = [self._freshness_arm(*arm) for arm in (
+                    ("replaced: fixed 2-frame settle",
+                     {"settle_frames": 2, "settle_refreshes": 0}),
+                    (f"new: wait for {SETTLE_REFRESHES} buffer refreshes",
+                     {"settle_frames": 0, "settle_refreshes": SETTLE_REFRESHES}),
+                )]
+                self.exit_code = 0 if self._freshness_verdict() else 1
+            except BaseException as exc:                     # noqa: BLE001
+                log("freshness run failed: " + repr(exc))
+                log(traceback.format_exc())
+                self.exit_code = 98
+
+        self.thread = threading.Thread(target=_run, name="freshness", daemon=True)
+        self.thread.start()
+
+    def _box_at(self, xy):
+        h = self.FRESH_BOX_HALF
+        return (Gf.Vec3d(xy[0] - h, xy[1] - h, self.FRESH_BOX_Z[0]),
+                Gf.Vec3d(xy[0] + h, xy[1] + h, self.FRESH_BOX_Z[1]))
+
+    def _freshness_arm(self, name: str, kwargs: dict) -> dict:
+        """One arm: N steps, and where each step's returns actually landed."""
+        log(f"--- freshness arm: {name} ---")
+        source = live_source(**kwargs)
+        lidar_id = next((sid for sid in source.sensor_ids
+                         if source.registry.get(sid).modality in RANGE_MODALITIES
+                         and source.registry.get(sid).mount is MountType.FIXED), None)
+        rows: list[dict] = []
+        try:
+            if lidar_id is None:
+                return {"name": name, "kwargs": kwargs, "rows": [],
+                        "why": "no FIXED range sensor in the registry"}
+            previous = self.walk.position(0.0)
+            for _ in range(self.FRESH_STEPS):
+                observations = source.step(self.FRESH_DT)
+                here = self.walk.position(source.time)
+                obs = next((o for o in observations if o.sensor_id == lidar_id), None)
+                points = None if obs is None else obs.data.get("points")
+                arr = (np.asarray(points)
+                       if points is not None and len(points) else None)
+                intr = (obs.intrinsics or {}) if obs is not None else {}
+                fresh = intr.get("freshness") or {}
+                rows.append({
+                    "t": round(source.time, 3),
+                    "here": [round(v, 3) for v in here],
+                    "there": [round(v, 3) for v in previous],
+                    "returns_here": (0 if arr is None else
+                                     sf.count_in_box(arr, *self._box_at(here), pad=0.0)),
+                    "returns_there": (0 if arr is None else
+                                      sf.count_in_box(arr, *self._box_at(previous), pad=0.0)),
+                    "frame_id": intr.get("frame_id"),
+                    "frames_waited": fresh.get("frames_waited"),
+                    "refreshes_waited": fresh.get("refreshes_waited"),
+                    "wait_complete": fresh.get("wait_complete"),
+                })
+                log(f"  t={rows[-1]['t']:>5}  here={rows[-1]['returns_here']:>5}  "
+                    f"there={rows[-1]['returns_there']:>5}  "
+                    f"frame_id={rows[-1]['frame_id']}  "
+                    f"waited {rows[-1]['frames_waited']} frames / "
+                    f"{rows[-1]['refreshes_waited']} refreshes")
+                previous = here
+        finally:
+            source.close()
+        arm = {"name": name, "kwargs": kwargs, "rows": rows}
+        self.results.write(event="freshness_arm", **arm)
+        return arm
+
+    def _freshness_verdict(self) -> bool:
+        """Print both arms side by side and decide. True == the new behaviour holds."""
+        print("\n" + "=" * 78, flush=True)
+        print("DOES A STEP'S PAYLOAD DESCRIBE THE WORLD THAT STEP ASKED FOR?", flush=True)
+        print("=" * 78, flush=True)
+        ok = True
+        for arm in self.fresh:
+            rows = arm["rows"]
+            if not rows:
+                print(f"  {arm['name']}: {arm.get('why', 'no steps')}", flush=True)
+                continue
+            correct = sum(1 for r in rows if r["returns_here"] > r["returns_there"])
+            frames = [r["frames_waited"] for r in rows if r["frames_waited"] is not None]
+            print(f"\n  {arm['name']}", flush=True)
+            print(f"    {'t':>6}{'here':>8}{'there':>8}{'frame_id':>10}"
+                  f"{'frames':>8}{'refresh':>9}", flush=True)
+            for r in rows:
+                print(f"    {r['t']:>6}{r['returns_here']:>8}{r['returns_there']:>8}"
+                      f"{r['frame_id']!s:>10}{r['frames_waited']!s:>8}"
+                      f"{r['refreshes_waited']!s:>9}", flush=True)
+            print(f"    steps whose returns are at the CURRENT position: "
+                  f"{correct}/{len(rows)}; frames waited "
+                  f"{min(frames) if frames else '-'}..{max(frames) if frames else '-'}",
+                  flush=True)
+            arm["correct"] = correct
+            arm["steps"] = len(rows)
+            arm["frames_waited_range"] = [min(frames), max(frames)] if frames else None
+            # Only the NEW arm is required to hold. The replaced one is
+            # measured, not asserted: it is here to show what was being
+            # replaced, and a run where it happened to get lucky on phase is
+            # not a failure of anything.
+            if arm["kwargs"].get("settle_refreshes"):
+                ok = ok and correct == len(rows)
+        print("\n" + "=" * 78, flush=True)
+        new = next((a for a in self.fresh if a["kwargs"].get("settle_refreshes")), None)
+        old = next((a for a in self.fresh if not a["kwargs"].get("settle_refreshes")), None)
+        if new and old and new.get("steps"):
+            print(f"  replaced behaviour: {old.get('correct')}/{old.get('steps')} steps "
+                  f"current    new behaviour: {new.get('correct')}/{new.get('steps')} "
+                  f"steps current", flush=True)
+        print(f"  FRESHNESS {'HOLDS' if ok else 'DOES NOT HOLD'}", flush=True)
+        print("=" * 78, flush=True)
+        self.results.write(event="freshness_verdict", ok=ok, arms=[
+            {k: v for k, v in a.items() if k != "rows"} for a in self.fresh])
+        return ok
 
     def smoke_step(self) -> bool:
         """Sample a few ticks on this thread and print what arrived.
@@ -1261,6 +1671,9 @@ class Run:
                 if self.warmup():
                     if MODE == "smoke":
                         self.phase = "smoke"
+                    elif MODE == "freshness":
+                        self.start_freshness()
+                        self.phase = "running"
                     else:
                         self.start_contract()
                         self.phase = "running"
@@ -1297,9 +1710,12 @@ class Run:
         if MODE == "contract":
             log("CONTRACT PASSED" if self.exit_code == 0
                 else f"CONTRACT FAILED (pytest exit {self.exit_code})")
+        if MODE == "freshness":
+            log("FRESHNESS PASSED" if self.exit_code == 0
+                else f"FRESHNESS FAILED (exit {self.exit_code})")
         log("DONE")
         self.sub = None
-        omni.kit.app.get_app().post_quit()
+        omni.kit.app.get_app().post_quit(self.exit_code or 0)
 
 
 def main() -> None:
