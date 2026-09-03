@@ -5,6 +5,986 @@ sensor behaviour, environment facts, and performance sessions. **Newest
 first** — a new dated section goes directly under this heading, not at the
 end of the file.
 
+## EMPTY CONTAINERS, AND THE ROBOTS NOW MOVE — 2026-09-02
+
+Conditions: shared host, load 4.5–9.8 (another user's job ramping throughout),
+GPU index 3, exec mode under `runheadless.sh`, `observatory_avatar.usd`.
+Artifacts: `logs/dynamic_robots_push_legs.log`,
+`logs/dynamic_robots_fps_{baseline,with_robots}.log`,
+`logs/dynamic_robots_fps.json`, `logs/dynamic_robots_gui_ready.log`.
+
+### The masses were pricing contents that are not there
+
+The previous table was derived by density -- 127 kg/m³ for a 0.513 m³ carton --
+and every prop on this floor is an **empty** container: cardboard, plastic and
+air. Density is the wrong tool for a shell. Cardboard is priced by **surface**:
+single-wall corrugated is about 0.5 kg/m², double-wall about 0.85.
+
+```
+prop            measured (m)          old      new    derivation
+wet floor sign  0.30 x 0.28 x 0.645   1.0 kg   1.0    folding PP, catalogue weight
+traffic cone    0.34 x 0.33 x 0.463   2.0      2.0    450 mm PVC, weighted base
+plastic tray    0.37 x 0.38 x 0.137   1.0      0.7    ~19 L HDPE crate, empty
+small carton    0.45 x 0.41 x 0.149   1.5      0.4    0.63 m2 single-wall
+medium carton   0.58 x 0.58 x 0.501   8.0      1.1    1.84 m2 single-wall
+large carton    1.02 x 1.00 x 0.503  65.0      3.5    4.07 m2 double-wall
+plastic drum    0.66 x 0.65 x 0.422   8.0      8.0    ~140 L HDPE, empty
+```
+
+**The 65 kg control is gone and has not been reassigned.** Nothing on this
+floor plausibly exceeds the 51 kg stall mass, so any prop set to exceed it
+would be a number invented to make a demo work -- which is what the 65 kg
+carton was, and what the 60 kg drum before it was. A stall control would have
+to be something structurally heavy that is already in the scene (the forklift,
+a stack of pallets), not a hand-set mass on an empty box.
+
+**The consequence, recorded so nobody rediscovers it: the force-cap term of the
+impulse model is now unexercised by the props.** The heaviest object the avatar
+can walk into is the 47 kg H1, which is below the stall mass and therefore
+creeps rather than refuses. Every displacement below is the *uncapped* branch
+of the model plus friction, with one exception noted in the robot table.
+
+Measured with the reviewed table (contact-stop legs, all ten props):
+
+```
+1.0 kg  wet floor sign   0.4225 m   topples 89.5 deg
+2.0     traffic cone     0.6238
+1.0     wet floor sign   0.7727     topples 99.5 deg
+2.0     traffic cone     0.6923
+2.0     traffic cone     0.6964
+0.7     plastic tray     0.4547
+0.4     small carton     0.4173
+1.1     medium carton    0.6315
+3.5     large carton     0.0000     <- see below
+8.0     plastic drum     0.0700
+ --     rack frame       0.0000     0 touches (selectivity, unchanged)
+```
+
+**The 3.5 kg large carton takes three sweep hits and does not move, and it is
+not the model's fault.** A PhysX overlap over its own footprint shows it
+touching `SM_CardBoxD_04_6` (which is pushable and does move),
+`SM_CardBoxD_03_9` and `SM_BottlePlasticD_4` -- and the last two are **not on
+the pushable list**, so they are static walls holding it in place. Across four
+runs it recorded 0.000, 0.015, 0.076 and 0.138 m depending on what earlier legs
+had disturbed. It is displaceable in principle and obstructed in practice.
+Against the gate "every empty prop on the floor is displaceable" that is a
+scope question, not a bug: the two neighbours are empty props on the floor that
+were never declared. Adding them would unwedge it and is a change nobody asked
+for, so it is reported rather than made.
+
+### The robots are dynamic bodies at their real masses
+
+CLAUDE.md's opening invariant and `tasks/SERVER.md` S9 are amended; there is a
+note in `sim/spikes/move_object_exec.py` about which sensors its comparisons
+may still assume are still.
+
+The design is the dynamic proxy, not the shipped articulation. Each robot's own
+physics is switched off -- `pin_robots_static` already disables the
+articulation, and `sim/nav_obstacles.py` now also clears `rigidBodyEnabled` and
+`collisionEnabled` on **48 rigid bodies and 33 colliders** across the three --
+and a single convex proxy carries the mass. The robot's Xform is written from
+the proxy every frame. That is the avatar's own design: capsule is the physics,
+character is the picture, a subscription copies one to the other.
+
+Two properties the proxy needs that a free body does not: rotation about X and
+Y is locked (`physxRigidBody:lockedRotAxis`, bits 1|2) so a 1.8 m capsule does
+not topple and roll, and yaw is left free so a shove can spin the machine.
+
+Nothing is tuned. The masses are what the hardware weighs and the impulse model
+does the rest:
+
+```
+robot                mass   predicted dv/frame   measured displacement
+TurtleBot3 Burger    1 kg   1.38 m/s  uncapped   0.320 m, spun 88.3 deg
+Unitree Go2         15 kg   0.278     capped     0.267 m, spun 23.7 deg
+Unitree H1          47 kg   0.0887    capped     0.015 m, spun  6.9 deg
+```
+
+against 0.0818 m/s per frame taken back by friction. The H1's margin over
+friction is 0.007 m/s -- it is the one object in the scene that comes close to
+the cap and it still creeps rather than refuses, which is the honest answer for
+a 47 kg machine against a 51 kg threshold. The ordering is entirely mass; the
+three legs are otherwise identical.
+
+### Three silent faults on the way, all of them ordering
+
+* **`SetInstanceable(False)` called from inside the `Usd.PrimRange` that is
+  walking the stage.** The robots' colliders live in instance prototypes and
+  USD refuses to author there (`Cannot create property spec ...; authoring to
+  an instance proxy is not allowed`), so they have to be de-instanced first --
+  but mutating during traversal invalidates the iterator, and the result was
+  robots whose **bounding-box centres had moved two kilometres** while their
+  Xform origins had not moved at all. Scattered geometry, no error, and the
+  only visible symptom was a displacement column reading `2016.5371`. Collect
+  the paths, then mutate.
+* **Pressing Play before `pin_robots_static`, twice.** A legged robot with its
+  articulation still enabled collapses within a second, and every bounding box
+  taken afterwards is taken from a heap: the H1 measured 0.532 m tall and its
+  proxy came out 0.70 m for a 1.81 m robot. Caught the first time in the
+  obstacles phase and *reintroduced* in the push phase, because the "phases
+  that own their own timeline" exemption listed phase names and the push phase
+  was not one of them. It is now keyed on the flag that authors robot physics
+  rather than on a list of names.
+* **A patch landed in the wrong class and the run reported plausible numbers
+  for a configuration it was not in.** `DriveBisect.tick` and `FpsRun.tick`
+  open with byte-identical lines, so an anchored edit hit the first one: the
+  frame-rate phase never authored any robot physics under `PP_FIX=1` and
+  produced a complete, internally coherent set of five timings for a scene with
+  no dynamic robots in it. The only thing that gave it away was
+  `"nav_obstacles": 0` in the JSON beside a run that claimed the fix. **Put a
+  count of what a run actually built into its own result**, not just what it
+  was asked to build.
+
+### The frame-rate cost, and the gate that made it reportable
+
+Timing on this box was worthless for most of the day -- load ran from 4.5 to
+15.3 and two runs produced `D_push_walk` *faster* than `C_dyn_walk`, which is
+impossible since D is C plus a callback. The phase now checks its own arms
+against each other (an arm that does strictly more work cannot be faster) and
+marks the run inconsistent; both contaminated runs were discarded on it.
+
+Two consistent runs, baseline first:
+
+```
+arm              no robot changes    with dynamic robots
+A_static_idle       16.72 ms              20.00 ms
+A_static_walk       16.69                 27.03
+B_dyn_idle          16.71                 19.89
+C_dyn_walk          24.67                 31.84
+D_push_walk         33.23                 33.36
+load                4.55-6.57             6.14-9.83
+```
+
+**The cross-run idle delta of +3.28 ms is an upper bound, not a cost.** The
+baseline's first three arms are pinned on the 60 fps app-loop cap, so their
+true cost is below what is shown, and the second run carried about 1.5 more
+load average. What is attributable is *within* the second run: walking through
+the scene costs **+7.03 ms** over standing in it, and the whole pipeline
+(walking, dynamic props, the push callback) costs **+13.36 ms** over idle.
+
+The structural point is worth more than the timing: this change **removes more
+collision geometry than it adds**. Thirty-three shipped robot colliders and
+forty-eight rigid bodies are switched off; four proxies go in. Net **−29
+colliders**, and the three that remain are convex primitives rather than the
+sparse link meshes they replace.
+
+### What still needs a human
+
+Everything below is collide-and-slide, which cannot be exercised headlessly on
+this host (`set_move` is a no-op; the rig walks by `set_position`, which is a
+placement, not a swept move). The state is verified: masses authored, proxies
+in the PhysX scene, follow installed, push callback carrying 13 bodies of which
+3 are robot proxies, `PHYSICS READY` in the GUI.
+
+1. Walk into the Burger. It should skitter and spin.
+2. Walk into the Go2. It should slide.
+3. Walk into the H1. It should barely shift -- centimetres, not metres.
+4. Walk into every prop on the floor. All should displace except the large
+   carton, which is wedged against two undeclared neighbours (above).
+5. Watch a robot camera panel while shoving that robot. The view should move
+   with it and stay coherent -- that is the proxy follow being right, and it is
+   the one thing here that would look wrong immediately if the transform maths
+   were inverted.
+
+---
+
+## THE SUB-2 KG ANOMALY WAS THE TEST RIG — 2026-09-02, and the mass table was wrong too
+
+Conditions: shared host, load 1.2–3.1, GPU index 3, exec mode under
+`runheadless.sh`, `observatory_avatar.usd`, `PP_MASK=0`. New `PP_LEGS=all`
+runs a leg for every declared prop instead of a min/mid/max sample. Artifacts:
+`logs/pushable_all_legs_bbox_stop.log`,
+`logs/pushable_all_legs_contact_stop.log`,
+`logs/pushable_all_legs_reviewed_masses.log`.
+
+### RETRACTED: there was never a sub-2 kg anomaly
+
+The 2026-09-01 entry recorded a 1.2 kg crate that "takes 4.33 N·s and moves
+0.014 m", kept it open across two more sessions, and eliminated the collider
+approximation and neighbour obstruction as causes. **It was the measuring
+rig.** The crate moves 0.31–0.39 m.
+
+What exposed it was running a leg for **every** prop instead of three. The
+sample picked the minimum, a middle and the maximum mass, which meant the three
+2 kg traffic cones — a third of the list, and the mass band either side of the
+one prop that misbehaved — had never been tested at all. Run all ten:
+
+```
+prop                         mass    moved     turned   sweep hits
+S_WetFloorSign_2             1.5 kg  0.2012 m  86.75 deg     0
+S_TrafficCone_2              2.0     0.0000     0.00         0
+S_WetFloorSign2              1.5     0.0000     0.00         0
+S_TrafficCone2               2.0     0.1757     5.08         1
+S_TrafficCone3               2.0     0.1764     3.58         3
+SM_CratePlasticNote_B_03_18  1.2     0.0129     1.97         3
+```
+
+**Three identical cones, same mass, same collider, same approach: two move and
+one does not. Two identical signs: one topples through 87 degrees, one does not
+move.** A mass-dependent effect cannot do that. The `hits` column is the
+answer — the props that did not move recorded **zero sweep hits**. They were
+never touched.
+
+#### Why the rig stopped short
+
+The leg stopped walking when a **bounding-box gap** closed to 0.02 m:
+centre-to-centre distance minus the target's bbox half-extent minus the
+capsule radius. For a box that is about right. For a **tapered or short** prop
+it is badly wrong, because the bbox half-extent is the widest part and the
+capsule touches somewhere else:
+
+* a traffic cone's bbox radius is **0.17 m at its base**, and its radius at the
+  height the capsule's bottom hemisphere actually reaches is nearer **0.05 m**;
+* the capsule's lowest sweep probe is centred at z = 0.325 m with radius
+  0.30 m, so at a 0.14 m crate's height its horizontal reach is 0.16 m, not
+  0.30.
+
+So the walk halted roughly 0.12 m before contact was geometrically possible,
+the sweep never reached, and zero displacement was read as the prop refusing to
+move. Every "anomalous" reading in the two previous entries is this.
+
+**The fix is to stop on contact the callback can see**, not on a bounding box:
+`PushCallback` now counts `hits_by_root`, and a leg ends after six sweep hits
+on its own target (with a hard gap backstop at **−0.05 m**, deliberately past
+zero clearance). The stop condition then uses the same envelope that does the
+pushing, so "did not move" can only mean "was pushed and did not move". Re-run
+unchanged in every other respect:
+
+```
+prop                         mass     moved      turned    touches  stopped on
+S_WetFloorSign_2             1.5 kg   0.2012 m   86.75 deg    0      frames
+S_TrafficCone_2              2.0      0.5718      7.33        3      frames
+S_WetFloorSign2              1.5      0.7639     99.46        2      frames
+S_TrafficCone2               2.0      0.6925     11.55        2      frames
+S_TrafficCone3               2.0      0.6971      9.44        2      frames
+SM_CratePlasticNote_B_03_18  1.2      0.3906     17.65        1      gap
+SM_CardBoxD_04_6             1.5      0.4564     12.32        6      touches
+SM_CardBoxA_3                8.0      0.1380      1.60        6      touches
+SM_CardBoxB_3                4.0      0.5645      1.90        6      touches
+SM_BarelPlastic_C_01_25     60.0      0.0001      0.03        0      gap
+rack frame (static)            --     0.0000      0.00        0      gap
+```
+
+Everything light moves. The crate that was the whole anomaly moves 0.39 m and
+turns 17.6 degrees.
+
+**The lesson is not about props.** A test that stops short of the thing it is
+testing reports the same number as a mechanism that does not work, and this one
+survived two rounds of investigation — including a clean A/B on the collider
+approximation that was measuring nothing on both arms. The A/B was sound and
+its conclusion still holds; it just could not have detected anything either
+way. When a null result is stable to four decimal places across a change that
+should have mattered, suspect the harness before the physics.
+
+### The mass table was wrong, and the drum was the worst of it
+
+Masses had been assigned to produce a demo rather than to describe an object.
+Reviewed against what each prop visually is, at the dimensions measured off the
+stage:
+
+```
+prop              measured (m)          old      new    reasoning
+wet floor sign  0.30 x 0.28 x 0.645    1.5 kg   1.0 kg  folding PP A-frame; ~1 kg spec
+traffic cone    0.34 x 0.33 x 0.463    2.0      2.0     450 mm PVC cone, 1.4-2.5 kg -- kept
+plastic tray    0.37 x 0.38 x 0.137    1.2      1.0     ~19 L empty HDPE crate
+small carton    0.45 x 0.41 x 0.149    1.5      1.5     0.028 m3 -> 54 kg/m3 -- kept
+medium carton   0.58 x 0.58 x 0.501    4.0      8.0     0.168 m3; 4 kg was 24 kg/m3,
+                                                        packing-peanut density
+plastic drum    0.66 x 0.65 x 0.422   60.0      8.0     ~140 L HDPE, EMPTY. 60 kg is what
+                                                        a drum weighs when it is FULL.
+large carton    1.02 x 1.00 x 0.503    8.0     65.0     0.513 m3 -> 127 kg/m3. THE CONTROL.
+```
+
+The 60 kg drum was the one that mattered: an empty plastic drum is 7–10 kg and
+skids when you walk into it, so the demo's one immovable object was the object
+least entitled to be immovable.
+
+**The control is now `SM_CardBoxA_3` at 65 kg**, and it is a better one on
+three counts. It is plausible — 0.513 m³ at 127 kg/m³ is a mid-density packed
+load, lighter than boxed appliances and heavier than boxed clothing. It *looks*
+heavy: it is visibly the largest prop on the floor, so "the big box does not
+move" reads as sense rather than as a bug, which "the drum does not move" did
+not. And the margin holds: 65 kg is 1.27× the 51 kg stall mass, against the
+1.18× of the drum it replaces, which was measured immovable under twelve
+impulses.
+
+Verified with the reviewed table, all ten legs:
+
+```
+1.0 kg  wet floor sign   0.4283 m   topples 88.3 deg
+2.0     traffic cone     0.5857
+1.0     wet floor sign   0.7727     topples 99.5 deg
+2.0     traffic cone     0.6925
+2.0     traffic cone     0.6971
+1.0     plastic tray     0.3122
+1.5     small carton     0.5630
+8.0     medium carton    0.4971
+8.0     plastic drum     0.0622     rocks 15.3 deg -- it moves now
+65.0    large carton     0.0000     3 sweep hits and no motion  <- the control
+ --     rack frame       0.0000     0 hits                      <- selectivity
+```
+
+The control is now touched and immovable rather than untouched and immovable,
+which is the distinction the whole first half of this entry is about.
+
+### PUSHABLE SMALL ROBOTS — what it would take. A trade-off, not a decision
+
+> **DECIDED AND BUILT 2026-09-02 — see "EMPTY CONTAINERS, AND THE ROBOTS NOW
+> MOVE" at the top of this file.** All three robots are dynamic proxies at
+> their real masses, not just BOT_01. The analysis below stands as written and
+> the dynamic-proxy route is the one taken; the conflicts it lists are now
+> amendments in CLAUDE.md and `tasks/SERVER.md` rather than open questions.
+
+Asked for, and deliberately not implemented. The robots are currently static
+colliders: `sim/nav_obstacles.py` gives each one `CollisionAPI` with no rigid
+body, which is a wall with no mass.
+
+**Only BOT_01 is a candidate.** A TurtleBot3 Burger is 0.138 x 0.178 x 0.191 m
+and about 1 kg in reality; a person walking into it would send it skittering,
+and it has wheels, so sliding is its natural failure. BOT_03 is an H1 at
+0.391 x 0.556 x 1.806 m and roughly 47 kg — above the 51 kg stall mass only
+just, and a walking person does not nudge a humanoid aside; it is also the one
+that collapses without a locomotion policy. BOT_02, a Go2 at ~15 kg, is the
+in-between case and would slide, which is arguably wrong for a robot standing
+on four planted legs.
+
+**Two ways to build it, and the cheap one is not the obvious one.**
+
+*Un-pin the shipped articulation.* `sensor_factory.pin_robots_static` makes
+every rigid body kinematic and sets `physxArticulation:articulationEnabled =
+False`; you would leave the base link dynamic. This is the expensive route: the
+articulation is what holds the robot together, an enabled articulation with no
+controller is what collapses the legged robots, and the Burger's wheels become
+free joints that will roll on their own. It also means per-link masses from the
+asset -- 1 kg total, which a 70 kg avatar would launch.
+
+*A dynamic proxy body.* Keep the articulation disabled and make the **nav
+collider** a dynamic rigid body with the robot's real mass, then write the
+robot's Xform from the proxy's pose every frame. This is exactly the avatar's
+own design -- capsule is the physics, character is the picture,
+`install_character_follow` copies one to the other -- and it reuses
+`pushable_props` unchanged: one convex shape, one mass, the same impulse. Cost
+is roughly a day, most of it in the follow and in episode reset.
+
+**What it conflicts with, in increasing order of seriousness.**
+
+1. **`config/scene.yaml` declares `stage_position` per robot** and calls it "the
+   confirmed pose in the Isaac stage". A robot that slides has invalidated its
+   own declaration; the config would need to say that the pose is an initial
+   condition, not a property.
+2. **`config/sensors.yaml` declares the camera's `prim_path` and `mount`.** The
+   path stays valid -- the camera is parented under the robot and travels with
+   it -- so the registry does not break. **And Layer 3 already handles the
+   motion**: `sim/observation_adapter.py` builds a *fresh* `UsdGeom.XformCache`
+   every tick and reads each sensor's local-to-world transform live, so a moved
+   sensor publishes a correct pose rather than a stale one. This is the part
+   that is cheaper than it looks.
+3. **S9's premise: static observation platforms.** The demo's claim is
+   *multiple heterogeneous sensors observing one dynamic element*. A sensor
+   that moves weakens it directly -- a change in the reading can no longer be
+   attributed to the avatar, because the camera may have been shoved. Every
+   frame-to-frame comparison in `move_object_exec.py` rests on the sensor
+   having been still, and it says so.
+4. **CLAUDE.md's opening invariant: "The avatar is the only moving entity" and
+   "Robots do not move."** This is not a code change, it is an amendment to the
+   sentence the project is built on. The file argues that making the robots
+   static *sharpens* the demo by deleting locomotion, teleop and navmesh
+   baking; a pushable robot re-opens none of those, but it does end the
+   invariant.
+5. **Capture mode.** Rule 6 requires recorded sensor extrinsics. A sensor
+   platform that moves must have its pose recorded per frame rather than once
+   per episode, and must be reset between episodes -- the same problem the
+   props have, one layer up, on the instrument rather than the scene.
+
+**The narrowest version, if you want one:** BOT_01 only, dynamic proxy body,
+mass declared at 3-5 kg rather than the asset's 1 kg so it slides rather than
+flies, and `config/scene.yaml` gains a `pushable: true` flag per robot so the
+default stays static and the exception is declared. That keeps BOT_02 and
+BOT_03 as walls, keeps CLAUDE.md's invariant true for everything above knee
+height, and gives the benchmark one movable instrument to reason about. It is
+still an amendment to the invariant and it is still your call.
+
+### One caveat on the two topples
+
+Both wet-floor signs rotate through 88 and 99 degrees — they fall over. That is
+a plausible outcome for a 1 kg folding sign kicked by a walking person, and it
+is worth knowing that it is what the demo will show. `S_WetFloorSign_2` records
+**0 sweep hits** and still moves 0.43 m: that leg is the capsule's own contact
+doing the work, not the callback, so it is not evidence about the impulse model
+either way.
+
+---
+
+## WALKING THROUGH PEOPLE, CLIMBING ONTO BARRELS — 2026-09-02
+
+Conditions: shared host, load 3.4–7.0, GPU index 3, exec mode under
+`runheadless.sh`, `observatory_avatar.usd`. Two new phases of
+`sim/spikes/_diag_pushable.py` (`PP_PHASE=audit`, `PP_PHASE=obstacles`), a new
+module `sim/nav_obstacles.py`, and controller tuning in `sim/avatar.py`.
+Artifacts: `logs/nav_collider_*`, `logs/pushable_push_all_convexhull.log`.
+
+Three GUI symptoms were reported: the avatar walks through the Worker and the
+robots, climbs onto a floor barrel, and gets stuck on some props. They have
+three different causes and **only one of them is what it looked like.**
+
+### 1. The Worker has no collision. The robots do — and it is the wrong shape
+
+The USD audit, traversed correctly, and then PhysX asked directly with an
+overlap box over each prim's own footprint at Play:
+
+```
+                     USD colliders   in the PhysX scene   what they are
+/Root/Worker              0                  0            520 prims, 11 meshes, no physics
+/Root/Robots/BOT_01       5                  5            base, scan, caster, two wheels
+/Root/Robots/BOT_02      25                 25            calves, thighs, feet
+/Root/Robots/BOT_03       3                  3            two ankles and the torso, of 25 links
+```
+
+So "the avatar walks through all four" has two causes. The Worker is a skinned
+character and ships **render geometry with no physics at all**. The robots have
+collision that is *sparse and robot-shaped*: BOT_03 is a humanoid with colliders
+on three of its twenty-five links, BOT_02's are its legs — there is a
+person-sized gap under a quadruped's trunk — and BOT_01 has full coverage and is
+0.19 m tall, which the character controller was climbing straight over (see §2).
+
+**The first version of this audit reported 0 colliders for all three robots and
+was wrong.** `Usd.PrimRange` does not descend into instance prototypes, and a
+referenced robot is mostly instance proxies — BOT_02 is 213 of 283 prims. The
+correct traversal is `Usd.PrimRange(prim, Usd.TraverseInstanceProxies())`, and
+without it a robot reports zero meshes and zero colliders whether or not it has
+any. Two minutes from acting on that number. Now CLAUDE.md failure mode 15.
+
+#### The lidar sees them all, including the one with no collider at all
+
+The brief's premise — "if they have no colliders, the RTX lidar is not seeing
+them either, which is failure mode 1" — is **false here, and measured false.**
+Ray sensors trace the RENDER BVH, not colliders; it is the reason `sim/avatar.py`
+can give the avatar an invisible collision capsule and a visible body with no
+collider and have every sensor see it. Counting INFRA_01_LIDAR returns inside
+each prim's world bbox, points straight out of `sim/observation_adapter.py`
+(so the spherical/sensor-local decode is the shipped one), 290,155 points in
+the cloud:
+
+```
+/Root/Worker         1042 points    <- zero colliders, the best-lit of the four
+/Root/Robots/BOT_03   664
+/Root/Robots/BOT_02   164
+/Root/Robots/BOT_01     0
+```
+
+BOT_01's zero is **geometry, not collision**: a 0.19 m Burger seen from a lidar
+at 2.60 m with a −15..+10° elevation band falls under the band at that range —
+the same blind spot this file already records as "that zone starts at 6.34 m".
+Failure mode 1 is about a prim with no *render* geometry; all four render.
+
+**So the walk-through is a navigation defect, not a sensing defect**, and it was
+never the bigger problem. Worth keeping because the inverse mistake is the
+expensive one: a prim can be perfectly visible to every sensor and completely
+absent from physics, and nothing in either subsystem mentions the other.
+
+#### What was done
+
+`sim/nav_obstacles.py` gives each of the four **one static collider** —
+`CollisionAPI`, no `RigidBodyAPI` — sized from its own measured world bounding
+box and declared in `config/scene.yaml`. Static and not dynamic for three
+reasons, all of them about role: CLAUDE.md says robots do not move; a shoveable
+sensor platform would contradict the one property the demo rests on (a fixed
+sensor that did not move while the world did); and one convex shape is cheaper
+than twenty-five. Verified after the change — all four now report their own
+collider in the PhysX scene.
+
+### 2. The step offset was never the mechanism. `climbingMode` was
+
+Read off the stage, before Play and again after:
+
+```
+step_offset        0.01 m         unchanged by Play
+slope_limit        0.5            = 60 degrees  (it is a COSINE)
+climbing_mode      easy
+non_walkable_mode  preventClimbing
+contact_offset     0.02 m
+```
+
+**The step offset was already 0.01 m while the avatar was riding a 0.42 m
+drum.** It cannot be the mechanism; nothing steps over a 0.42 m obstacle with a
+0.01 m allowance. Two things were, and both are named in the schema:
+
+* **`slopeLimit` is the cosine of the limit angle** (`schema.usda`: "The limit
+  is expressed as the cosine of the desired limit angle. A value of 0 disables
+  this feature"). 0.5 is not a small number, it is **60°**, and *raising* the
+  value makes the controller stricter. Any warehouse prop with a flank under 60°
+  was walkable.
+* **`climbingMode = "easy"`** — PhysX's default — lets the capsule climb over an
+  obstacle from the impact normal **regardless of the step offset**;
+  `constrained` limits climbing to the step offset.
+
+#### The trade-off, made of the scene rather than of intuition
+
+Every collider resting on the floor within 14 m of spawn, by height:
+
+```
+  0.005-0.025 m    9   SM_PaperNote_Small_*     sheets of paper
+  ------------------  nothing between 0.025 and 0.061  ------------------
+  0.061 m          4   SM_BottlePlasticD_*
+  0.080 m          1   SM_CratePlastic_E_03
+  0.137 m          2   SM_CratePlasticNote_B_*
+  0.149 m          1   SM_CardBoxD_04
+  0.211 m         27   SM_PaletteA_*            pallets
+```
+
+There is an **empty band between 0.025 m and 0.061 m** and that is where a step
+offset belongs. `step_offset = 0.04` sits in the middle of it: over all nine
+paper notes, under the bottles, the trays, the crates and every pallet. The
+0.01 m it replaces is *below the paper* — the avatar was being stopped dead by
+sheets of A4, which is the "too low catches on floor decals" failure in its
+literal form. Anything above 0.061 starts levitating over litter and above
+0.137 over the crates. Shipped: `step_offset 0.04`, `slope_limit_deg 40`
+(cos 0.766), `climbing_mode constrained`.
+
+#### And the graph overwrites one of them, every Play
+
+`OgnCharacterController.activate()` constructs
+`CharacterController(path, cam, gravity, 0.01)` and writes
+`GetStepOffsetAttr().Set(0.01)` on 'Simulation Start Play'. It touches
+`stepOffset` and `upAxis` and nothing else, so the slope limit and the climbing
+mode survive on their own and the step offset does not.
+`avatar.install_controller_tuning` re-applies for 120 frames after each PLAY;
+measured after Play with the graph active, the attributes read back 0.04 /
+0.766 / constrained. **That is the attribute, not the behaviour** — see the end
+of this entry.
+
+### 3. Convexification is NOT what the props are doing
+
+Every prop cooked BOTH ways and the collider volumes compared, summed per part
+(taking one hull over the union of a decomposition's vertices just recomputes
+the convex hull, which is how the first pass reported a 16-part decomposition
+and a single hull as identical):
+
+```
+prop                          convexHull   convexDecomposition   ratio   parts
+SM_CardBoxB_3                 0.12485 m3        0.02861 m3       x4.36     16
+SM_CardBoxA_3                 0.21196           0.06585          x3.22     16
+SM_CratePlasticNote_B_03_18   0.00789           0.00314          x2.51     16
+S_WetFloorSign_2 / _2         0.01987           0.00887          x2.24     16
+SM_BarelPlastic_C_01_25       0.05936           0.03510          x1.69     16
+S_TrafficCone_2 / 2 / 3       0.01957           0.01359          x1.44     16
+SM_CardBoxD_04_6              0.01406           0.01406          x1.00      1
+```
+
+The two cartons are the biggest offenders and they are the ones configured as
+`convexHull` — but for an *open* carton the hull is the outer box, which is the
+shape the avatar should walk into. Decomposition would let it walk inside and
+wedge. So the ratio is not by itself an argument to switch.
+
+**The decisive test was the A/B.** Re-running the push legs with `PP_APPROX=convexHull`
+forcing every prop to a single hull, against the shipped mix:
+
+```
+                     shipped (3 decomposed)   all convexHull
+crate  1.2 kg          0.014 m                  0.000 m
+carton 4.0 kg          0.560 m                  0.560 m
+drum  60.0 kg          0.0001 m                 0.0001 m
+rack   static          0.000 m                  0.000 m
+```
+
+Identical, including `impulse_ns_total` to four decimal places (4.3272 vs
+4.3273 on the crate). **The collider approximation changes nothing about the
+sub-2 kg anomaly**, so it is not involved, and there is no measured case for
+changing any prop's approximation. The approximations ship unchanged.
+
+**SUPERSEDED 2026-09-02: the anomaly was the test rig, not the prop — see the
+entry at the top of this file.** The A/B below is sound and its conclusion
+(the approximation is not involved) still holds; what it could not know is that
+both arms were measuring a prop the walk never reached, which is why the two
+arms agreed to four decimal places.
+
+The anomaly itself is still open and one more explanation is now eliminated: an
+overlap over each prop's own footprint shows `SM_CratePlasticNote_B_03_18`
+touching **nothing but `/Root/GroundPlane/CollisionPlane`**, so it is not
+wedged against a neighbour. (`SM_CardBoxA_3` and `SM_CardBoxB_3` do touch other
+props, and both of them move.) Waking it first changed nothing either. A 1.2 kg
+body, awake, unobstructed, receiving 4.33 N·s and moving 0.014 m remains
+unexplained.
+
+The most likely remaining cause of "gets stuck on some props" is the same
+`climbingMode = easy` as §2 — the capsule rides partway up a prop's convex
+flank and wedges when it comes down — which §2 changes. That is a hypothesis
+the fix addresses, not a measurement.
+
+### Four silent traps, all of which cost time in this session
+
+* **`Usd.PrimRange` skips instance prototypes.** A referenced robot reports 0
+  meshes and 0 colliders. CLAUDE.md failure mode 15.
+* **A prim's own Xform scale silently resizes any collider authored under it.**
+  `/Root/Worker`'s Xform is at **0.01**, so a capsule authored there with
+  radius 0.30 came out **9 mm across** — and it existed, its CollisionAPI was
+  enabled, and PhysX reported it in an overlap. Every check said yes. The
+  colliders now live in world space under `/Root/NavObstacles`. CLAUDE.md
+  failure mode 14.
+* **`import observation_adapter` runs its own capture** unless `OA_NO_AUTORUN=1`
+  is set BEFORE the import — the module ends in
+  `if os.environ.get("OA_NO_AUTORUN") != "1": _exec_entrypoint()`. Setting only
+  `SF_NO_AUTORUN` is not enough. The symptom was not a hijacked run but
+  `Stage.GetPrimAtPath(Stage, Path) did not match C++ signature ... SdfPath` —
+  an argument-type error on a correctly typed argument, because the Stage in
+  hand belonged to a context the import had torn down. Nothing named the
+  adapter anywhere in that traceback.
+* **Pressing Play before `pin_robots_static` collapses the legged robots**, and
+  everything measured afterwards is measured from a heap. The H1 read
+  1.569 x 1.572 x **0.532** m spanning z −0.240..0.291 — lying flat, half under
+  the floor — and a nav capsule sized from it was 0.70 m tall for a 1.8 m robot.
+  With the order corrected it reads 0.391 x 0.556 x **1.806** m, which matches
+  the figure `_place_robots.py` recorded in 2026-08. `sim/gui_viewports.py`
+  never had the bug because a human presses Play long afterwards.
+
+And one probe-integrity note worth keeping: **after a Stop/Play inside a run,
+`overlap_box` returned zero hits for 720 frames** — not even
+`/Root/GroundPlane/CollisionPlane`, which lies under every probe box — while
+the timeline played normally. An empty overlap is indistinguishable from "the
+collider is not there", so the ground plane is now used as a sentinel and the
+probe reports itself invalid rather than reporting a result. The fix is applied
+before Play instead.
+
+### Frame cost: below what this rig can measure
+
+Four extra static primitive colliders (two boxes, two capsules) on a stage that
+already carries ~2,000 enabled colliders after the mask. The five-arm phase,
+re-run with the fix on a busier host (load 3.4–5.7 against 2.3–3.1 before):
+
+```
+arm              before      with the fix
+A_static_idle    16.68 ms      19.39 ms
+A_static_walk    16.72         18.58
+B_dyn_idle       16.69         16.76
+C_dyn_walk       27.77         31.76
+D_push_walk      33.21         33.29
+```
+
+**Do not read a cost out of that.** Within the fixed run, `A_static_idle`
+(19.39 ms) came out **slower than `B_dyn_idle`** (16.76 ms), and B does strictly
+more work than A — ten dynamic bodies more. Two arms that differ only by added
+work landing 2.6 ms apart in the wrong direction puts the within-run spread at
+**at least 2.6 ms** on a loaded host, and the nav colliders are somewhere under
+that. Not separable; not worth a bigger claim.
+
+### What still needs a human, and it is all three gates
+
+Every one of these fixes is a change to collide-and-slide behaviour, and
+collide-and-slide **cannot be exercised headlessly on this host** — `set_move`
+is a silent no-op here (measured in the previous entry) and a `set_position`
+walk is a placement, not a swept move. What is measured is the state: the
+colliders are in the PhysX scene, the controller attributes read back tuned,
+the approximations are unchanged and shown irrelevant. What is not measured is
+the walk. Specifically:
+
+1. Walk into the Worker and each of the three robots. Expect to stop.
+2. Walk into the 60 kg barrel. Expect to stop, not to end up on top of it.
+3. Walk over a `SM_PaperNote_Small_*` (5–25 mm) and expect to step over it;
+   walk into an `SM_BottlePlasticD_*` (61 mm) and expect to stop. That pair is
+   the step-offset gate, and 0.04 m sits between them by construction.
+4. Walk into the props that were getting stuck. If they still catch, the cause
+   is not the approximation — that is now excluded — and the next thing to look
+   at is `contact_offset` (0.02 m) and `volume_growth` (1.5).
+
+---
+
+## PUSHABLE PROPS — 2026-09-01, and `set_move` is a silent no-op in exec mode
+
+Conditions: shared host, load 2.3–7.7, GPU index 3, exec mode under
+`runheadless.sh`, `observatory_avatar.usd`. Module `sim/pushable_props.py`,
+config `config/scene.yaml → pushable_props`, spike
+`sim/spikes/_diag_pushable.py` in four phases (`PP_PHASE=enumerate | drive |
+push | fps`). Outputs in `logs/pushable_*`.
+
+### The scene, read rather than assumed
+
+`/Root/Warehouse` has **3,137 direct children**. Filtering to "sits on the
+floor (z_min ≤ 0.40), entirely inside the avatar's 2.2 m reach, under 1.6 m
+across, within 14 m of spawn" leaves **150 candidates** in 18 families,
+computed in **0.88 s** — not the fifteen minutes the collider-mask docstring
+attributes to a bbox pass over the same stage.
+
+Three of those families are traps, which is why the shipped list is config and
+not a predicate: `SM_FloorDecal_RecRed1X*` (5) are **zero-thickness paint on
+the concrete**, `SM_Rackshield_*` (5) are steel guards bolted to the rack feet,
+`SM_PaperNote_Small_*` (9) are 2 cm of paper. All three pass a "small and near
+the floor" filter and none of them should become a rigid body.
+
+**Every candidate has exactly one collider, every one is
+`approximation = "none"` (exact triangle mesh), and none is instanced.**
+Ten were selected by hand; see the config block for which and why.
+
+### PhysX has no dynamic triangle mesh, so "pushable" costs the exact collider
+
+Not a choice. NVIDIA's own `omni.physx.scripts.utils.setCollider`:
+
+```python
+if isMesh and approximationShape == none and isPartOfRigidBody(prim):
+    carb.log_warn("... Resetting approximation shape from none (trimesh) to convexHull")
+```
+
+Authoring the schema directly, as `make_pushable` does, gets the same
+conversion without even the warning. Recorded per prop as
+`approximation_was`. Convex-by-nature props (cartons, cones, drum) take
+`convexHull` and lose nothing; the A-frame signs and the open crate take
+`convexDecomposition` so the concavity survives. This is now CLAUDE.md failure
+mode 13.
+
+### `omni.physx.cct` cannot tell you what you hit
+
+PhysX ships `PxUserControllerHitReport::onShapeHit` and `defaultCCTInteraction`
+for exactly this problem. Omniverse surfaces neither. The CCT event stream
+carries `CctEvent.COLLISION_UP / DOWN / SIDES`, and the payload is
+
+```
+{'collision': bool, 'cctPath': (int, int)}
+```
+
+— a boolean and the controller's own path. **No shape, no normal, no impulse.**
+Read out of the shipped extension (`omni/physxcct/scripts/tests/collisionEvents.py`),
+not inferred. The full interface is fourteen calls and none of them is a hit
+report:
+
+```
+activate_cct  disable_first_person  disable_gravity  enable_custom_gravity
+enable_first_person  enable_gravity  enable_worldspace_move
+get_cct_event_stream  get_controller_height  has_gravity_enabled  remove_cct
+set_controller_height  set_move  set_position
+```
+
+So the hit report is rebuilt from forward sphere sweeps, which do name the
+shape and give a normal.
+
+### `set_move` moves nothing in exec mode, however it is armed
+
+The single most expensive thing in this session. Three full push runs commanded
+2.2 m per leg through `get_physx_cct_interface().set_move()` and measured
+**0.000 m** of capsule displacement, with no error, while `set_position()` on
+the same interface in the same frame placed the capsule exactly where it was
+told and let physics settle its z from 0.900 to 0.895. `PP_PHASE=drive`
+bisected it — five arms, 70 frames each, 1.4 m/s commanded
+(`logs/pushable_drive_bisect.json`):
+
+```
+A  set_move, nothing else                      0.0000 m
+B  + CharacterController.activate() after Play  0.0000 m
+C  + activate_cct(path)                         0.0000 m
+D  + enable_worldspace_move(path, True)         0.0000 m
+E  set_position walked by hand                  1.9806 m
+```
+
+Every call returned cleanly. It is **not** an ordering problem: arms A–D all
+drove `set_move` from a **pre-physics stage update node**, which is where
+NVIDIA's own `update_movement` lives. Arm E is the control and proves the ruler
+works.
+
+**What that costs, stated plainly:** a `set_position` walk is a placement per
+frame, not a swept move, so it does not collide and slide. **This spike
+therefore cannot test "walking into a shelf stops you."** That half of the gate
+belongs to the GUI, where the keyboard drives the controller through its own
+OmniGraph node — the path this project has always used and which is not in
+question. It is the same caveat already recorded here for the S11 contract
+circuit: *"a scripted walk, not CCT collide-and-slide — it says nothing about
+the character controller."*
+
+### An impulse applied to a sleeping body is discarded in silence
+
+`apply_force_at_pos` returns normally, the caller counts an impulse, and
+nothing moves. A prop that has been standing still since Play is asleep by
+definition, which is exactly the state every prop is in the moment you walk
+into it. `IPhysxSimulation` has `is_sleeping` and `wake_up`; `PushCallback`
+now calls them and counts the wakes.
+
+**Honest note: fixing this changed no number here.** It was measured as a
+hypothesis for the 1.2 kg crate below, the wake fired (`woken: 1` per leg), and
+every displacement came back byte-identical. So it is a real trap and it is
+*not* the explanation for that crate. Kept because the alternative is code that
+works by accident on props that happen to be awake.
+
+### The measurement: callback ON vs OFF, same walk, same stopping rule
+
+The walk stops at a **0.02 m clearance** rather than walking through the prop,
+and that is the design of the leg rather than a detail. Walking all the way in
+first, the two arms were indistinguishable:
+
+```
+                     callback ON   callback OFF
+crate  1.2 kg           0.014 m       0.175 m
+carton 4.0 kg           0.676 m       0.496 m
+drum  60.0 kg           0.396 m       0.447 m
+```
+
+The 60 kg drum, which the model says must not move at all, moved 0.4 m in
+**both** arms. That is not the impulse: a `set_position` walk teleports the
+capsule's kinematic actor *into* the prop and PhysX resolves the overlap by
+shoving it, and kinematic wins every such contact regardless of mass. The
+depenetration swamps the term being measured. Stopping short removes it — the
+capsule never overlaps, so nothing but the callback can move anything.
+
+With that rule (`PP_MASK=0`, 5 sweep probes, `logs/pushable_push_callback_*`):
+
+```
+target                        mass    callback OFF          callback ON            impulses
+SM_CratePlasticNote_B_03_18   1.2 kg  0.115 m / 4.15 deg    0.014 m / 0.17 deg     2  (4.33 N.s)
+SM_CardBoxB_3                 4.0 kg  0.000 m / 0.00 deg    0.560 m / 4.69 deg    12 (25.00 N.s)
+SM_BarelPlastic_C_01_25      60.0 kg  0.000 m / 0.00 deg    0.0001 m / 0.03 deg    7 (11.38 N.s)
+SM_RackFrame_4488            static   0.000 m               0.000 m                0
+```
+
+Three of the four legs answer the question:
+
+- **The 4 kg carton is 0.000 m without the callback and 0.560 m with it.** The
+  callback is the entire cause of the motion.
+- **The 60 kg drum takes 7 impulses and 11.38 N·s and moves 0.0001 m.** The
+  force cap holds: at `F_max·dt` the per-frame Δv is 0.069 m/s against
+  0.082 m/s that friction takes back, so it never starts.
+- **The rack frame receives 0 impulses.** It is not a declared prop, so
+  `_pushable_root` returns None and nothing is applied to it. That is the
+  selectivity check a scripted walk *can* make.
+
+Displacement is recorded three ways — Xform origin, world-bbox centre, and
+rotation angle — because a body that tips rather than slides rotates about a
+point near its own origin and would otherwise read as "nothing happened".
+
+### The one leg that does not add up, and it is not explained
+
+> **SUPERSEDED 2026-09-02 — see "THE SUB-2 KG ANOMALY WAS THE TEST RIG" at the
+> top of this file. There was no anomaly.** The leg stopped walking on a
+> bounding-box gap, which for a short or tapered prop halts the capsule before
+> contact is geometrically possible, so this prop was never touched. It moves
+> 0.31-0.39 m when the leg stops on contact instead. The reasoning below is
+> kept because it is a fair account of what the numbers looked like, and
+> because it spent two further sessions eliminating causes of something that
+> was not happening.
+
+The 1.2 kg crate moves **more without the push than with it**, and its own two
+numbers contradict each other. It received 2 impulses totalling 4.33 N·s, which
+is 3.6 m/s on 1.2 kg and should have sent it 1.3 m; it moved 0.014 m and turned
+0.17°, so the impulse did not reach it in any form — not as translation and not
+as rotation. Waking it first changed nothing. And the leg's own gap metric says
+the capsule finished 0.144 m short of it after walking 1.45 m, which is not
+consistent with a prop that moved 0.014 m from a start 1.45 m away.
+
+Two leads, neither tested: it is the only leg whose target uses
+`convexDecomposition` rather than `convexHull`, and it is 0.137 m tall, low
+enough that the capsule's bottom hemisphere reaches only 0.16 m horizontally at
+its height rather than the full 0.30 m radius — which is why it registered 2
+sweep hits where the carton registered 14. **Nothing here supports a conclusion
+about props that small.** Recorded as open.
+
+### The frame-rate cost, and every arm reads the same annotators: none
+
+Five arms, one process, one machine-load epoch, 240 measured frames each, **no
+render product created in the phase at all** — so no arm can acquire a 16 ms
+readback the others do not have (CLAUDE.md failure mode 11). Collider mask ON,
+load 2.29–3.06 throughout (`logs/pushable_fps.json`):
+
+```
+A_static_idle    16.68 ms   59.96 fps    props as shipped, avatar standing
+A_static_walk    16.72 ms   59.80 fps    props as shipped, avatar walking
+B_dyn_idle       16.69 ms   59.92 fps    10 dynamic bodies, avatar standing
+C_dyn_walk       27.77 ms   36.01 fps    10 dynamic bodies, avatar walking through
+D_push_walk      33.21 ms   30.11 fps    ... plus the hit callback
+```
+
+```
+dynamic bodies, standing still   +0.01 ms   free
+dynamic bodies, walked through  +11.05 ms   the solver cost of waking them
+the hit callback                 +5.44 ms   5 sphere sweeps per physics step
+```
+
+**Read the first three as a ceiling, not a measurement.** 16.68 / 16.72 / 16.69
+with a 0.04 ms spread is the signature of the 60 fps app-loop rate limiter, not
+of three coincidentally identical workloads. Their true cost is below the cap
+and invisible, so the two deltas above are **lower bounds** — the real cost of
+walking through the props is at least 11.05 ms, and could be more.
+
+Two things follow:
+
+- **Sleeping is what makes them free.** Ten dynamic bodies standing untouched
+  cost 0.01 ms, because a sleeping body is skipped by the solver entirely.
+  That is why `sleep_threshold` is authored and why the callback wakes a body
+  explicitly instead of the props being kept awake.
+- **The callback's cost is the sweeps, and `n_probes` is the knob.** It was
+  raised from 3 to 5 during this session for small-prop coverage; the 5.44 ms
+  is at 5. It only runs while the avatar is moving
+  (`min_push_speed_ms = 0.05`), which is what keeps the idle arms free.
+
+For scale against what this file already records: physics on the full
+warehouse, headless with no render products and the collider mask on, runs at
+the 60 fps cap. The 50–70 ms/frame figure elsewhere in this file is a GUI
+session with viewports and an RTX lidar, not this configuration.
+
+### Determinism, and what it does to capture mode — a note, not a decision
+
+The physics scene, read off the stage:
+
+```
+/PhysicsScene   timeStepsPerSecond 60   solver TGS   CCD off
+                GPU dynamics off (CPU)  broadphase MBP   stabilization off
+/persistent/physics/numThreads           16
+/plugins/carb.tasking.plugin/threadCount 16
+/persistent/simulation/minFrameRate      30
+/physics/updateToUsd                     True
+```
+
+**Dynamic bodies are not, by themselves, non-reproducible.** PhysX is
+deterministic for the same binary, the same scene, the same call sequence
+**and the same thread count**. What they do is convert knobs that were
+previously harmless into knobs that decide where the boxes end up, and promote
+one hazard that already existed from invisible to consequential.
+
+1. **`minFrameRate = 30`, and a GUI session is already below it.** Rule 6 bans
+   *raising* it in capture mode. With static colliders the existing value did
+   nothing visible; with dynamic bodies the number of physics substeps per
+   rendered frame decides how far a box travels.
+2. **`PHYS_THREADS` is not covered by rule 6, and the Makefile states it cannot
+   change results** — *"the same scene simulates the same way on 16 threads as
+   on 64, only slower or faster."* That was true when nothing moved. PhysX
+   documents determinism per fixed thread count, not across thread counts. The
+   claim needs re-testing or the flag needs pinning for capture runs.
+3. **The collider mask does not interact.** All ten props sit below the 2.2 m
+   mask, so it neither disables them nor is disabled by them. It remains banned
+   in capture mode for its own reasons.
+4. **New, and covered by nothing: the avatar's own timestep.** The driver takes
+   a per-frame *displacement*, so the avatar's speed in simulation time is a
+   function of the render frame rate. Two runs of the same scripted walk on a
+   differently loaded machine put the avatar in different places, and the props
+   are now downstream of that. It is why this spike's legs end on **commanded
+   distance, not frame count** — a capture-mode walk needs the same treatment
+   or a fixed-dt driver.
+5. **Episode reset.** Static colliders reset for free. Dynamic bodies must be
+   restored to authored poses at each episode start. Isaac restores initial
+   state on Stop — the fps phase relies on exactly that between arms — but a
+   benchmark that resets *without* Stop, which is what `set_avatar_pose` exists
+   for, carries the previous episode's box positions into the next one. That is
+   a correctness question before it is a determinism one, and it is arguably
+   the *feature* ("dynamic environment change during navigation") rather than
+   the bug.
+
+Summary, for someone else to decide: **capture mode can keep dynamic props, but
+only with the thread count pinned, the walk driven on a fixed timestep, and the
+per-episode prop poses either reset or recorded.** None of the three is in
+place today.
+
+### What this does not establish
+
+The visual gate — walking into a box moves it, walking into a shelf does not —
+is **not** closed by this session. Half of it is: the props move, the drum does
+not, the rack is never touched. The other half, that the character controller
+*stops* you at the shelf, cannot be tested headlessly because `set_move` does
+not work here, and it is a property of the CCT that `sim/avatar.py` established
+separately. It wants a GUI session and a human.
+
+No sensor was read in any phase; the props' effect on lidar, camera and
+segmentation is untested. The contact-report detector
+(`pushable_props.detector: contact`) was wired and counted but never fired —
+`contact_pairs_with_cct` is 0 in every run — so whether the CCT's internal
+kinematic actor appears in PhysX contact reports at all remains unanswered; the
+sweep detector is what ships.
+
+---
+
 ## THE WALK CYCLE — 2026-08-26, and the shipped clips are on a different skeleton
 
 Conditions: idle host, GPU index 3, exec mode under `runheadless.sh`,

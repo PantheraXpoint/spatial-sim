@@ -1,0 +1,424 @@
+{
+ "stage": "/workspace/sim/observatory_avatar.usd",
+ "with_push_callback": false,
+ "detector": "sweep",
+ "collider_mask": false,
+ "loadavg": "6.92",
+ "physics": {
+  "num_threads": 16,
+  "carb_task_threads": 16,
+  "min_frame_rate": 30,
+  "update_to_usd": true,
+  "fabric_enabled": null,
+  "scenes": [
+   {
+    "path": "/PhysicsScene",
+    "time_steps_per_second": 60,
+    "solver_type": "TGS",
+    "enable_ccd": false,
+    "enable_gpu_dynamics": false,
+    "broadphase_type": "MBP",
+    "enable_stabilization": false
+   }
+  ]
+ },
+ "converted": {
+  "enabled": true,
+  "made": {
+   "/Root/Warehouse/S_WetFloorSign_2": {
+    "prim_path": "/Root/Warehouse/S_WetFloorSign_2",
+    "mass_kg": 1.5,
+    "approximation": "convexDecomposition",
+    "approximation_was": [
+     "none"
+    ],
+    "n_colliders": 1,
+    "note": "folding A-frame sign, 0.30 x 0.28 x 0.64 m, 4.46 m from spawn",
+    "moves_under_push": true,
+    "predicted_dv_ms": 1.3706,
+    "friction_dv_ms": 0.0818
+   },
+   "/Root/Warehouse/S_TrafficCone_2": {
+    "prim_path": "/Root/Warehouse/S_TrafficCone_2",
+    "mass_kg": 2.0,
+    "approximation": "convexHull",
+    "approximation_was": [
+     "none"
+    ],
+    "n_colliders": 1,
+    "note": "cone, 0.34 x 0.33 x 0.46 m, 4.71 m from spawn",
+    "moves_under_push": true,
+    "predicted_dv_ms": 1.3611,
+    "friction_dv_ms": 0.0818
+   },
+   "/Root/Warehouse/S_WetFloorSign2": {
+    "prim_path": "/Root/Warehouse/S_WetFloorSign2",
+    "mass_kg": 1.5,
+    "approximation": "convexDecomposition",
+    "approximation_was": [
+     "none"
+    ],
+    "n_colliders": 1,
+    "note": "folding A-frame sign, 4.78 m from spawn",
+    "moves_under_push": true,
+    "predicted_dv_ms": 1.3706,
+    "friction_dv_ms": 0.0818
+   },
+   "/Root/Warehouse/S_TrafficCone2": {
+    "prim_path": "/Root/Warehouse/S_TrafficCone2",
+    "mass_kg": 2.0,
+    "approximation": "convexHull",
+    "approximation_was": [
+     "none"
+    ],
+    "n_colliders": 1,
+    "note": "cone, 5.06 m from spawn",
+    "moves_under_push": true,
+    "predicted_dv_ms": 1.3611,
+    "friction_dv_ms": 0.0818
+   },
+   "/Root/Warehouse/S_TrafficCone3": {
+    "prim_path": "/Root/Warehouse/S_TrafficCone3",
+    "mass_kg": 2.0,
+    "approximation": "convexHull",
+    "approximation_was": [
+     "none"
+    ],
+    "n_colliders": 1,
+    "note": "cone, 5.28 m from spawn",
+    "moves_under_push": true,
+    "predicted_dv_ms": 1.3611,
+    "friction_dv_ms": 0.0818
+   },
+   "/Root/Warehouse/SM_CratePlasticNote_B_03_18": {
+    "prim_path": "/Root/Warehouse/SM_CratePlasticNote_B_03_18",
+    "mass_kg": 1.2,
+    "approximation": "convexDecomposition",
+    "approximation_was": [
+     "none"
+    ],
+    "n_colliders": 1,
+    "note": "open plastic crate, 0.37 x 0.38 x 0.14 m, 5.49 m from spawn",
+    "moves_under_push": true,
+    "predicted_dv_ms": 1.3764,
+    "friction_dv_ms": 0.0818
+   },
+   "/Root/Warehouse/SM_CardBoxD_04_6": {
+    "prim_path": "/Root/Warehouse/SM_CardBoxD_04_6",
+    "mass_kg": 1.5,
+    "approximation": "convexHull",
+    "approximation_was": [
+     "none"
+    ],
+    "n_colliders": 1,
+    "note": "small carton, 0.45 x 0.41 x 0.15 m, 5.97 m from spawn",
+    "moves_under_push": true,
+    "predicted_dv_ms": 1.3706,
+    "friction_dv_ms": 0.0818
+   },
+   "/Root/Warehouse/SM_CardBoxA_3": {
+    "prim_path": "/Root/Warehouse/SM_CardBoxA_3",
+    "mass_kg": 8.0,
+    "approximation": "convexHull",
+    "approximation_was": [
+     "none"
+    ],
+    "n_colliders": 1,
+    "note": "large carton, 1.02 x 1.00 x 0.50 m, 6.36 m from spawn",
+    "moves_under_push": true,
+    "predicted_dv_ms": 0.5208,
+    "friction_dv_ms": 0.0818
+   },
+   "/Root/Warehouse/SM_CardBoxB_3": {
+    "prim_path": "/Root/Warehouse/SM_CardBoxB_3",
+    "mass_kg": 4.0,
+    "approximation": "convexHull",
+    "approximation_was": [
+     "none"
+    ],
+    "n_colliders": 1,
+    "note": "medium carton, 0.58 x 0.58 x 0.50 m, 7.01 m from spawn",
+    "moves_under_push": true,
+    "predicted_dv_ms": 1.0417,
+    "friction_dv_ms": 0.0818
+   },
+   "/Root/Warehouse/SM_BarelPlastic_C_01_25": {
+    "prim_path": "/Root/Warehouse/SM_BarelPlastic_C_01_25",
+    "mass_kg": 60.0,
+    "approximation": "convexHull",
+    "approximation_was": [
+     "none"
+    ],
+    "n_colliders": 1,
+    "note": "full plastic drum, 0.66 x 0.65 x 0.42 m, 6.81 m from spawn; above the 51 kg stall mass, so the same walk that scatters the cones should leave this one where it is",
+    "moves_under_push": false,
+    "predicted_dv_ms": 0.0694,
+    "friction_dv_ms": 0.0818
+   }
+  },
+  "missing": [],
+  "stall_mass_kg": 50.97,
+  "material": {
+   "prim_path": "/Root/PhysicsMaterials/pushable_prop",
+   "static_friction": 0.6,
+   "dynamic_friction": 0.5,
+   "restitution": 0.0
+  }
+ },
+ "avatar_mass_kg": 70.0,
+ "max_push_force_n": 250.0,
+ "stall_mass_kg": 50.97,
+ "legs": [
+  {
+   "name": "light",
+   "target": "/Root/Warehouse/SM_CratePlasticNote_B_03_18",
+   "mass_kg": 1.2,
+   "target_xy": [
+    -3.0120107613909273,
+    9.776170804145004
+   ],
+   "stand_off_m": 1.45,
+   "target_half_extent_m": 0.192,
+   "commanded_m": 0.957,
+   "walk_frames": 42,
+   "capsule_start": [
+    -3.132704257965088,
+    8.331202507019043,
+    0.8950000405311584
+   ],
+   "gap_m": 0.0163,
+   "stopped_on": "gap",
+   "moved_m": {
+    "/Root/Warehouse/S_WetFloorSign_2": 0.0,
+    "/Root/Warehouse/S_TrafficCone_2": 0.6467,
+    "/Root/Warehouse/S_WetFloorSign2": 0.0,
+    "/Root/Warehouse/S_TrafficCone2": 0.0,
+    "/Root/Warehouse/S_TrafficCone3": 0.0,
+    "/Root/Warehouse/SM_CratePlasticNote_B_03_18": 0.1145,
+    "/Root/Warehouse/SM_CardBoxD_04_6": 0.0,
+    "/Root/Warehouse/SM_CardBoxA_3": 0.0,
+    "/Root/Warehouse/SM_CardBoxB_3": 0.0,
+    "/Root/Warehouse/SM_BarelPlastic_C_01_25": 0.0
+   },
+   "moved_center_m": {
+    "/Root/Warehouse/S_WetFloorSign_2": 0.0,
+    "/Root/Warehouse/S_TrafficCone_2": 0.6467,
+    "/Root/Warehouse/S_WetFloorSign2": 0.0,
+    "/Root/Warehouse/S_TrafficCone2": 0.0,
+    "/Root/Warehouse/S_TrafficCone3": 0.0,
+    "/Root/Warehouse/SM_CratePlasticNote_B_03_18": 0.1151,
+    "/Root/Warehouse/SM_CardBoxD_04_6": 0.0,
+    "/Root/Warehouse/SM_CardBoxA_3": 0.0,
+    "/Root/Warehouse/SM_CardBoxB_3": 0.0,
+    "/Root/Warehouse/SM_BarelPlastic_C_01_25": 0.0
+   },
+   "turned_deg": {
+    "/Root/Warehouse/S_WetFloorSign_2": 0.0,
+    "/Root/Warehouse/S_TrafficCone_2": 5.15,
+    "/Root/Warehouse/S_WetFloorSign2": 0.0,
+    "/Root/Warehouse/S_TrafficCone2": 0.0,
+    "/Root/Warehouse/S_TrafficCone3": 0.0,
+    "/Root/Warehouse/SM_CratePlasticNote_B_03_18": 4.15,
+    "/Root/Warehouse/SM_CardBoxD_04_6": 0.0,
+    "/Root/Warehouse/SM_CardBoxA_3": 0.0,
+    "/Root/Warehouse/SM_CardBoxB_3": 0.0,
+    "/Root/Warehouse/SM_BarelPlastic_C_01_25": 0.0
+   },
+   "target_moved_m": 0.1145,
+   "target_moved_center_m": 0.1151,
+   "target_turned_deg": 4.15,
+   "capsule_travelled_m": 0.956,
+   "capsule_blocked": false
+  },
+  {
+   "name": "mid",
+   "target": "/Root/Warehouse/SM_CardBoxB_3",
+   "mass_kg": 4.0,
+   "target_xy": [
+    -4.473796525667801,
+    11.246586549493584
+   ],
+   "stand_off_m": 1.45,
+   "target_half_extent_m": 0.29,
+   "commanded_m": 0.863,
+   "walk_frames": 38,
+   "capsule_start": [
+    -4.266073703765869,
+    9.811542510986328,
+    0.8950002193450928
+   ],
+   "gap_m": -0.0033,
+   "stopped_on": "gap",
+   "moved_m": {
+    "/Root/Warehouse/S_WetFloorSign_2": 0.0,
+    "/Root/Warehouse/S_TrafficCone_2": 0.0,
+    "/Root/Warehouse/S_WetFloorSign2": 0.0,
+    "/Root/Warehouse/S_TrafficCone2": 0.0,
+    "/Root/Warehouse/S_TrafficCone3": 0.0,
+    "/Root/Warehouse/SM_CratePlasticNote_B_03_18": 0.0,
+    "/Root/Warehouse/SM_CardBoxD_04_6": 0.0,
+    "/Root/Warehouse/SM_CardBoxA_3": 0.0,
+    "/Root/Warehouse/SM_CardBoxB_3": 0.0,
+    "/Root/Warehouse/SM_BarelPlastic_C_01_25": 0.0
+   },
+   "moved_center_m": {
+    "/Root/Warehouse/S_WetFloorSign_2": 0.0,
+    "/Root/Warehouse/S_TrafficCone_2": 0.0,
+    "/Root/Warehouse/S_WetFloorSign2": 0.0,
+    "/Root/Warehouse/S_TrafficCone2": 0.0,
+    "/Root/Warehouse/S_TrafficCone3": 0.0,
+    "/Root/Warehouse/SM_CratePlasticNote_B_03_18": 0.0,
+    "/Root/Warehouse/SM_CardBoxD_04_6": 0.0,
+    "/Root/Warehouse/SM_CardBoxA_3": 0.0,
+    "/Root/Warehouse/SM_CardBoxB_3": 0.0,
+    "/Root/Warehouse/SM_BarelPlastic_C_01_25": 0.0
+   },
+   "turned_deg": {
+    "/Root/Warehouse/S_WetFloorSign_2": 0.0,
+    "/Root/Warehouse/S_TrafficCone_2": 0.0,
+    "/Root/Warehouse/S_WetFloorSign2": 0.0,
+    "/Root/Warehouse/S_TrafficCone2": 0.0,
+    "/Root/Warehouse/S_TrafficCone3": 0.0,
+    "/Root/Warehouse/SM_CratePlasticNote_B_03_18": 0.0,
+    "/Root/Warehouse/SM_CardBoxD_04_6": 0.0,
+    "/Root/Warehouse/SM_CardBoxA_3": 0.0,
+    "/Root/Warehouse/SM_CardBoxB_3": 0.0,
+    "/Root/Warehouse/SM_BarelPlastic_C_01_25": 0.0
+   },
+   "target_moved_m": 0.0,
+   "target_moved_center_m": 0.0,
+   "target_turned_deg": 0.0,
+   "capsule_travelled_m": 0.863,
+   "capsule_blocked": false
+  },
+  {
+   "name": "heavy",
+   "target": "/Root/Warehouse/SM_BarelPlastic_C_01_25",
+   "mass_kg": 60.0,
+   "target_xy": [
+    -2.089181595420885,
+    10.951767311535118
+   ],
+   "stand_off_m": 1.45,
+   "target_half_extent_m": 0.355,
+   "commanded_m": 0.793,
+   "walk_frames": 35,
+   "capsule_start": [
+    -2.3839070796966553,
+    9.532035827636719,
+    0.8949999809265137
+   ],
+   "gap_m": 0.0026,
+   "stopped_on": "gap",
+   "moved_m": {
+    "/Root/Warehouse/S_WetFloorSign_2": 0.0,
+    "/Root/Warehouse/S_TrafficCone_2": 0.0,
+    "/Root/Warehouse/S_WetFloorSign2": 0.0,
+    "/Root/Warehouse/S_TrafficCone2": 0.0,
+    "/Root/Warehouse/S_TrafficCone3": 0.0,
+    "/Root/Warehouse/SM_CratePlasticNote_B_03_18": 0.0,
+    "/Root/Warehouse/SM_CardBoxD_04_6": 0.0,
+    "/Root/Warehouse/SM_CardBoxA_3": 0.0,
+    "/Root/Warehouse/SM_CardBoxB_3": 0.0,
+    "/Root/Warehouse/SM_BarelPlastic_C_01_25": 0.0
+   },
+   "moved_center_m": {
+    "/Root/Warehouse/S_WetFloorSign_2": 0.0,
+    "/Root/Warehouse/S_TrafficCone_2": 0.0,
+    "/Root/Warehouse/S_WetFloorSign2": 0.0,
+    "/Root/Warehouse/S_TrafficCone2": 0.0,
+    "/Root/Warehouse/S_TrafficCone3": 0.0,
+    "/Root/Warehouse/SM_CratePlasticNote_B_03_18": 0.0,
+    "/Root/Warehouse/SM_CardBoxD_04_6": 0.0,
+    "/Root/Warehouse/SM_CardBoxA_3": 0.0,
+    "/Root/Warehouse/SM_CardBoxB_3": 0.0,
+    "/Root/Warehouse/SM_BarelPlastic_C_01_25": 0.0
+   },
+   "turned_deg": {
+    "/Root/Warehouse/S_WetFloorSign_2": 0.0,
+    "/Root/Warehouse/S_TrafficCone_2": 0.0,
+    "/Root/Warehouse/S_WetFloorSign2": 0.0,
+    "/Root/Warehouse/S_TrafficCone2": 0.0,
+    "/Root/Warehouse/S_TrafficCone3": 0.0,
+    "/Root/Warehouse/SM_CratePlasticNote_B_03_18": 0.0,
+    "/Root/Warehouse/SM_CardBoxD_04_6": 0.0,
+    "/Root/Warehouse/SM_CardBoxA_3": 0.0,
+    "/Root/Warehouse/SM_CardBoxB_3": 0.0,
+    "/Root/Warehouse/SM_BarelPlastic_C_01_25": 0.0
+   },
+   "target_moved_m": 0.0,
+   "target_moved_center_m": 0.0,
+   "target_turned_deg": 0.0,
+   "capsule_travelled_m": 0.792,
+   "capsule_blocked": false
+  },
+  {
+   "name": "rack_selectivity",
+   "target": "/Root/Warehouse/SM_RackFrame_4488",
+   "mass_kg": null,
+   "target_xy": [
+    -5.500003662092019,
+    8.798941798198204
+   ],
+   "stand_off_m": 1.45,
+   "target_half_extent_m": 0.5,
+   "commanded_m": 0.63,
+   "walk_frames": 28,
+   "capsule_start": [
+    -4.902841091156006,
+    7.4776177406311035,
+    0.8950002193450928
+   ],
+   "gap_m": 0.02,
+   "stopped_on": "gap",
+   "moved_m": {
+    "/Root/Warehouse/S_WetFloorSign_2": 0.0,
+    "/Root/Warehouse/S_TrafficCone_2": 0.0,
+    "/Root/Warehouse/S_WetFloorSign2": 0.0,
+    "/Root/Warehouse/S_TrafficCone2": 0.0,
+    "/Root/Warehouse/S_TrafficCone3": 0.0,
+    "/Root/Warehouse/SM_CratePlasticNote_B_03_18": 0.0,
+    "/Root/Warehouse/SM_CardBoxD_04_6": 0.0,
+    "/Root/Warehouse/SM_CardBoxA_3": 0.0,
+    "/Root/Warehouse/SM_CardBoxB_3": 0.0,
+    "/Root/Warehouse/SM_BarelPlastic_C_01_25": 0.0,
+    "/Root/Warehouse/SM_RackFrame_4488": 0.0
+   },
+   "moved_center_m": {
+    "/Root/Warehouse/S_WetFloorSign_2": 0.0,
+    "/Root/Warehouse/S_TrafficCone_2": 0.0,
+    "/Root/Warehouse/S_WetFloorSign2": 0.0,
+    "/Root/Warehouse/S_TrafficCone2": 0.0,
+    "/Root/Warehouse/S_TrafficCone3": 0.0,
+    "/Root/Warehouse/SM_CratePlasticNote_B_03_18": 0.0,
+    "/Root/Warehouse/SM_CardBoxD_04_6": 0.0,
+    "/Root/Warehouse/SM_CardBoxA_3": 0.0,
+    "/Root/Warehouse/SM_CardBoxB_3": 0.0,
+    "/Root/Warehouse/SM_BarelPlastic_C_01_25": 0.0,
+    "/Root/Warehouse/SM_RackFrame_4488": 0.0
+   },
+   "turned_deg": {
+    "/Root/Warehouse/S_WetFloorSign_2": 0.0,
+    "/Root/Warehouse/S_TrafficCone_2": 0.0,
+    "/Root/Warehouse/S_WetFloorSign2": 0.0,
+    "/Root/Warehouse/S_TrafficCone2": 0.0,
+    "/Root/Warehouse/S_TrafficCone3": 0.0,
+    "/Root/Warehouse/SM_CratePlasticNote_B_03_18": 0.0,
+    "/Root/Warehouse/SM_CardBoxD_04_6": 0.0,
+    "/Root/Warehouse/SM_CardBoxA_3": 0.0,
+    "/Root/Warehouse/SM_CardBoxB_3": 0.0,
+    "/Root/Warehouse/SM_BarelPlastic_C_01_25": 0.0,
+    "/Root/Warehouse/SM_RackFrame_4488": 0.0
+   },
+   "target_moved_m": 0.0,
+   "target_moved_center_m": 0.0,
+   "target_turned_deg": 0.0,
+   "capsule_travelled_m": 0.63,
+   "capsule_blocked": false
+  }
+ ],
+ "push_stats_total": null,
+ "push_notes": null,
+ "shots": [],
+ "reads_annotators": false
+}

@@ -328,11 +328,17 @@ Goal: new machine → `git clone` → `docker compose up` → working.
 
 ```
 config/sensors.yaml   THE registry — every sensor declared once
-config/scene.yaml     environments, offsets, avatar, robot poses
+config/scene.yaml     environments, offsets, avatar, robot poses, pushable props
 core/                 Layers 3–4. NO simulator imports. Runs anywhere.
 core/observation.py   the Observation type and the ObservationSource protocol
 core/mock_source.py   synthetic source — the whole stack, no GPU, no simulator
 sim/                  Layers 1–2. Isaac-specific. Server only.
+sim/pushable_props.py floor props the avatar can shove, and the impulse that
+                      does it — PhysX character controllers do not push
+                      dynamic bodies on their own
+sim/nav_obstacles.py  collision for the Worker (static) and the robots
+                      (dynamic proxies at their real masses — they can be
+                      shoved; see the amendment at the top of CLAUDE.md)
 ext/                  the custom omni.ui inspector panel (build last)
 scenes/              saved USD (build artifacts)
 tests/               runnable on the MacBook

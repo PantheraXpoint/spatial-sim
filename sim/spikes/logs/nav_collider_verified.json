@@ -1,0 +1,390 @@
+{
+ "stage": "/workspace/sim/observatory_avatar.usd",
+ "physics": {
+  "num_threads": 16,
+  "carb_task_threads": 16,
+  "min_frame_rate": 30,
+  "update_to_usd": true,
+  "fabric_enabled": null,
+  "scenes": [
+   {
+    "path": "/PhysicsScene",
+    "time_steps_per_second": 60,
+    "solver_type": "TGS",
+    "enable_ccd": false,
+    "enable_gpu_dynamics": false,
+    "broadphase_type": "MBP",
+    "enable_stabilization": false
+   }
+  ]
+ },
+ "nav": {
+  "enabled": true,
+  "made": {
+   "/Root/Worker": {
+    "prim_path": "/Root/Worker",
+    "collider": "/Root/NavObstacles/Root_Worker",
+    "shape": "capsule",
+    "dims": {
+     "radius": 0.3,
+     "height": 1.339,
+     "total_height": 1.939,
+     "radius_source": "declared"
+    },
+    "target_xform_scale": [
+     0.01,
+     0.01,
+     0.01
+    ],
+    "existing_live_colliders": 0,
+    "world_bbox_size": [
+     1.918,
+     1.454,
+     1.939
+    ],
+    "rigid_body_ancestor": null,
+    "note": "skinned character, zero colliders, 11 render meshes; the lidar's best-lit target on the stage and completely absent from physics"
+   },
+   "/Root/Robots/BOT_01": {
+    "prim_path": "/Root/Robots/BOT_01",
+    "collider": "/Root/NavObstacles/Root_Robots_BOT_01",
+    "shape": "box",
+    "dims": {
+     "half_extent": [
+      0.0585,
+      0.0758,
+      0.0956
+     ]
+    },
+    "target_xform_scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "existing_live_colliders": 5,
+    "world_bbox_size": [
+     0.138,
+     0.178,
+     0.191
+    ],
+    "rigid_body_ancestor": null,
+    "note": "TurtleBot3 Burger, 0.19 m tall; has full link collision already, the box is what stops the avatar walking over the top of it"
+   },
+   "/Root/Robots/BOT_02": {
+    "prim_path": "/Root/Robots/BOT_02",
+    "collider": "/Root/NavObstacles/Root_Robots_BOT_02",
+    "shape": "box",
+    "dims": {
+     "half_extent": [
+      0.2439,
+      0.1377,
+      0.2689
+     ]
+    },
+    "target_xform_scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "existing_live_colliders": 25,
+    "world_bbox_size": [
+     0.574,
+     0.324,
+     0.538
+    ],
+    "rigid_body_ancestor": null,
+    "note": "Go2 quadruped; shipped collision is calves, thighs and feet, so there is a person-sized gap under the trunk"
+   },
+   "/Root/Robots/BOT_03": {
+    "prim_path": "/Root/Robots/BOT_03",
+    "collider": "/Root/NavObstacles/Root_Robots_BOT_03",
+    "shape": "capsule",
+    "dims": {
+     "radius": 0.3,
+     "height": 1.206,
+     "total_height": 1.806,
+     "radius_source": "declared"
+    },
+    "target_xform_scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "existing_live_colliders": 3,
+    "world_bbox_size": [
+     0.391,
+     0.556,
+     1.806
+    ],
+    "rigid_body_ancestor": null,
+    "note": "H1 humanoid, 25 links and colliders on three of them (two ankles and the torso); a capsule is the honest shape for a standing biped"
+   }
+  },
+  "missing": [],
+  "footprint_scale": 0.85
+ },
+ "bboxes_at_pin": {
+  "/Root/Worker": [
+   1.918,
+   1.454,
+   1.939
+  ],
+  "/Root/Robots/BOT_01": [
+   0.138,
+   0.178,
+   0.191
+  ],
+  "/Root/Robots/BOT_02": [
+   0.574,
+   0.324,
+   0.538
+  ],
+  "/Root/Robots/BOT_03": [
+   0.391,
+   0.556,
+   1.806
+  ]
+ },
+ "sensors": {
+  "INFRA_01_CAM": "camera",
+  "INFRA_01_LIDAR": "lidar",
+  "BOT_01_CAM": "camera",
+  "BOT_02_CAM": "camera",
+  "BOT_03_CAM": "camera",
+  "AVATAR_CAM_FP": "camera",
+  "AVATAR_CAM_TP": "camera"
+ },
+ "physics_probe": {
+  "/Root/Worker": {
+   "overlap_hits": 2,
+   "own_colliders_in_scene": 1,
+   "example_paths": [
+    "/Root/NavObstacles/Root_Worker",
+    "/Root/GroundPlane/CollisionPlane"
+   ],
+   "saw_ground_plane": true,
+   "verdict": "PhysX HAS its collider -- the avatar should be stopped by it"
+  },
+  "/Root/Robots/BOT_01": {
+   "overlap_hits": 7,
+   "own_colliders_in_scene": 6,
+   "example_paths": [
+    "/Root/NavObstacles/Root_Robots_BOT_01",
+    "/Root/GroundPlane/CollisionPlane",
+    "/Root/Robots/BOT_01/base_scan/collisions/mesh_0/cylinder",
+    "/Root/Robots/BOT_01/base_link/collisions/mesh_0/box",
+    "/Root/Robots/BOT_01/caster_back_link/collisions/mesh_0/box",
+    "/Root/Robots/BOT_01/wheel_left_link/collisions/mesh_0/cylinder",
+    "/Root/Robots/BOT_01/wheel_right_link/collisions/mesh_0/cylinder"
+   ],
+   "saw_ground_plane": true,
+   "verdict": "PhysX HAS its collider -- the avatar should be stopped by it"
+  },
+  "/Root/Robots/BOT_02": {
+   "overlap_hits": 27,
+   "own_colliders_in_scene": 26,
+   "example_paths": [
+    "/Root/NavObstacles/Root_Robots_BOT_02",
+    "/Root/GroundPlane/CollisionPlane",
+    "/Root/Robots/BOT_02/FL_hip/collisions/mesh_0/cylinder",
+    "/Root/Robots/BOT_02/FL_thigh/collisions/mesh_0/box",
+    "/Root/Robots/BOT_02/FR_hip/collisions/mesh_0/cylinder",
+    "/Root/Robots/BOT_02/FR_thigh/collisions/mesh_0/box",
+    "/Root/Robots/BOT_02/FL_calf/collisions/mesh_0/cylinder",
+    "/Root/Robots/BOT_02/FL_calf/collisions/mesh_1/cylinder",
+    "/Root/Robots/BOT_02/FL_calf/collisions/mesh_2/cylinder",
+    "/Root/Robots/BOT_02/FL_foot/collisions/mesh_0/sphere",
+    "/Root/Robots/BOT_02/FR_calf/collisions/mesh_2/cylinder",
+    "/Root/Robots/BOT_02/FR_foot/collisions/mesh_0/sphere"
+   ],
+   "saw_ground_plane": true,
+   "verdict": "PhysX HAS its collider -- the avatar should be stopped by it"
+  },
+  "/Root/Robots/BOT_03": {
+   "overlap_hits": 5,
+   "own_colliders_in_scene": 4,
+   "example_paths": [
+    "/Root/NavObstacles/Root_Robots_BOT_03",
+    "/Root/GroundPlane/CollisionPlane",
+    "/Root/Robots/BOT_03/left_ankle_link/collisions/collisions",
+    "/Root/Robots/BOT_03/right_ankle_link/collisions/collisions",
+    "/Root/Robots/BOT_03/torso_link/collisions/collisions"
+   ],
+   "saw_ground_plane": true,
+   "verdict": "PhysX HAS its collider -- the avatar should be stopped by it"
+  }
+ },
+ "lidar_probe": {
+  "/Root/Worker": {
+   "lidar_points_in_bbox": 1042
+  },
+  "/Root/Robots/BOT_01": {
+   "lidar_points_in_bbox": 0
+  },
+  "/Root/Robots/BOT_02": {
+   "lidar_points_in_bbox": 164
+  },
+  "/Root/Robots/BOT_03": {
+   "lidar_points_in_bbox": 664
+  }
+ },
+ "lidar_points_total": 290142,
+ "neighbours": {
+  "/Root/Warehouse/S_WetFloorSign_2": {
+   "mass_kg": 1.5,
+   "touching": [
+    "/Root/GroundPlane/CollisionPlane"
+   ]
+  },
+  "/Root/Warehouse/S_TrafficCone_2": {
+   "mass_kg": 2.0,
+   "touching": [
+    "/Root/GroundPlane/CollisionPlane"
+   ]
+  },
+  "/Root/Warehouse/S_WetFloorSign2": {
+   "mass_kg": 1.5,
+   "touching": [
+    "/Root/GroundPlane/CollisionPlane"
+   ]
+  },
+  "/Root/Warehouse/S_TrafficCone2": {
+   "mass_kg": 2.0,
+   "touching": [
+    "/Root/GroundPlane/CollisionPlane"
+   ]
+  },
+  "/Root/Warehouse/S_TrafficCone3": {
+   "mass_kg": 2.0,
+   "touching": [
+    "/Root/GroundPlane/CollisionPlane"
+   ]
+  },
+  "/Root/Warehouse/SM_CratePlasticNote_B_03_18": {
+   "mass_kg": 1.2,
+   "touching": [
+    "/Root/GroundPlane/CollisionPlane"
+   ]
+  },
+  "/Root/Warehouse/SM_CardBoxD_04_6": {
+   "mass_kg": 1.5,
+   "touching": [
+    "/Root/GroundPlane/CollisionPlane"
+   ]
+  },
+  "/Root/Warehouse/SM_CardBoxA_3": {
+   "mass_kg": 8.0,
+   "touching": [
+    "/Root/Warehouse/SM_CardBoxD_04_6/SM_CardBoxD_04",
+    "/Root/Warehouse/SM_CardBoxD_03_9/SM_CardBoxD_03",
+    "/Root/Warehouse/SM_BottlePlasticD_4/SM_BottlePlasticD_02",
+    "/Root/GroundPlane/CollisionPlane"
+   ]
+  },
+  "/Root/Warehouse/SM_CardBoxB_3": {
+   "mass_kg": 4.0,
+   "touching": [
+    "/Root/Warehouse/SM_BarelPlastic_C_2/SM_BarelPlastic_C_01",
+    "/Root/Warehouse/SM_BottlePlasticD_3/SM_BottlePlasticD_01",
+    "/Root/GroundPlane/CollisionPlane"
+   ]
+  },
+  "/Root/Warehouse/SM_BarelPlastic_C_01_25": {
+   "mass_kg": 60.0,
+   "touching": [
+    "/Root/Warehouse/SM_PaperNote_Small_18/SM_PaperNote_Small_15",
+    "/Root/Warehouse/SM_PaperNote_Small_09_72/SM_PaperNote_Small_09",
+    "/Root/Warehouse/SM_PaperNote_Small_15/SM_PaperNote_Small_15",
+    "/Root/GroundPlane/CollisionPlane"
+   ]
+  }
+ },
+ "nav_check": {
+  "/Root/NavObstacles/Root_Worker": {
+   "exists": true,
+   "type": "Capsule",
+   "has_collision_api": true,
+   "collision_enabled": true,
+   "world_bbox": {
+    "min": [
+     -2.05,
+     6.466,
+     -0.124
+    ],
+    "max": [
+     -1.45,
+     7.066,
+     1.815
+    ]
+   },
+   "physx_reported_it": true
+  },
+  "/Root/NavObstacles/Root_Robots_BOT_01": {
+   "exists": true,
+   "type": "Cube",
+   "has_collision_api": true,
+   "collision_enabled": true,
+   "world_bbox": {
+    "min": [
+     0.758,
+     6.687,
+     -0.0
+    ],
+    "max": [
+     0.874,
+     6.839,
+     0.191
+    ]
+   },
+   "physx_reported_it": true
+  },
+  "/Root/NavObstacles/Root_Robots_BOT_02": {
+   "exists": true,
+   "type": "Cube",
+   "has_collision_api": true,
+   "collision_enabled": true,
+   "world_bbox": {
+    "min": [
+     -4.203,
+     7.925,
+     -0.0
+    ],
+    "max": [
+     -3.715,
+     8.201,
+     0.538
+    ]
+   },
+   "physx_reported_it": true
+  },
+  "/Root/NavObstacles/Root_Robots_BOT_03": {
+   "exists": true,
+   "type": "Capsule",
+   "has_collision_api": true,
+   "collision_enabled": true,
+   "world_bbox": {
+    "min": [
+     -4.52,
+     6.011,
+     0.0
+    ],
+    "max": [
+     -3.92,
+     6.611,
+     1.806
+    ]
+   },
+   "physx_reported_it": true
+  }
+ },
+ "cct": {
+  "step_offset": 0.03999999910593033,
+  "slope_limit": 0.7660444378852844,
+  "climbing_mode": "constrained",
+  "non_walkable_mode": "preventClimbing",
+  "slope_limit_deg": 40.0
+ },
+ "loadavg": "3.40",
+ "reads_annotators": true,
+ "note": "the lidar count is what settles whether a prim with no collider is also invisible to sensors. Points are world metres straight out of sim/observation_adapter.py, so the spherical/sensor-local decode is the shipped one and not re-derived here."
+}

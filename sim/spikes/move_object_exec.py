@@ -68,6 +68,35 @@ sample. `IsaacObservationSource.missing_payloads()` is the gate, and the
 verdict records whether it ever cleared so an empty run reports itself vacuous
 rather than green.
 
+Which sensors this file may assume are still — AMENDED 2026-09-02
+-------------------------------------------------------------------
+Every comparison here is frame-to-frame: the object moved, the sensor did not,
+therefore the change in the reading is the object. **That argument now holds
+for the station sensors only.**
+
+`sim/nav_obstacles.py` makes the three robots dynamic rigid bodies at their
+real masses, so the avatar can shove them, and a shoved robot has taken its
+camera with it. The reading from `BOT_01_CAM`, `BOT_02_CAM` or `BOT_03_CAM` can
+therefore change because the sensor moved rather than because the world did,
+and nothing in this file would notice the difference.
+
+* **Safe:** `INFRA_01_CAM`, `INFRA_01_LIDAR` and anything else hanging off a
+  station Xform. Those are fixed to the building and nothing in the scene can
+  displace them.
+* **Not safe without a check:** the three robot cameras.
+
+This run does not currently touch the robots -- it moves warehouse props with
+the avatar parked -- so its published numbers stand. The constraint is on
+whoever extends it: if a future arm walks the avatar, or the run is repeated
+after a GUI session in which somebody shoved a robot, then either restrict the
+comparison to the station sensors or record each sensor's pose per frame and
+reject any arm in which a sensor moved. `sim/observation_adapter.py` publishes
+that pose live (a fresh `UsdGeom.XformCache` every tick), so the check is a
+comparison, not new plumbing.
+
+`GUI_NAV_OBSTACLES=0` restores static robots for a session that needs the old
+guarantee.
+
 Nothing here is a coordinate somebody typed (hard rule 1)
 ----------------------------------------------------------
 The object is not named in this file. Candidates are found by reading the

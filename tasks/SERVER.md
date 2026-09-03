@@ -336,13 +336,33 @@ that the avatar is physically real to the sensors.
 
 **[YOU]:** place TurtleBot3 Burger (~0.2 m), Unitree Go2 (~0.4 m), Unitree H1
 (~1.7 m). Note real prim paths. Legged robots **collapse on spawn** without a
-locomotion policy — that is why they are static here. Confirm they stay upright.
+locomotion policy — that is why their articulations are disabled. Confirm they
+stay upright.
 
 **[CC]:** add three RGB-D cameras from the registry at the confirmed paths.
 
 **Gate:** three panels at three heights. The ceiling camera sees your top, the
 Go2 sees your legs, the humanoid sees your face. Same event, radically different
 observations — that contrast *is* the point of this task.
+
+> **AMENDED 2026-09-02 — the platforms are no longer static.** Each robot now
+> carries a dynamic physics proxy at its real hardware mass (1 / 15 / 47 kg,
+> `sim/nav_obstacles.py`), so walking into one displaces it. The articulation
+> stays disabled and the robot is written from its proxy every frame, so
+> nothing has become self-propelled and nothing collapses.
+>
+> **What this task's gate now has to say out loud:** the three heights are an
+> initial condition, not a constant. The contrast between 0.2 m, 0.4 m and
+> 1.7 m is still the point, and it is still there on the opening frame of every
+> episode — but if the avatar has shoved the Go2 across the aisle, the "Go2
+> sees your legs" panel is looking somewhere else, and that is now a legitimate
+> state of the world rather than a bug. Check the contrast BEFORE walking into
+> anything, and treat a displaced platform as a new pose to be read from
+> `observation_adapter` (which publishes it live) rather than as the pose in
+> `config/scene.yaml`.
+>
+> `GUI_NAV_OBSTACLES=0` restores the old behaviour if you want the original
+> gate back for a session.
 
 ---
 

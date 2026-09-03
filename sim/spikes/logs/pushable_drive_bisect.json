@@ -1,0 +1,43 @@
+{
+ "stage": "/workspace/sim/observatory_avatar.usd",
+ "question": "which call arms omni.physx.cct set_move?",
+ "physics": {
+  "num_threads": 16,
+  "carb_task_threads": 16,
+  "min_frame_rate": 30,
+  "update_to_usd": true,
+  "fabric_enabled": null,
+  "scenes": [
+   {
+    "path": "/PhysicsScene",
+    "time_steps_per_second": 60,
+    "solver_type": "TGS",
+    "enable_ccd": false,
+    "enable_gpu_dynamics": false,
+    "broadphase_type": "MBP",
+    "enable_stabilization": false
+   }
+  ]
+ },
+ "loadavg": "5.91",
+ "speed_ms": 1.4,
+ "frames_per_arm": 70,
+ "moved_m": {
+  "A_bare": 0.0,
+  "B_activate": 0.0,
+  "C_activate_cct": 0.0,
+  "D_worldspace": 0.0,
+  "E_set_position": 1.9806
+ },
+ "calls": {
+  "A_bare": "none",
+  "B_activate": "CharacterController.activate() after Play",
+  "C_activate_cct": "activate_cct -> ok['/Root/Avatar/body_mesh']",
+  "D_worldspace": "enable_worldspace_move -> ok['/Root/Avatar/body_mesh', True]",
+  "E_set_position": "none"
+ },
+ "arms_that_moved": [
+  "E_set_position"
+ ],
+ "verdict": "set_move is armed by: E_set_position"
+}

@@ -1,0 +1,68 @@
+[pushable +    0.0s] phase=audit stage=/workspace/sim/observatory_avatar.usd push=True mask=False
+[pushable +   18.0s] stage root /Root (27406 prims), load 3.74
+[pushable +   18.1s] physics: {'num_threads': 16, 'carb_task_threads': 16, 'min_frame_rate': 30, 'update_to_usd': True, 'fabric_enabled': None, 'scenes': [{'path': '/PhysicsScene', 'time_steps_per_second': 60, 'solver_type': 'TGS', 'enable_ccd': False, 'enable_gpu_dynamics': False, 'broadphase_type': 'MBP', 'enable_stabilization': False}]}
+[pushable +   18.1s] collider mask SKIPPED (PP_MASK=0)
+[sensor_factory] robot BOT_01 -> /Root/Robots/BOT_01
+[sensor_factory] robot BOT_02 -> /Root/Robots/BOT_02
+[sensor_factory] robot BOT_03 -> /Root/Robots/BOT_03
+[pushable +   20.7s] referenced 3 robots; waiting 90 frames for payloads before reading their collision
+[pushable +   20.7s] playing; phase audit
+[pushable +   28.1s] payloads settled; reading collision BEFORE anything is changed
+[pushable +   28.1s]   /Root/Worker: NO ENABLED COLLIDER -- the avatar walks through it, and so does anything else that consults colliders
+[pushable +   28.1s]       520 prims (0 instance proxies), 11 meshes, 0 colliders, 0 rigid bodies, 0 articulation roots
+[pushable +   28.1s]   /Root/Robots/BOT_01: 5 enabled collider(s)
+[pushable +   28.1s]       81 prims (34 instance proxies), 4 meshes, 5 colliders, 6 rigid bodies, 1 articulation roots
+[pushable +   28.1s]   /Root/Robots/BOT_02: 25 enabled collider(s)
+[pushable +   28.1s]       283 prims (213 instance proxies), 17 meshes, 25 colliders, 17 rigid bodies, 1 articulation roots
+[pushable +   28.1s]   /Root/Robots/BOT_03: 3 enabled collider(s)
+[pushable +   28.1s]       225 prims (147 instance proxies), 21 meshes, 3 colliders, 25 rigid bodies, 1 articulation roots
+[pushable +   28.1s]   CCT before Play: {'path': '/Root/Avatar/body_mesh', 'has_api': True, 'step_offset': 0.009999999776482582, 'slope_limit': 0.5, 'contact_offset': 0.019999999552965164, 'up_axis': 'Z', 'scale_coeff': 0.800000011920929, 'volume_growth': 1.5, 'non_walkable_mode': 'preventClimbing', 'climbing_mode': 'easy', 'slope_limit_deg': 60.0, 'capsule_radius': 0.3, 'capsule_height': 1.15, 'controls_graph_active': True}
+[pushable +   28.6s]   floor obstacles by height: {'0.000 (flat)': 75, '0.001-0.02': 3, '0.02-0.05': 6, '0.05-0.10': 5, '0.10-0.20': 3, '0.20-0.40': 62, '0.40-0.80': 20}
+[pushable_props] dynamic  /Root/Warehouse/S_WetFloorSign_2  1.5 kg  none -> convexDecomposition  (1 collider)  predicted dv 1.371 m/s per contact frame vs 0.082 lost to friction -> MOVES
+[pushable_props] dynamic  /Root/Warehouse/S_TrafficCone_2  2 kg  none -> convexHull  (1 collider)  predicted dv 1.361 m/s per contact frame vs 0.082 lost to friction -> MOVES
+[pushable_props] dynamic  /Root/Warehouse/S_WetFloorSign2  1.5 kg  none -> convexDecomposition  (1 collider)  predicted dv 1.371 m/s per contact frame vs 0.082 lost to friction -> MOVES
+[pushable_props] dynamic  /Root/Warehouse/S_TrafficCone2  2 kg  none -> convexHull  (1 collider)  predicted dv 1.361 m/s per contact frame vs 0.082 lost to friction -> MOVES
+[pushable_props] dynamic  /Root/Warehouse/S_TrafficCone3  2 kg  none -> convexHull  (1 collider)  predicted dv 1.361 m/s per contact frame vs 0.082 lost to friction -> MOVES
+[pushable_props] dynamic  /Root/Warehouse/SM_CratePlasticNote_B_03_18  1.2 kg  none -> convexDecomposition  (1 collider)  predicted dv 1.376 m/s per contact frame vs 0.082 lost to friction -> MOVES
+[pushable_props] dynamic  /Root/Warehouse/SM_CardBoxD_04_6  1.5 kg  none -> convexHull  (1 collider)  predicted dv 1.371 m/s per contact frame vs 0.082 lost to friction -> MOVES
+[pushable_props] dynamic  /Root/Warehouse/SM_CardBoxA_3  8 kg  none -> convexHull  (1 collider)  predicted dv 0.521 m/s per contact frame vs 0.082 lost to friction -> MOVES
+[pushable_props] dynamic  /Root/Warehouse/SM_CardBoxB_3  4 kg  none -> convexHull  (1 collider)  predicted dv 1.042 m/s per contact frame vs 0.082 lost to friction -> MOVES
+[pushable_props] dynamic  /Root/Warehouse/SM_BarelPlastic_C_01_25  60 kg  none -> convexHull  (1 collider)  predicted dv 0.069 m/s per contact frame vs 0.082 lost to friction -> STAYS
+[pushable_props] 10 props dynamic, 0 declared but not converted; stall mass 51.0 kg (F_max 250 N / g / mu_d 0.5)
+[pushable +   33.3s]   requested 10 cooks at approximation=convexHull
+[pushable +   33.4s]   convexHull           S_WetFloorSign_2                  1 part(s),   36 verts, collider volume 0.01987 m3
+[pushable +   33.4s]   convexHull           S_WetFloorSign2                   1 part(s),   36 verts, collider volume 0.01987 m3
+[pushable +   33.4s]   convexHull           S_TrafficCone_2                   1 part(s),   36 verts, collider volume 0.01957 m3
+[pushable +   33.4s]   convexHull           S_TrafficCone2                    1 part(s),   36 verts, collider volume 0.01957 m3
+[pushable +   33.4s]   convexHull           S_TrafficCone3                    1 part(s),   36 verts, collider volume 0.01957 m3
+[pushable +   33.4s]   convexHull           SM_CratePlasticNote_B_03_18       1 part(s),   45 verts, collider volume 0.00788 m3
+[pushable +   33.4s]   convexHull           SM_CardBoxD_04_6                  1 part(s),   24 verts, collider volume 0.01406 m3
+[pushable +   33.4s]   convexHull           SM_CardBoxA_3                     1 part(s),   35 verts, collider volume 0.21196 m3
+[pushable +   33.4s]   convexHull           SM_CardBoxB_3                     1 part(s),   24 verts, collider volume 0.12485 m3
+[pushable +   33.4s]   convexHull           SM_BarelPlastic_C_01_25           1 part(s),   40 verts, collider volume 0.05936 m3
+[pushable +   33.5s]   requested 10 cooks at approximation=convexDecomposition
+[pushable +   33.7s]   convexDecomposition  S_WetFloorSign_2                 16 part(s),  254 verts, collider volume 0.00887 m3
+[pushable +   33.8s]   convexDecomposition  S_WetFloorSign2                  16 part(s),  254 verts, collider volume 0.00887 m3
+[pushable +   33.8s]   convexDecomposition  SM_CratePlasticNote_B_03_18      16 part(s),  329 verts, collider volume 0.00314 m3
+[pushable +   33.8s]   convexDecomposition  SM_CardBoxD_04_6                  1 part(s),   24 verts, collider volume 0.01406 m3
+[pushable +   34.0s]   convexDecomposition  S_TrafficCone_2                  16 part(s),  322 verts, collider volume 0.01358 m3
+[pushable +   34.1s]   convexDecomposition  S_TrafficCone2                   16 part(s),  322 verts, collider volume 0.01358 m3
+[pushable +   34.1s]   convexDecomposition  S_TrafficCone3                   16 part(s),  322 verts, collider volume 0.01358 m3
+[pushable +   34.5s]   convexDecomposition  SM_CardBoxA_3                    16 part(s),  235 verts, collider volume 0.06585 m3
+[pushable +   35.0s]   convexDecomposition  SM_CardBoxB_3                    16 part(s),  249 verts, collider volume 0.02861 m3
+[pushable +   35.0s]   convexDecomposition  SM_BarelPlastic_C_01_25          16 part(s),  476 verts, collider volume 0.03510 m3
+[pushable +   35.1s]   SM_CardBoxB_3                    hull 0.124853 vs decomp 0.028611 = x4.364 (16 parts, configured convexHull)
+[pushable +   35.1s]   SM_CardBoxA_3                    hull 0.21196 vs decomp 0.065846 = x3.219 (16 parts, configured convexHull)
+[pushable +   35.1s]   SM_CratePlasticNote_B_03_18      hull 0.007885 vs decomp 0.003139 = x2.512 (16 parts, configured convexDecomposition)
+[pushable +   35.1s]   S_WetFloorSign_2                 hull 0.019865 vs decomp 0.008872 = x2.239 (16 parts, configured convexDecomposition)
+[pushable +   35.1s]   S_WetFloorSign2                  hull 0.019865 vs decomp 0.008872 = x2.239 (16 parts, configured convexDecomposition)
+[pushable +   35.1s]   SM_BarelPlastic_C_01_25          hull 0.059359 vs decomp 0.035096 = x1.691 (16 parts, configured convexHull)
+[pushable +   35.1s]   S_TrafficCone_2                  hull 0.019573 vs decomp 0.013585 = x1.441 (16 parts, configured convexHull)
+[pushable +   35.1s]   S_TrafficCone2                   hull 0.019573 vs decomp 0.013585 = x1.441 (16 parts, configured convexHull)
+[pushable +   35.1s]   S_TrafficCone3                   hull 0.019573 vs decomp 0.013585 = x1.441 (16 parts, configured convexHull)
+[pushable +   35.1s]   SM_CardBoxD_04_6                 hull 0.014057 vs decomp 0.014057 = x1.0 (1 parts, configured convexHull)
+[pushable +   35.1s] Play pressed WITH the Controls graph active -- reading the CCT again to see what OgnCharacterController writes
+[pushable +   37.0s]   CCT after Play:  {'path': '/Root/Avatar/body_mesh', 'has_api': True, 'step_offset': 0.009999999776482582, 'slope_limit': 0.5, 'contact_offset': 0.019999999552965164, 'up_axis': 'Z', 'scale_coeff': 0.800000011920929, 'volume_growth': 1.5, 'non_walkable_mode': 'preventClimbing', 'climbing_mode': 'easy', 'slope_limit_deg': 60.0, 'capsule_radius': 0.3, 'capsule_height': 1.15, 'controls_graph_active': True}
+[pushable +   37.0s]   changed by Play: nothing
+[pushable +   37.0s] wrote /isaac-sim/.nvidia-omniverse/logs/pushable_audit.json
+[pushable +   37.0s] DONE

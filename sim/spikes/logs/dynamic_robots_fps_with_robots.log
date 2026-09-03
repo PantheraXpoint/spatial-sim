@@ -1,0 +1,45 @@
+[pushable +    0.0s] phase=fps stage=/workspace/sim/observatory_avatar.usd push=True mask=True
+[pushable +   19.7s] stage root /Root (27406 prims), load 10.57
+[pushable +   19.8s] physics: {'num_threads': 16, 'carb_task_threads': 16, 'min_frame_rate': 30, 'update_to_usd': True, 'fabric_enabled': None, 'scenes': [{'path': '/PhysicsScene', 'time_steps_per_second': 60, 'solver_type': 'TGS', 'enable_ccd': False, 'enable_gpu_dynamics': False, 'broadphase_type': 'MBP', 'enable_stabilization': False}]}
+[sensor_factory]   collision disabled on 1486 prims entirely above 2.2 m
+[pushable +  102.7s] deactivated /Root/Avatar/Controls -- this run drives the capsule itself
+[pushable +  102.7s] CCT activated on /Root/Avatar/body_mesh via omni.physxcct CharacterController, driven from a pre-physics stage update node; interface: ['activate_cct', 'disable_first_person', 'disable_gravity', 'enable_custom_gravity', 'enable_first_person', 'enable_gravity', 'enable_worldspace_move', 'get_cct_event_stream', 'get_controller_height', 'has_gravity_enabled', 'remove_cct', 'set_controller_height', 'set_move', 'set_position']
+[sensor_factory] robot BOT_01 -> /Root/Robots/BOT_01
+[sensor_factory] robot BOT_02 -> /Root/Robots/BOT_02
+[sensor_factory] robot BOT_03 -> /Root/Robots/BOT_03
+  controller tuning installed: step_offset=0.04 m, slope_limit=40.0 deg (cos 0.7660), climbing=constrained; re-applied for 120 frames after each Play because OgnCharacterController overwrites stepOffset
+[pushable +  105.0s] walk arms head for the prop centroid (-2.921146522558019, 9.79847419213681) from (-3.469, 4.305)
+[pushable +  105.0s] phase fps presses Play itself, after the robots are pinned
+[sensor_factory] robot BOT_01 pinned static: 6 bodies, 1 articulation roots
+[sensor_factory] robot BOT_02 pinned static: 17 bodies, 1 articulation roots
+[sensor_factory] robot BOT_02 lifted +0.449 m so its lowest point rests on the floor
+[sensor_factory] robot BOT_03 pinned static: 25 bodies, 1 articulation roots
+[sensor_factory] robot BOT_03 lifted +1.044 m so its lowest point rests on the floor
+[nav_obstacles] static  collider /Root/NavObstacles/Root_Worker  capsule {'radius': 0.3, 'height': 1.339, 'total_height': 1.939, 'radius_source': 'declared'}  (target had 0 enabled colliders, xform scale [0.01, 0.01, 0.01])
+[nav_obstacles] DYNAMIC collider /Root/NavObstacles/Root_Robots_BOT_01  box {'half_extent': [0.0585, 0.0758, 0.0956]}  mass 1 kg  (target had 5 enabled colliders, silenced 6 bodies / 5 colliders, xform scale [1.0, 1.0, 1.0])
+[nav_obstacles] DYNAMIC collider /Root/NavObstacles/Root_Robots_BOT_02  box {'half_extent': [0.2439, 0.1377, 0.2689]}  mass 15 kg  (target had 25 enabled colliders, silenced 17 bodies / 25 colliders, xform scale [1.0, 1.0, 1.0])
+[nav_obstacles] DYNAMIC collider /Root/NavObstacles/Root_Robots_BOT_03  capsule {'radius': 0.3, 'height': 1.206, 'total_height': 1.806, 'radius_source': 'declared'}  mass 47 kg  (target had 3 enabled colliders, silenced 25 bodies / 3 colliders, xform scale [1.0, 1.0, 1.0])
+[nav_obstacles] 4 nav obstacles: 3 dynamic, 1 static, 0 missing
+[nav_obstacles] proxy follow installed for 3 dynamic targets: /Root/Robots/BOT_01, /Root/Robots/BOT_02, /Root/Robots/BOT_03
+[pushable +  125.0s] robot physics authored; playing, and the fps arms start here
+[pushable +  132.9s]   A_static_idle: 20.0 ms/frame (50.0 fps), load 6.14
+[pushable +  140.2s]   A_static_walk: 27.03 ms/frame (36.99 fps), load 6.91
+[pushable_props] dynamic  /Root/Warehouse/S_WetFloorSign_2  1 kg  none -> convexDecomposition  (1 collider)  predicted dv 1.380 m/s per contact frame vs 0.082 lost to friction -> MOVES
+[pushable_props] dynamic  /Root/Warehouse/S_TrafficCone_2  2 kg  none -> convexHull  (1 collider)  predicted dv 1.361 m/s per contact frame vs 0.082 lost to friction -> MOVES
+[pushable_props] dynamic  /Root/Warehouse/S_WetFloorSign2  1 kg  none -> convexDecomposition  (1 collider)  predicted dv 1.380 m/s per contact frame vs 0.082 lost to friction -> MOVES
+[pushable_props] dynamic  /Root/Warehouse/S_TrafficCone2  2 kg  none -> convexHull  (1 collider)  predicted dv 1.361 m/s per contact frame vs 0.082 lost to friction -> MOVES
+[pushable_props] dynamic  /Root/Warehouse/S_TrafficCone3  2 kg  none -> convexHull  (1 collider)  predicted dv 1.361 m/s per contact frame vs 0.082 lost to friction -> MOVES
+[pushable_props] dynamic  /Root/Warehouse/SM_CratePlasticNote_B_03_18  0.7 kg  none -> convexDecomposition  (1 collider)  predicted dv 1.386 m/s per contact frame vs 0.082 lost to friction -> MOVES
+[pushable_props] dynamic  /Root/Warehouse/SM_CardBoxD_04_6  0.4 kg  none -> convexHull  (1 collider)  predicted dv 1.392 m/s per contact frame vs 0.082 lost to friction -> MOVES
+[pushable_props] dynamic  /Root/Warehouse/SM_CardBoxB_3  1.1 kg  none -> convexHull  (1 collider)  predicted dv 1.378 m/s per contact frame vs 0.082 lost to friction -> MOVES
+[pushable_props] dynamic  /Root/Warehouse/SM_CardBoxA_3  3.5 kg  none -> convexHull  (1 collider)  predicted dv 1.190 m/s per contact frame vs 0.082 lost to friction -> MOVES
+[pushable_props] dynamic  /Root/Warehouse/SM_BarelPlastic_C_01_25  8 kg  none -> convexHull  (1 collider)  predicted dv 0.521 m/s per contact frame vs 0.082 lost to friction -> MOVES
+[pushable_props] 10 props dynamic, 0 declared but not converted; stall mass 51.0 kg (F_max 250 N / g / mu_d 0.5)
+[pushable +  145.2s] props converted at Stop; timeline restarted
+[pushable +  152.5s]   B_dyn_idle: 19.89 ms/frame (50.28 fps), load 7.98
+[pushable +  161.1s]   C_dyn_walk: 31.84 ms/frame (31.41 fps), load 9.83
+[pushable +  161.1s] scene reset (Stop/Play) before the push arm
+[pushable_props] push callback on (sweep): 10 bodies (0 of them robot proxies), M=70 kg, F_max=250 N, capsule r=0.300 half-h=0.575, 5 probes
+[pushable +  171.4s]   D_push_walk: 33.36 ms/frame (29.98 fps), load 8.70
+[pushable +  171.4s] wrote /isaac-sim/.nvidia-omniverse/logs/pushable_fps.json
+[pushable +  171.4s] DONE

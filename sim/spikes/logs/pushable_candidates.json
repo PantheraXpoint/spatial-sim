@@ -1,0 +1,3484 @@
+{
+ "stage": "/workspace/sim/observatory_avatar.usd",
+ "spawn_xy": [
+  -3.469,
+  4.305
+ ],
+ "reach_m": 2.2,
+ "radius_m": 14.0,
+ "n_warehouse_children": 3137,
+ "n_floor_candidates": 150,
+ "seconds": 0.88,
+ "candidates": [
+  {
+   "path": "/Root/Warehouse/S_WetFloorSign_2",
+   "type": "Xform",
+   "z_min": 0.0005,
+   "z_max": 0.6449,
+   "size": [
+    0.3033,
+    0.2752,
+    0.6444
+   ],
+   "center_xy": [
+    -3.52,
+    8.77
+   ],
+   "dist_from_spawn_m": 4.465,
+   "n_colliders": 1,
+   "n_prims": 5,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/S_TrafficCone_2",
+   "type": "Xform",
+   "z_min": 0.0,
+   "z_max": 0.4628,
+   "size": [
+    0.3357,
+    0.3339,
+    0.4628
+   ],
+   "center_xy": [
+    -2.95,
+    8.99
+   ],
+   "dist_from_spawn_m": 4.714,
+   "n_colliders": 1,
+   "n_prims": 5,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/S_WetFloorSign2",
+   "type": "Xform",
+   "z_min": 0.0005,
+   "z_max": 0.6449,
+   "size": [
+    0.3303,
+    0.3096,
+    0.6444
+   ],
+   "center_xy": [
+    -1.62,
+    8.71
+   ],
+   "dist_from_spawn_m": 4.777,
+   "n_colliders": 1,
+   "n_prims": 5,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/SM_FloorDecal_RecRed1X19",
+   "type": "Xform",
+   "z_min": 0.0001,
+   "z_max": 0.0001,
+   "size": [
+    1.378,
+    1.0793,
+    0.0
+   ],
+   "center_xy": [
+    -5.491,
+    8.6503
+   ],
+   "dist_from_spawn_m": 4.793,
+   "n_colliders": 1,
+   "n_prims": 5,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/SM_Rackshield_4489",
+   "type": "Xform",
+   "z_min": -0.0,
+   "z_max": 0.5,
+   "size": [
+    1.1746,
+    0.3484,
+    0.5
+   ],
+   "center_xy": [
+    -5.5,
+    8.7749
+   ],
+   "dist_from_spawn_m": 4.91,
+   "n_colliders": 1,
+   "n_prims": 5,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/S_TrafficCone2",
+   "type": "Xform",
+   "z_min": 0.0,
+   "z_max": 0.4628,
+   "size": [
+    0.3357,
+    0.3339,
+    0.4628
+   ],
+   "center_xy": [
+    -4.08,
+    9.33
+   ],
+   "dist_from_spawn_m": 5.062,
+   "n_colliders": 1,
+   "n_prims": 5,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/SM_FloorDecal_RecRed1X21",
+   "type": "Xform",
+   "z_min": 0.0001,
+   "z_max": 0.0001,
+   "size": [
+    1.378,
+    1.0793,
+    0.0
+   ],
+   "center_xy": [
+    -0.541,
+    8.6503
+   ],
+   "dist_from_spawn_m": 5.24,
+   "n_colliders": 1,
+   "n_prims": 5,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/S_TrafficCone3",
+   "type": "Xform",
+   "z_min": 0.0,
+   "z_max": 0.4628,
+   "size": [
+    0.3357,
+    0.3339,
+    0.4628
+   ],
+   "center_xy": [
+    -1.84,
+    9.33
+   ],
+   "dist_from_spawn_m": 5.282,
+   "n_colliders": 1,
+   "n_prims": 5,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/SM_CratePlasticNote_B_03_18",
+   "type": "Xform",
+   "z_min": 0.0003,
+   "z_max": 0.1366,
+   "size": [
+    0.3657,
+    0.3833,
+    0.1363
+   ],
+   "center_xy": [
+    -3.012,
+    9.7762
+   ],
+   "dist_from_spawn_m": 5.49,
+   "n_colliders": 1,
+   "n_prims": 5,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/SM_Rackshield_3844",
+   "type": "Xform",
+   "z_min": -0.0,
+   "z_max": 0.5,
+   "size": [
+    1.1746,
+    0.3484,
+    0.5
+   ],
+   "center_xy": [
+    -0.55,
+    8.976
+   ],
+   "dist_from_spawn_m": 5.508,
+   "n_colliders": 1,
+   "n_prims": 5,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/Box_21821",
+   "type": "Xform",
+   "z_min": 0.21,
+   "z_max": 1.085,
+   "size": [
+    0.8802,
+    0.8802,
+    0.875
+   ],
+   "center_xy": [
+    -5.5661,
+    9.4771
+   ],
+   "dist_from_spawn_m": 5.581,
+   "n_colliders": 1,
+   "n_prims": 9,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/SM_PaperNote_Small_16",
+   "type": "Xform",
+   "z_min": 0.0058,
+   "z_max": 0.0248,
+   "size": [
+    0.1875,
+    0.1841,
+    0.019
+   ],
+   "center_xy": [
+    -2.5405,
+    9.8453
+   ],
+   "dist_from_spawn_m": 5.618,
+   "n_colliders": 1,
+   "n_prims": 5,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/SM_PaletteA_4610",
+   "type": "Xform",
+   "z_min": -0.0001,
+   "z_max": 0.2111,
+   "size": [
+    1.0029,
+    1.2132,
+    0.2111
+   ],
+   "center_xy": [
+    -5.5782,
+    9.5985
+   ],
+   "dist_from_spawn_m": 5.698,
+   "n_colliders": 1,
+   "n_prims": 5,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/SM_CardBoxD_04_6",
+   "type": "Xform",
+   "z_min": -0.0,
+   "z_max": 0.1487,
+   "size": [
+    0.4541,
+    0.4065,
+    0.1487
+   ],
+   "center_xy": [
+    -2.57,
+    10.21
+   ],
+   "dist_from_spawn_m": 5.973,
+   "n_colliders": 1,
+   "n_prims": 5,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/SM_PaperNote_Small_20",
+   "type": "Xform",
+   "z_min": 0.0058,
+   "z_max": 0.0231,
+   "size": [
+    0.1842,
+    0.1829,
+    0.0173
+   ],
+   "center_xy": [
+    -3.8022,
+    10.3253
+   ],
+   "dist_from_spawn_m": 6.03,
+   "n_colliders": 1,
+   "n_prims": 5,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/Box_37266",
+   "type": "Xform",
+   "z_min": 0.21,
+   "z_max": 0.46,
+   "size": [
+    0.5024,
+    0.5024,
+    0.25
+   ],
+   "center_xy": [
+    -0.819,
+    9.7323
+   ],
+   "dist_from_spawn_m": 6.04,
+   "n_colliders": 1,
+   "n_prims": 9,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/SM_PaletteA_3870",
+   "type": "Xform",
+   "z_min": 0.0,
+   "z_max": 0.2111,
+   "size": [
+    1.0029,
+    1.2132,
+    0.2111
+   ],
+   "center_xy": [
+    -0.5146,
+    9.7884
+   ],
+   "dist_from_spawn_m": 6.229,
+   "n_colliders": 1,
+   "n_prims": 5,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/Box_37278",
+   "type": "Xform",
+   "z_min": 0.21,
+   "z_max": 0.46,
+   "size": [
+    0.5041,
+    0.5041,
+    0.25
+   ],
+   "center_xy": [
+    -0.2734,
+    9.7067
+   ],
+   "dist_from_spawn_m": 6.276,
+   "n_colliders": 1,
+   "n_prims": 9,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/SM_BottlePlasticD_4",
+   "type": "Xform",
+   "z_min": 0.0002,
+   "z_max": 0.061,
+   "size": [
+    0.2223,
+    0.3119,
+    0.0608
+   ],
+   "center_xy": [
+    -3.6384,
+    10.6331
+   ],
+   "dist_from_spawn_m": 6.33,
+   "n_colliders": 1,
+   "n_prims": 5,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/SM_PaperNote_Small_08_75",
+   "type": "Xform",
+   "z_min": 0.005,
+   "z_max": 0.005,
+   "size": [
+    0.0892,
+    0.1225,
+    0.0
+   ],
+   "center_xy": [
+    -3.88,
+    10.64
+   ],
+   "dist_from_spawn_m": 6.348,
+   "n_colliders": 1,
+   "n_prims": 5,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/SM_CardBoxA_3",
+   "type": "Xform",
+   "z_min": -0.0,
+   "z_max": 0.5033,
+   "size": [
+    1.0197,
+    0.9999,
+    0.5033
+   ],
+   "center_xy": [
+    -3.0817,
+    10.6565
+   ],
+   "dist_from_spawn_m": 6.363,
+   "n_colliders": 1,
+   "n_prims": 5,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/Box_21819",
+   "type": "Xform",
+   "z_min": 0.21,
+   "z_max": 1.085,
+   "size": [
+    0.8887,
+    0.8887,
+    0.875
+   ],
+   "center_xy": [
+    -5.5682,
+    10.357
+   ],
+   "dist_from_spawn_m": 6.406,
+   "n_colliders": 1,
+   "n_prims": 9,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/SM_PaperNote_Small_09_72",
+   "type": "Xform",
+   "z_min": 0.005,
+   "z_max": 0.005,
+   "size": [
+    0.0319,
+    0.123,
+    0.0
+   ],
+   "center_xy": [
+    -2.23,
+    10.6
+   ],
+   "dist_from_spawn_m": 6.416,
+   "n_colliders": 1,
+   "n_prims": 5,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/SM_PaperNote_Small_15",
+   "type": "Xform",
+   "z_min": 0.0,
+   "z_max": 0.019,
+   "size": [
+    0.1875,
+    0.1841,
+    0.019
+   ],
+   "center_xy": [
+    -2.3905,
+    10.6947
+   ],
+   "dist_from_spawn_m": 6.48,
+   "n_colliders": 1,
+   "n_prims": 5,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/Box_37264",
+   "type": "Xform",
+   "z_min": 0.21,
+   "z_max": 0.46,
+   "size": [
+    0.5019,
+    0.5019,
+    0.25
+   ],
+   "center_xy": [
+    -0.8111,
+    10.2263
+   ],
+   "dist_from_spawn_m": 6.491,
+   "n_colliders": 1,
+   "n_prims": 9,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/SM_BottlePlasticD_3",
+   "type": "Xform",
+   "z_min": 0.0002,
+   "z_max": 0.061,
+   "size": [
+    0.3119,
+    0.2223,
+    0.0608
+   ],
+   "center_xy": [
+    -4.0769,
+    10.9984
+   ],
+   "dist_from_spawn_m": 6.721,
+   "n_colliders": 1,
+   "n_prims": 5,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/Box_37276",
+   "type": "Xform",
+   "z_min": 0.21,
+   "z_max": 0.46,
+   "size": [
+    0.518,
+    0.518,
+    0.25
+   ],
+   "center_xy": [
+    -0.2659,
+    10.2171
+   ],
+   "dist_from_spawn_m": 6.724,
+   "n_colliders": 1,
+   "n_prims": 9,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/SM_PaperNote_Small_18",
+   "type": "Xform",
+   "z_min": 0.0058,
+   "z_max": 0.0248,
+   "size": [
+    0.1841,
+    0.1875,
+    0.019
+   ],
+   "center_xy": [
+    -1.6847,
+    10.8105
+   ],
+   "dist_from_spawn_m": 6.746,
+   "n_colliders": 1,
+   "n_prims": 5,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/SM_CardBoxD_03_9",
+   "type": "Xform",
+   "z_min": -0.0,
+   "z_max": 0.2656,
+   "size": [
+    0.435,
+    0.3227,
+    0.2656
+   ],
+   "center_xy": [
+    -3.6582,
+    11.0801
+   ],
+   "dist_from_spawn_m": 6.778,
+   "n_colliders": 1,
+   "n_prims": 5,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/SM_BarelPlastic_C_01_25",
+   "type": "Xform",
+   "z_min": 0.0011,
+   "z_max": 0.4223,
+   "size": [
+    0.6629,
+    0.6517,
+    0.4213
+   ],
+   "center_xy": [
+    -2.064,
+    10.9655
+   ],
+   "dist_from_spawn_m": 6.807,
+   "n_colliders": 1,
+   "n_prims": 5,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/SM_PaletteA_4611",
+   "type": "Xform",
+   "z_min": -0.0,
+   "z_max": 0.2111,
+   "size": [
+    1.0029,
+    1.2133,
+    0.2111
+   ],
+   "center_xy": [
+    -5.5754,
+    10.8154
+   ],
+   "dist_from_spawn_m": 6.843,
+   "n_colliders": 1,
+   "n_prims": 5,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/Box_37262",
+   "type": "Xform",
+   "z_min": 0.21,
+   "z_max": 0.46,
+   "size": [
+    0.5177,
+    0.5177,
+    0.25
+   ],
+   "center_xy": [
+    -0.8167,
+    10.7497
+   ],
+   "dist_from_spawn_m": 6.969,
+   "n_colliders": 1,
+   "n_prims": 9,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/SM_CardBoxB_3",
+   "type": "Xform",
+   "z_min": 0.0013,
+   "z_max": 0.5013,
+   "size": [
+    0.5792,
+    0.5792,
+    0.5
+   ],
+   "center_xy": [
+    -4.4738,
+    11.2466
+   ],
+   "dist_from_spawn_m": 7.014,
+   "n_colliders": 1,
+   "n_prims": 5,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/SM_PaperNote_Small_06_54",
+   "type": "Xform",
+   "z_min": 0.0001,
+   "z_max": 0.0227,
+   "size": [
+    0.2143,
+    0.2045,
+    0.0226
+   ],
+   "center_xy": [
+    -3.6701,
+    11.4409
+   ],
+   "dist_from_spawn_m": 7.139,
+   "n_colliders": 1,
+   "n_prims": 5,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/Box_37274",
+   "type": "Xform",
+   "z_min": 0.21,
+   "z_max": 0.46,
+   "size": [
+    0.533,
+    0.533,
+    0.25
+   ],
+   "center_xy": [
+    -0.2785,
+    10.7628
+   ],
+   "dist_from_spawn_m": 7.203,
+   "n_colliders": 1,
+   "n_prims": 9,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/Box_21817",
+   "type": "Xform",
+   "z_min": 0.21,
+   "z_max": 1.085,
+   "size": [
+    0.8813,
+    0.8813,
+    0.875
+   ],
+   "center_xy": [
+    -5.5662,
+    11.2686
+   ],
+   "dist_from_spawn_m": 7.273,
+   "n_colliders": 1,
+   "n_prims": 9,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/SM_CardBoxA_02_2",
+   "type": "Xform",
+   "z_min": 0.0013,
+   "z_max": 0.6378,
+   "size": [
+    0.797,
+    0.5033,
+    0.6365
+   ],
+   "center_xy": [
+    -3.09,
+    11.5916
+   ],
+   "dist_from_spawn_m": 7.296,
+   "n_colliders": 1,
+   "n_prims": 5,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/SM_PaletteA_3873",
+   "type": "Xform",
+   "z_min": 0.0,
+   "z_max": 0.2111,
+   "size": [
+    1.0029,
+    1.2132,
+    0.2111
+   ],
+   "center_xy": [
+    -0.5118,
+    11.0053
+   ],
+   "dist_from_spawn_m": 7.324,
+   "n_colliders": 1,
+   "n_prims": 5,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/SM_CratePlastic_E_03_44",
+   "type": "Xform",
+   "z_min": 0.0,
+   "z_max": 0.08,
+   "size": [
+    0.5772,
+    0.6853,
+    0.08
+   ],
+   "center_xy": [
+    -1.37,
+    11.33
+   ],
+   "dist_from_spawn_m": 7.332,
+   "n_colliders": 1,
+   "n_prims": 5,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/SM_BarelPlastic_C_2",
+   "type": "Xform",
+   "z_min": 0.0011,
+   "z_max": 0.4223,
+   "size": [
+    0.6629,
+    0.6517,
+    0.4213
+   ],
+   "center_xy": [
+    -3.966,
+    11.6645
+   ],
+   "dist_from_spawn_m": 7.376,
+   "n_colliders": 1,
+   "n_prims": 5,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/SM_BottlePlasticD_2",
+   "type": "Xform",
+   "z_min": 0.0002,
+   "z_max": 0.061,
+   "size": [
+    0.1806,
+    0.3022,
+    0.0608
+   ],
+   "center_xy": [
+    -2.4254,
+    11.6095
+   ],
+   "dist_from_spawn_m": 7.379,
+   "n_colliders": 1,
+   "n_prims": 5,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/Box_37260",
+   "type": "Xform",
+   "z_min": 0.21,
+   "z_max": 0.46,
+   "size": [
+    0.5066,
+    0.5066,
+    0.25
+   ],
+   "center_xy": [
+    -0.8061,
+    11.2457
+   ],
+   "dist_from_spawn_m": 7.434,
+   "n_colliders": 1,
+   "n_prims": 9,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/Box_37272",
+   "type": "Xform",
+   "z_min": 0.21,
+   "z_max": 0.46,
+   "size": [
+    0.5077,
+    0.5077,
+    0.25
+   ],
+   "center_xy": [
+    -0.2758,
+    11.2678
+   ],
+   "dist_from_spawn_m": 7.66,
+   "n_colliders": 1,
+   "n_prims": 9,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/SM_CardBoxB_02_32",
+   "type": "Xform",
+   "z_min": 0.0013,
+   "z_max": 0.5013,
+   "size": [
+    0.7044,
+    0.7044,
+    0.5
+   ],
+   "center_xy": [
+    -1.9107,
+    11.8285
+   ],
+   "dist_from_spawn_m": 7.683,
+   "n_colliders": 1,
+   "n_prims": 5,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/SM_CardBoxD_4",
+   "type": "Xform",
+   "z_min": -0.0,
+   "z_max": 0.2656,
+   "size": [
+    0.4522,
+    0.4693,
+    0.2656
+   ],
+   "center_xy": [
+    -2.6963,
+    12.0853
+   ],
+   "dist_from_spawn_m": 7.819,
+   "n_colliders": 1,
+   "n_prims": 5,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/SM_CratePlasticNote_B_5",
+   "type": "Xform",
+   "z_min": 0.0003,
+   "z_max": 0.1366,
+   "size": [
+    0.3892,
+    0.3833,
+    0.1363
+   ],
+   "center_xy": [
+    -3.8978,
+    12.1303
+   ],
+   "dist_from_spawn_m": 7.837,
+   "n_colliders": 1,
+   "n_prims": 5,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/SM_PaperNote_Small_13",
+   "type": "Xform",
+   "z_min": 0.0058,
+   "z_max": 0.0253,
+   "size": [
+    0.2036,
+    0.2031,
+    0.0195
+   ],
+   "center_xy": [
+    -4.5945,
+    12.1266
+   ],
+   "dist_from_spawn_m": 7.902,
+   "n_colliders": 1,
+   "n_prims": 5,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/Box_37258",
+   "type": "Xform",
+   "z_min": 0.21,
+   "z_max": 0.46,
+   "size": [
+    0.5279,
+    0.5279,
+    0.25
+   ],
+   "center_xy": [
+    -0.8087,
+    11.7762
+   ],
+   "dist_from_spawn_m": 7.931,
+   "n_colliders": 1,
+   "n_prims": 9,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/SM_PaletteA_4612",
+   "type": "Xform",
+   "z_min": -0.0,
+   "z_max": 0.2111,
+   "size": [
+    1.0029,
+    1.2132,
+    0.2111
+   ],
+   "center_xy": [
+    -5.5783,
+    12.0385
+   ],
+   "dist_from_spawn_m": 8.016,
+   "n_colliders": 1,
+   "n_prims": 5,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/Box_37270",
+   "type": "Xform",
+   "z_min": 0.21,
+   "z_max": 0.46,
+   "size": [
+    0.5132,
+    0.5132,
+    0.25
+   ],
+   "center_xy": [
+    -0.2712,
+    11.7763
+   ],
+   "dist_from_spawn_m": 8.127,
+   "n_colliders": 1,
+   "n_prims": 9,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/Box_21815",
+   "type": "Xform",
+   "z_min": 0.21,
+   "z_max": 1.085,
+   "size": [
+    0.8883,
+    0.8883,
+    0.875
+   ],
+   "center_xy": [
+    -5.57,
+    12.17
+   ],
+   "dist_from_spawn_m": 8.141,
+   "n_colliders": 1,
+   "n_prims": 9,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/SM_PaperNote_Small_17",
+   "type": "Xform",
+   "z_min": 0.0058,
+   "z_max": 0.0248,
+   "size": [
+    0.1479,
+    0.1421,
+    0.019
+   ],
+   "center_xy": [
+    -2.2561,
+    12.37
+   ],
+   "dist_from_spawn_m": 8.156,
+   "n_colliders": 1,
+   "n_prims": 5,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/SM_FloorDecal_RecRed1X17",
+   "type": "Xform",
+   "z_min": 0.0001,
+   "z_max": 0.0001,
+   "size": [
+    1.378,
+    1.0793,
+    0.0
+   ],
+   "center_xy": [
+    -10.451,
+    8.6503
+   ],
+   "dist_from_spawn_m": 8.224,
+   "n_colliders": 1,
+   "n_prims": 5,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/SM_BottlePlasticD_01_35",
+   "type": "Xform",
+   "z_min": 0.0002,
+   "z_max": 0.061,
+   "size": [
+    0.2572,
+    0.3121,
+    0.0608
+   ],
+   "center_xy": [
+    -3.9908,
+    12.5227
+   ],
+   "dist_from_spawn_m": 8.234,
+   "n_colliders": 1,
+   "n_prims": 5,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/SM_CratePlastic_D_01_47",
+   "type": "Xform",
+   "z_min": -0.009,
+   "z_max": 0.2542,
+   "size": [
+    0.7427,
+    0.8111,
+    0.2633
+   ],
+   "center_xy": [
+    -4.1899,
+    12.6251
+   ],
+   "dist_from_spawn_m": 8.351,
+   "n_colliders": 1,
+   "n_prims": 5,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/SM_BucketPlastic_B_41",
+   "type": "Xform",
+   "z_min": 0.2687,
+   "z_max": 0.9776,
+   "size": [
+    0.9276,
+    0.9222,
+    0.709
+   ],
+   "center_xy": [
+    -3.1945,
+    12.6629
+   ],
+   "dist_from_spawn_m": 8.362,
+   "n_colliders": 1,
+   "n_prims": 5,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/SM_Rackshield_2987",
+   "type": "Xform",
+   "z_min": -0.0,
+   "z_max": 0.5,
+   "size": [
+    1.1746,
+    0.3484,
+    0.5
+   ],
+   "center_xy": [
+    -10.46,
+    8.976
+   ],
+   "dist_from_spawn_m": 8.408,
+   "n_colliders": 1,
+   "n_prims": 5,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/Box_37256",
+   "type": "Xform",
+   "z_min": 0.21,
+   "z_max": 0.46,
+   "size": [
+    0.5226,
+    0.5226,
+    0.25
+   ],
+   "center_xy": [
+    -0.82,
+    12.31
+   ],
+   "dist_from_spawn_m": 8.432,
+   "n_colliders": 1,
+   "n_prims": 9,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/SM_PaletteA_3874",
+   "type": "Xform",
+   "z_min": 0.0,
+   "z_max": 0.2111,
+   "size": [
+    1.0029,
+    1.2132,
+    0.2111
+   ],
+   "center_xy": [
+    -0.5146,
+    12.2284
+   ],
+   "dist_from_spawn_m": 8.456,
+   "n_colliders": 1,
+   "n_prims": 5,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/Box_37268",
+   "type": "Xform",
+   "z_min": 0.21,
+   "z_max": 0.46,
+   "size": [
+    0.5225,
+    0.5225,
+    0.25
+   ],
+   "center_xy": [
+    -0.2812,
+    12.3088
+   ],
+   "dist_from_spawn_m": 8.615,
+   "n_colliders": 1,
+   "n_prims": 9,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/SM_CardBoxB_01_29",
+   "type": "Xform",
+   "z_min": 0.3787,
+   "z_max": 0.8787,
+   "size": [
+    0.5,
+    0.5,
+    0.5
+   ],
+   "center_xy": [
+    -2.33,
+    12.87
+   ],
+   "dist_from_spawn_m": 8.64,
+   "n_colliders": 1,
+   "n_prims": 5,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/Box_21069",
+   "type": "Xform",
+   "z_min": 0.21,
+   "z_max": 0.71,
+   "size": [
+    0.5845,
+    0.5845,
+    0.5
+   ],
+   "center_xy": [
+    -10.4432,
+    9.5244
+   ],
+   "dist_from_spawn_m": 8.711,
+   "n_colliders": 1,
+   "n_prims": 9,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/SM_PaletteA_3035",
+   "type": "Xform",
+   "z_min": 0.0,
+   "z_max": 0.2111,
+   "size": [
+    1.0029,
+    1.2132,
+    0.2111
+   ],
+   "center_xy": [
+    -10.4246,
+    9.7884
+   ],
+   "dist_from_spawn_m": 8.857,
+   "n_colliders": 1,
+   "n_prims": 5,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/SM_FloorDecal_RecRed1X23",
+   "type": "Xform",
+   "z_min": 0.0001,
+   "z_max": 0.0001,
+   "size": [
+    1.378,
+    1.0793,
+    0.0
+   ],
+   "center_xy": [
+    4.419,
+    8.6503
+   ],
+   "dist_from_spawn_m": 9.006,
+   "n_colliders": 1,
+   "n_prims": 5,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/Box_40756",
+   "type": "Xform",
+   "z_min": 0.21,
+   "z_max": 0.46,
+   "size": [
+    0.5035,
+    0.5035,
+    0.25
+   ],
+   "center_xy": [
+    4.0978,
+    9.3736
+   ],
+   "dist_from_spawn_m": 9.107,
+   "n_colliders": 1,
+   "n_prims": 9,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/Box_21067",
+   "type": "Xform",
+   "z_min": 0.21,
+   "z_max": 0.71,
+   "size": [
+    0.6135,
+    0.6135,
+    0.5
+   ],
+   "center_xy": [
+    -10.4775,
+    10.1222
+   ],
+   "dist_from_spawn_m": 9.108,
+   "n_colliders": 1,
+   "n_prims": 9,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/SM_Rackshield_59",
+   "type": "Xform",
+   "z_min": -0.0,
+   "z_max": 0.5,
+   "size": [
+    1.1746,
+    0.3484,
+    0.5
+   ],
+   "center_xy": [
+    4.4137,
+    8.8797
+   ],
+   "dist_from_spawn_m": 9.114,
+   "n_colliders": 1,
+   "n_prims": 5,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/Box_21829",
+   "type": "Xform",
+   "z_min": 0.21,
+   "z_max": 0.96,
+   "size": [
+    1.0538,
+    0.7553,
+    0.75
+   ],
+   "center_xy": [
+    -5.59,
+    13.4197
+   ],
+   "dist_from_spawn_m": 9.358,
+   "n_colliders": 1,
+   "n_prims": 9,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/Box_40754",
+   "type": "Xform",
+   "z_min": 0.21,
+   "z_max": 0.46,
+   "size": [
+    0.5,
+    0.5,
+    0.25
+   ],
+   "center_xy": [
+    4.1072,
+    9.8709
+   ],
+   "dist_from_spawn_m": 9.401,
+   "n_colliders": 1,
+   "n_prims": 9,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/SM_PaletteA_424",
+   "type": "Xform",
+   "z_min": 0.0001,
+   "z_max": 0.2112,
+   "size": [
+    1.0029,
+    1.2132,
+    0.2111
+   ],
+   "center_xy": [
+    4.3718,
+    9.6685
+   ],
+   "dist_from_spawn_m": 9.5,
+   "n_colliders": 1,
+   "n_prims": 5,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/SM_PaletteA_4591",
+   "type": "Xform",
+   "z_min": 0.0,
+   "z_max": 0.2111,
+   "size": [
+    1.0029,
+    1.2132,
+    0.2111
+   ],
+   "center_xy": [
+    -5.5754,
+    13.5705
+   ],
+   "dist_from_spawn_m": 9.502,
+   "n_colliders": 1,
+   "n_prims": 5,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/Box_21065",
+   "type": "Xform",
+   "z_min": 0.21,
+   "z_max": 0.71,
+   "size": [
+    0.545,
+    0.545,
+    0.5
+   ],
+   "center_xy": [
+    -10.4586,
+    10.7483
+   ],
+   "dist_from_spawn_m": 9.506,
+   "n_colliders": 1,
+   "n_prims": 9,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/Box_40770",
+   "type": "Xform",
+   "z_min": 0.21,
+   "z_max": 0.46,
+   "size": [
+    0.5021,
+    0.5021,
+    0.25
+   ],
+   "center_xy": [
+    4.6093,
+    9.3949
+   ],
+   "dist_from_spawn_m": 9.548,
+   "n_colliders": 1,
+   "n_prims": 9,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/Box_33990",
+   "type": "Xform",
+   "z_min": 0.21,
+   "z_max": 0.5819,
+   "size": [
+    0.9581,
+    0.6374,
+    0.3719
+   ],
+   "center_xy": [
+    -0.5525,
+    13.4245
+   ],
+   "dist_from_spawn_m": 9.575,
+   "n_colliders": 1,
+   "n_prims": 9,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/SM_PaletteA_3039",
+   "type": "Xform",
+   "z_min": 0.0,
+   "z_max": 0.2111,
+   "size": [
+    1.0029,
+    1.2132,
+    0.2111
+   ],
+   "center_xy": [
+    -10.4218,
+    11.0053
+   ],
+   "dist_from_spawn_m": 9.656,
+   "n_colliders": 1,
+   "n_prims": 5,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/Box_40752",
+   "type": "Xform",
+   "z_min": 0.21,
+   "z_max": 0.46,
+   "size": [
+    0.5055,
+    0.5055,
+    0.25
+   ],
+   "center_xy": [
+    4.1163,
+    10.3712
+   ],
+   "dist_from_spawn_m": 9.713,
+   "n_colliders": 1,
+   "n_prims": 9,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/SM_PaletteA_3932",
+   "type": "Xform",
+   "z_min": 0.0,
+   "z_max": 0.2111,
+   "size": [
+    1.0029,
+    1.2132,
+    0.2111
+   ],
+   "center_xy": [
+    -0.5515,
+    13.6786
+   ],
+   "dist_from_spawn_m": 9.817,
+   "n_colliders": 1,
+   "n_prims": 5,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/S_TrafficCone6",
+   "type": "Xform",
+   "z_min": 0.0,
+   "z_max": 0.4628,
+   "size": [
+    0.3357,
+    0.3339,
+    0.4628
+   ],
+   "center_xy": [
+    -3.99,
+    14.14
+   ],
+   "dist_from_spawn_m": 9.849,
+   "n_colliders": 1,
+   "n_prims": 5,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/Box_40768",
+   "type": "Xform",
+   "z_min": 0.21,
+   "z_max": 0.46,
+   "size": [
+    0.505,
+    0.505,
+    0.25
+   ],
+   "center_xy": [
+    4.6363,
+    9.8995
+   ],
+   "dist_from_spawn_m": 9.849,
+   "n_colliders": 1,
+   "n_prims": 9,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/Box_21063",
+   "type": "Xform",
+   "z_min": 0.21,
+   "z_max": 0.71,
+   "size": [
+    0.5429,
+    0.5429,
+    0.5
+   ],
+   "center_xy": [
+    -10.4139,
+    11.3064
+   ],
+   "dist_from_spawn_m": 9.862,
+   "n_colliders": 1,
+   "n_prims": 9,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/S_TrafficCone5",
+   "type": "Xform",
+   "z_min": 0.0,
+   "z_max": 0.4628,
+   "size": [
+    0.3357,
+    0.3339,
+    0.4628
+   ],
+   "center_xy": [
+    -1.95,
+    14.14
+   ],
+   "dist_from_spawn_m": 9.952,
+   "n_colliders": 1,
+   "n_prims": 5,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/Box_40750",
+   "type": "Xform",
+   "z_min": 0.21,
+   "z_max": 0.46,
+   "size": [
+    0.5159,
+    0.5159,
+    0.25
+   ],
+   "center_xy": [
+    4.0938,
+    10.8906
+   ],
+   "dist_from_spawn_m": 10.028,
+   "n_colliders": 1,
+   "n_prims": 9,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/Box_40766",
+   "type": "Xform",
+   "z_min": 0.21,
+   "z_max": 0.46,
+   "size": [
+    0.5058,
+    0.5058,
+    0.25
+   ],
+   "center_xy": [
+    4.6247,
+    10.4071
+   ],
+   "dist_from_spawn_m": 10.136,
+   "n_colliders": 1,
+   "n_prims": 9,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/S_TrafficCone4",
+   "type": "Xform",
+   "z_min": 0.0,
+   "z_max": 0.4628,
+   "size": [
+    0.3357,
+    0.3339,
+    0.4628
+   ],
+   "center_xy": [
+    -2.95,
+    14.43
+   ],
+   "dist_from_spawn_m": 10.138,
+   "n_colliders": 1,
+   "n_prims": 5,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/SM_PaletteA_425",
+   "type": "Xform",
+   "z_min": 0.0001,
+   "z_max": 0.2112,
+   "size": [
+    1.0029,
+    1.2132,
+    0.2111
+   ],
+   "center_xy": [
+    4.3747,
+    10.8854
+   ],
+   "dist_from_spawn_m": 10.238,
+   "n_colliders": 1,
+   "n_prims": 5,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/Box_33988",
+   "type": "Xform",
+   "z_min": 0.21,
+   "z_max": 0.5819,
+   "size": [
+    0.9876,
+    0.6838,
+    0.3719
+   ],
+   "center_xy": [
+    -0.5559,
+    14.1434
+   ],
+   "dist_from_spawn_m": 10.261,
+   "n_colliders": 1,
+   "n_prims": 9,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/Box_21827",
+   "type": "Xform",
+   "z_min": 0.21,
+   "z_max": 0.96,
+   "size": [
+    1.05,
+    0.75,
+    0.75
+   ],
+   "center_xy": [
+    -5.5862,
+    14.3844
+   ],
+   "dist_from_spawn_m": 10.299,
+   "n_colliders": 1,
+   "n_prims": 9,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/Box_21061",
+   "type": "Xform",
+   "z_min": 0.21,
+   "z_max": 0.71,
+   "size": [
+    0.6323,
+    0.6323,
+    0.5
+   ],
+   "center_xy": [
+    -10.4924,
+    11.9272
+   ],
+   "dist_from_spawn_m": 10.365,
+   "n_colliders": 1,
+   "n_prims": 9,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/Box_40748",
+   "type": "Xform",
+   "z_min": 0.21,
+   "z_max": 0.46,
+   "size": [
+    0.5089,
+    0.5089,
+    0.25
+   ],
+   "center_xy": [
+    4.1136,
+    11.3984
+   ],
+   "dist_from_spawn_m": 10.383,
+   "n_colliders": 1,
+   "n_prims": 9,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/Box_40764",
+   "type": "Xform",
+   "z_min": 0.21,
+   "z_max": 0.46,
+   "size": [
+    0.5022,
+    0.5022,
+    0.25
+   ],
+   "center_xy": [
+    4.6108,
+    10.9099
+   ],
+   "dist_from_spawn_m": 10.436,
+   "n_colliders": 1,
+   "n_prims": 9,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/SM_PaletteA_3040",
+   "type": "Xform",
+   "z_min": 0.0,
+   "z_max": 0.2111,
+   "size": [
+    1.0029,
+    1.2132,
+    0.2111
+   ],
+   "center_xy": [
+    -10.4246,
+    12.2284
+   ],
+   "dist_from_spawn_m": 10.543,
+   "n_colliders": 1,
+   "n_prims": 5,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/SM_PaletteA_4590",
+   "type": "Xform",
+   "z_min": 0.0,
+   "z_max": 0.2111,
+   "size": [
+    1.0029,
+    1.2132,
+    0.2111
+   ],
+   "center_xy": [
+    -5.5783,
+    14.7936
+   ],
+   "dist_from_spawn_m": 10.699,
+   "n_colliders": 1,
+   "n_prims": 5,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/Box_40746",
+   "type": "Xform",
+   "z_min": 0.21,
+   "z_max": 0.46,
+   "size": [
+    0.5109,
+    0.5109,
+    0.25
+   ],
+   "center_xy": [
+    4.098,
+    11.9122
+   ],
+   "dist_from_spawn_m": 10.73,
+   "n_colliders": 1,
+   "n_prims": 9,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/Box_40762",
+   "type": "Xform",
+   "z_min": 0.21,
+   "z_max": 0.46,
+   "size": [
+    0.5011,
+    0.5011,
+    0.25
+   ],
+   "center_xy": [
+    4.6163,
+    11.4099
+   ],
+   "dist_from_spawn_m": 10.763,
+   "n_colliders": 1,
+   "n_prims": 9,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/Box_21059",
+   "type": "Xform",
+   "z_min": 0.21,
+   "z_max": 0.71,
+   "size": [
+    0.5152,
+    0.5152,
+    0.5
+   ],
+   "center_xy": [
+    -10.5,
+    12.5
+   ],
+   "dist_from_spawn_m": 10.798,
+   "n_colliders": 1,
+   "n_prims": 9,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/Box_33986",
+   "type": "Xform",
+   "z_min": 0.21,
+   "z_max": 0.5819,
+   "size": [
+    0.9705,
+    0.6566,
+    0.3719
+   ],
+   "center_xy": [
+    -0.5576,
+    14.8387
+   ],
+   "dist_from_spawn_m": 10.929,
+   "n_colliders": 1,
+   "n_prims": 9,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/SM_PaletteA_3933",
+   "type": "Xform",
+   "z_min": 0.0,
+   "z_max": 0.2111,
+   "size": [
+    1.0029,
+    1.2132,
+    0.2111
+   ],
+   "center_xy": [
+    -0.5543,
+    14.9016
+   ],
+   "dist_from_spawn_m": 10.99,
+   "n_colliders": 1,
+   "n_prims": 5,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/SM_PaletteA_426",
+   "type": "Xform",
+   "z_min": 0.0001,
+   "z_max": 0.2112,
+   "size": [
+    1.0029,
+    1.2132,
+    0.2111
+   ],
+   "center_xy": [
+    4.3718,
+    12.1085
+   ],
+   "dist_from_spawn_m": 11.062,
+   "n_colliders": 1,
+   "n_prims": 5,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/Box_40744",
+   "type": "Xform",
+   "z_min": 0.21,
+   "z_max": 0.46,
+   "size": [
+    0.5052,
+    0.5052,
+    0.25
+   ],
+   "center_xy": [
+    4.0826,
+    12.42
+   ],
+   "dist_from_spawn_m": 11.085,
+   "n_colliders": 1,
+   "n_prims": 9,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/Box_40760",
+   "type": "Xform",
+   "z_min": 0.21,
+   "z_max": 0.46,
+   "size": [
+    0.5032,
+    0.5032,
+    0.25
+   ],
+   "center_xy": [
+    4.624,
+    11.9121
+   ],
+   "dist_from_spawn_m": 11.107,
+   "n_colliders": 1,
+   "n_prims": 9,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/Box_21825",
+   "type": "Xform",
+   "z_min": 0.21,
+   "z_max": 0.96,
+   "size": [
+    1.0615,
+    0.7661,
+    0.75
+   ],
+   "center_xy": [
+    -5.5866,
+    15.3157
+   ],
+   "dist_from_spawn_m": 11.213,
+   "n_colliders": 1,
+   "n_prims": 9,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/Box_40758",
+   "type": "Xform",
+   "z_min": 0.21,
+   "z_max": 0.46,
+   "size": [
+    0.5053,
+    0.5053,
+    0.25
+   ],
+   "center_xy": [
+    4.6157,
+    12.4183
+   ],
+   "dist_from_spawn_m": 11.454,
+   "n_colliders": 1,
+   "n_prims": 9,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/Box_19555",
+   "type": "Xform",
+   "z_min": 0.22,
+   "z_max": 0.72,
+   "size": [
+    0.7367,
+    0.5529,
+    0.5
+   ],
+   "center_xy": [
+    -10.4385,
+    13.514
+   ],
+   "dist_from_spawn_m": 11.549,
+   "n_colliders": 1,
+   "n_prims": 9,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/Box_33984",
+   "type": "Xform",
+   "z_min": 0.21,
+   "z_max": 0.5819,
+   "size": [
+    0.962,
+    0.6433,
+    0.3719
+   ],
+   "center_xy": [
+    -0.5519,
+    15.5971
+   ],
+   "dist_from_spawn_m": 11.663,
+   "n_colliders": 1,
+   "n_prims": 9,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/SM_PaletteA_356",
+   "type": "Xform",
+   "z_min": 0.0,
+   "z_max": 0.2111,
+   "size": [
+    1.0029,
+    1.2132,
+    0.2111
+   ],
+   "center_xy": [
+    -10.4615,
+    13.6786
+   ],
+   "dist_from_spawn_m": 11.694,
+   "n_colliders": 1,
+   "n_prims": 5,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/SM_PaletteA_4589",
+   "type": "Xform",
+   "z_min": 0.0,
+   "z_max": 0.2111,
+   "size": [
+    1.0029,
+    1.2132,
+    0.2111
+   ],
+   "center_xy": [
+    -5.5754,
+    16.0105
+   ],
+   "dist_from_spawn_m": 11.894,
+   "n_colliders": 1,
+   "n_prims": 5,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/Box_19553",
+   "type": "Xform",
+   "z_min": 0.22,
+   "z_max": 0.72,
+   "size": [
+    0.703,
+    0.5043,
+    0.5
+   ],
+   "center_xy": [
+    -10.4196,
+    13.991
+   ],
+   "dist_from_spawn_m": 11.922,
+   "n_colliders": 1,
+   "n_prims": 9,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/Box_38954",
+   "type": "Xform",
+   "z_min": 0.21,
+   "z_max": 0.835,
+   "size": [
+    0.9025,
+    0.6641,
+    0.625
+   ],
+   "center_xy": [
+    4.4025,
+    13.4255
+   ],
+   "dist_from_spawn_m": 12.048,
+   "n_colliders": 1,
+   "n_prims": 9,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/Box_21823",
+   "type": "Xform",
+   "z_min": 0.21,
+   "z_max": 0.96,
+   "size": [
+    1.0601,
+    0.7643,
+    0.75
+   ],
+   "center_xy": [
+    -5.59,
+    16.19
+   ],
+   "dist_from_spawn_m": 12.073,
+   "n_colliders": 1,
+   "n_prims": 9,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/SM_PaletteA_3934",
+   "type": "Xform",
+   "z_min": 0.0,
+   "z_max": 0.2111,
+   "size": [
+    1.0029,
+    1.2132,
+    0.2111
+   ],
+   "center_xy": [
+    -0.5515,
+    16.1186
+   ],
+   "dist_from_spawn_m": 12.168,
+   "n_colliders": 1,
+   "n_prims": 5,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/SM_PaletteA_423",
+   "type": "Xform",
+   "z_min": 0.0,
+   "z_max": 0.2112,
+   "size": [
+    1.0029,
+    1.2132,
+    0.2111
+   ],
+   "center_xy": [
+    4.3747,
+    13.6405
+   ],
+   "dist_from_spawn_m": 12.193,
+   "n_colliders": 1,
+   "n_prims": 5,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/Box_33982",
+   "type": "Xform",
+   "z_min": 0.21,
+   "z_max": 0.5819,
+   "size": [
+    0.9903,
+    0.6882,
+    0.3719
+   ],
+   "center_xy": [
+    -0.56,
+    16.335
+   ],
+   "dist_from_spawn_m": 12.377,
+   "n_colliders": 1,
+   "n_prims": 9,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/Box_19551",
+   "type": "Xform",
+   "z_min": 0.22,
+   "z_max": 0.72,
+   "size": [
+    0.7407,
+    0.5588,
+    0.5
+   ],
+   "center_xy": [
+    -10.4201,
+    14.5504
+   ],
+   "dist_from_spawn_m": 12.381,
+   "n_colliders": 1,
+   "n_prims": 9,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/Box_38952",
+   "type": "Xform",
+   "z_min": 0.21,
+   "z_max": 0.835,
+   "size": [
+    0.8812,
+    0.6337,
+    0.625
+   ],
+   "center_xy": [
+    4.4102,
+    14.2015
+   ],
+   "dist_from_spawn_m": 12.65,
+   "n_colliders": 1,
+   "n_prims": 9,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/SM_PaletteA_360",
+   "type": "Xform",
+   "z_min": 0.0,
+   "z_max": 0.2111,
+   "size": [
+    1.0029,
+    1.2132,
+    0.2111
+   ],
+   "center_xy": [
+    -10.4643,
+    14.9016
+   ],
+   "dist_from_spawn_m": 12.697,
+   "n_colliders": 1,
+   "n_prims": 5,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/SM_FloorDecal_RecRed1X13",
+   "type": "Xform",
+   "z_min": 0.0001,
+   "z_max": 0.0001,
+   "size": [
+    1.378,
+    1.0793,
+    0.0
+   ],
+   "center_xy": [
+    -15.411,
+    8.6503
+   ],
+   "dist_from_spawn_m": 12.708,
+   "n_colliders": 1,
+   "n_prims": 5,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/Box_19549",
+   "type": "Xform",
+   "z_min": 0.22,
+   "z_max": 0.72,
+   "size": [
+    0.7399,
+    0.5575,
+    0.5
+   ],
+   "center_xy": [
+    -10.4203,
+    15.1084
+   ],
+   "dist_from_spawn_m": 12.847,
+   "n_colliders": 1,
+   "n_prims": 9,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/SM_Rackshield_27",
+   "type": "Xform",
+   "z_min": -0.0,
+   "z_max": 0.5,
+   "size": [
+    1.1746,
+    0.3484,
+    0.5
+   ],
+   "center_xy": [
+    -15.46,
+    8.976
+   ],
+   "dist_from_spawn_m": 12.869,
+   "n_colliders": 1,
+   "n_prims": 5,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/Barrel_15496",
+   "type": "Xform",
+   "z_min": 0.21,
+   "z_max": 0.7218,
+   "size": [
+    0.4213,
+    0.4213,
+    0.5118
+   ],
+   "center_xy": [
+    -15.4894,
+    9.5581
+   ],
+   "dist_from_spawn_m": 13.118,
+   "n_colliders": 1,
+   "n_prims": 5,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/SM_PaletteA_422",
+   "type": "Xform",
+   "z_min": 0.0,
+   "z_max": 0.2112,
+   "size": [
+    1.0029,
+    1.2132,
+    0.2111
+   ],
+   "center_xy": [
+    4.3718,
+    14.8636
+   ],
+   "dist_from_spawn_m": 13.151,
+   "n_colliders": 1,
+   "n_prims": 5,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/SM_PaletteA_357",
+   "type": "Xform",
+   "z_min": 0.0,
+   "z_max": 0.2111,
+   "size": [
+    1.0029,
+    1.2132,
+    0.2111
+   ],
+   "center_xy": [
+    -15.4546,
+    9.7884
+   ],
+   "dist_from_spawn_m": 13.18,
+   "n_colliders": 1,
+   "n_prims": 5,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/Box_38950",
+   "type": "Xform",
+   "z_min": 0.21,
+   "z_max": 0.835,
+   "size": [
+    0.9004,
+    0.6611,
+    0.625
+   ],
+   "center_xy": [
+    4.4081,
+    14.9533
+   ],
+   "dist_from_spawn_m": 13.245,
+   "n_colliders": 1,
+   "n_prims": 9,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/Bottle_15852",
+   "type": "Xform",
+   "z_min": 0.22,
+   "z_max": 0.4913,
+   "size": [
+    0.1035,
+    0.1035,
+    0.2713
+   ],
+   "center_xy": [
+    -15.1013,
+    10.7131
+   ],
+   "dist_from_spawn_m": 13.281,
+   "n_colliders": 1,
+   "n_prims": 5,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/Box_25994",
+   "type": "Xform",
+   "z_min": 0.21,
+   "z_max": 0.71,
+   "size": [
+    0.521,
+    0.521,
+    0.5
+   ],
+   "center_xy": [
+    -5.245,
+    17.5063
+   ],
+   "dist_from_spawn_m": 13.32,
+   "n_colliders": 1,
+   "n_prims": 9,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/Barrel_15494",
+   "type": "Xform",
+   "z_min": 0.21,
+   "z_max": 0.7218,
+   "size": [
+    0.4213,
+    0.4213,
+    0.5118
+   ],
+   "center_xy": [
+    -15.4894,
+    10.0594
+   ],
+   "dist_from_spawn_m": 13.327,
+   "n_colliders": 1,
+   "n_prims": 5,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/Box_19547",
+   "type": "Xform",
+   "z_min": 0.22,
+   "z_max": 0.72,
+   "size": [
+    0.7394,
+    0.5568,
+    0.5
+   ],
+   "center_xy": [
+    -10.4272,
+    15.6753
+   ],
+   "dist_from_spawn_m": 13.33,
+   "n_colliders": 1,
+   "n_prims": 9,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/Bottle_15854",
+   "type": "Xform",
+   "z_min": 0.22,
+   "z_max": 0.4213,
+   "size": [
+    0.1048,
+    0.1048,
+    0.2013
+   ],
+   "center_xy": [
+    -15.1013,
+    10.8166
+   ],
+   "dist_from_spawn_m": 13.331,
+   "n_colliders": 1,
+   "n_prims": 5,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/Box_25982",
+   "type": "Xform",
+   "z_min": 0.21,
+   "z_max": 0.71,
+   "size": [
+    0.5024,
+    0.5024,
+    0.5
+   ],
+   "center_xy": [
+    -5.7615,
+    17.457
+   ],
+   "dist_from_spawn_m": 13.35,
+   "n_colliders": 1,
+   "n_prims": 9,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/Bottle_15856",
+   "type": "Xform",
+   "z_min": 0.22,
+   "z_max": 0.5033,
+   "size": [
+    0.0631,
+    0.1344,
+    0.2833
+   ],
+   "center_xy": [
+    -15.0831,
+    10.9394
+   ],
+   "dist_from_spawn_m": 13.375,
+   "n_colliders": 1,
+   "n_prims": 5,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/SM_PaletteA_4583",
+   "type": "Xform",
+   "z_min": 0.0,
+   "z_max": 0.2111,
+   "size": [
+    1.0029,
+    1.2132,
+    0.2111
+   ],
+   "center_xy": [
+    -5.4986,
+    17.5804
+   ],
+   "dist_from_spawn_m": 13.43,
+   "n_colliders": 1,
+   "n_prims": 5,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/Bottle_15858",
+   "type": "Xform",
+   "z_min": 0.22,
+   "z_max": 0.4913,
+   "size": [
+    0.1,
+    0.1,
+    0.2713
+   ],
+   "center_xy": [
+    -15.1013,
+    11.0558
+   ],
+   "dist_from_spawn_m": 13.449,
+   "n_colliders": 1,
+   "n_prims": 5,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/Bottle_15860",
+   "type": "Xform",
+   "z_min": 0.22,
+   "z_max": 0.4913,
+   "size": [
+    0.0991,
+    0.0991,
+    0.2713
+   ],
+   "center_xy": [
+    -15.1013,
+    11.1559
+   ],
+   "dist_from_spawn_m": 13.5,
+   "n_colliders": 1,
+   "n_prims": 5,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/Bottle_15862",
+   "type": "Xform",
+   "z_min": 0.22,
+   "z_max": 0.4213,
+   "size": [
+    0.1036,
+    0.1036,
+    0.2013
+   ],
+   "center_xy": [
+    -15.1013,
+    11.2549
+   ],
+   "dist_from_spawn_m": 13.55,
+   "n_colliders": 1,
+   "n_prims": 5,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/Bottle_15864",
+   "type": "Xform",
+   "z_min": 0.22,
+   "z_max": 0.4913,
+   "size": [
+    0.102,
+    0.102,
+    0.2713
+   ],
+   "center_xy": [
+    -15.1013,
+    11.3585
+   ],
+   "dist_from_spawn_m": 13.604,
+   "n_colliders": 1,
+   "n_prims": 5,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/Box_33848",
+   "type": "Xform",
+   "z_min": 0.21,
+   "z_max": 1.085,
+   "size": [
+    0.8828,
+    0.8828,
+    0.875
+   ],
+   "center_xy": [
+    -0.4669,
+    17.5907
+   ],
+   "dist_from_spawn_m": 13.621,
+   "n_colliders": 1,
+   "n_prims": 9,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/Bottle_15866",
+   "type": "Xform",
+   "z_min": 0.22,
+   "z_max": 0.4213,
+   "size": [
+    0.0995,
+    0.0995,
+    0.2013
+   ],
+   "center_xy": [
+    -15.1013,
+    11.4605
+   ],
+   "dist_from_spawn_m": 13.657,
+   "n_colliders": 1,
+   "n_prims": 5,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/SM_PaletteA_3960",
+   "type": "Xform",
+   "z_min": 0.0,
+   "z_max": 0.2111,
+   "size": [
+    1.0029,
+    1.2132,
+    0.2111
+   ],
+   "center_xy": [
+    -0.4746,
+    17.6884
+   ],
+   "dist_from_spawn_m": 13.714,
+   "n_colliders": 1,
+   "n_prims": 5,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/SM_PaletteA_361",
+   "type": "Xform",
+   "z_min": 0.0,
+   "z_max": 0.2111,
+   "size": [
+    1.0029,
+    1.2132,
+    0.2111
+   ],
+   "center_xy": [
+    -10.4615,
+    16.1186
+   ],
+   "dist_from_spawn_m": 13.728,
+   "n_colliders": 1,
+   "n_prims": 5,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/SM_PaletteA_358",
+   "type": "Xform",
+   "z_min": 0.0,
+   "z_max": 0.2111,
+   "size": [
+    1.0029,
+    1.2132,
+    0.2111
+   ],
+   "center_xy": [
+    -15.4518,
+    11.0053
+   ],
+   "dist_from_spawn_m": 13.729,
+   "n_colliders": 1,
+   "n_prims": 5,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/Bottle_15868",
+   "type": "Xform",
+   "z_min": 0.22,
+   "z_max": 0.4959,
+   "size": [
+    0.1546,
+    0.1374,
+    0.2759
+   ],
+   "center_xy": [
+    -15.1287,
+    11.5786
+   ],
+   "dist_from_spawn_m": 13.742,
+   "n_colliders": 1,
+   "n_prims": 5,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/Box_38948",
+   "type": "Xform",
+   "z_min": 0.21,
+   "z_max": 0.835,
+   "size": [
+    0.8952,
+    0.6537,
+    0.625
+   ],
+   "center_xy": [
+    4.4079,
+    15.6266
+   ],
+   "dist_from_spawn_m": 13.792,
+   "n_colliders": 1,
+   "n_prims": 9,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/Box_19545",
+   "type": "Xform",
+   "z_min": 0.22,
+   "z_max": 0.72,
+   "size": [
+    0.7256,
+    0.5365,
+    0.5
+   ],
+   "center_xy": [
+    -10.44,
+    16.23
+   ],
+   "dist_from_spawn_m": 13.813,
+   "n_colliders": 1,
+   "n_prims": 9,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/Box_25992",
+   "type": "Xform",
+   "z_min": 0.21,
+   "z_max": 0.71,
+   "size": [
+    0.506,
+    0.506,
+    0.5
+   ],
+   "center_xy": [
+    -5.2484,
+    18.009
+   ],
+   "dist_from_spawn_m": 13.819,
+   "n_colliders": 1,
+   "n_prims": 9,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/Bottle_15870",
+   "type": "Xform",
+   "z_min": 0.22,
+   "z_max": 0.5707,
+   "size": [
+    0.1453,
+    0.1858,
+    0.3507
+   ],
+   "center_xy": [
+    -15.1247,
+    11.7411
+   ],
+   "dist_from_spawn_m": 13.826,
+   "n_colliders": 1,
+   "n_prims": 5,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/Bottle_15882",
+   "type": "Xform",
+   "z_min": 0.22,
+   "z_max": 0.5033,
+   "size": [
+    0.0608,
+    0.1334,
+    0.2833
+   ],
+   "center_xy": [
+    -15.2352,
+    11.578
+   ],
+   "dist_from_spawn_m": 13.833,
+   "n_colliders": 1,
+   "n_prims": 5,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/Box_25980",
+   "type": "Xform",
+   "z_min": 0.21,
+   "z_max": 0.71,
+   "size": [
+    0.5202,
+    0.5202,
+    0.5
+   ],
+   "center_xy": [
+    -5.7577,
+    17.9762
+   ],
+   "dist_from_spawn_m": 13.861,
+   "n_colliders": 1,
+   "n_prims": 9,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/Bottle_15872",
+   "type": "Xform",
+   "z_min": 0.22,
+   "z_max": 0.5033,
+   "size": [
+    0.0697,
+    0.1372,
+    0.2833
+   ],
+   "center_xy": [
+    -15.0831,
+    11.9011
+   ],
+   "dist_from_spawn_m": 13.878,
+   "n_colliders": 1,
+   "n_prims": 5,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/Bottle_15884",
+   "type": "Xform",
+   "z_min": 0.22,
+   "z_max": 0.5033,
+   "size": [
+    0.0608,
+    0.1334,
+    0.2833
+   ],
+   "center_xy": [
+    -15.2272,
+    11.7154
+   ],
+   "dist_from_spawn_m": 13.899,
+   "n_colliders": 1,
+   "n_prims": 5,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/Bottle_15545",
+   "type": "Xform",
+   "z_min": 0.22,
+   "z_max": 0.4213,
+   "size": [
+    0.0973,
+    0.0973,
+    0.2013
+   ],
+   "center_xy": [
+    -15.8513,
+    10.7366
+   ],
+   "dist_from_spawn_m": 13.953,
+   "n_colliders": 1,
+   "n_prims": 5,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  },
+  {
+   "path": "/Root/Warehouse/Bottle_21",
+   "type": "Xform",
+   "z_min": 0.22,
+   "z_max": 0.5033,
+   "size": [
+    0.0608,
+    0.1334,
+    0.2833
+   ],
+   "center_xy": [
+    -15.7175,
+    10.9892
+   ],
+   "dist_from_spawn_m": 13.954,
+   "n_colliders": 1,
+   "n_prims": 5,
+   "instanced": false,
+   "already_rigid": false,
+   "approximations": [
+    "none"
+   ]
+  }
+ ],
+ "families": {
+  "Barrel": 2,
+  "Bottle": 15,
+  "Box": 60,
+  "SM_BarelPlastic_C": 2,
+  "SM_BottlePlasticD": 4,
+  "SM_BucketPlastic_B": 1,
+  "SM_CardBoxA": 2,
+  "SM_CardBoxB": 3,
+  "SM_CardBoxD": 3,
+  "SM_CratePlasticNote_B": 2,
+  "SM_CratePlastic_D": 1,
+  "SM_CratePlastic_E": 1,
+  "SM_FloorDecal_RecRed1X": 5,
+  "SM_PaletteA": 27,
+  "SM_PaperNote_Small": 9,
+  "SM_Rackshield": 5,
+  "S_TrafficCone": 6,
+  "S_WetFloorSign": 2
+ }
+}

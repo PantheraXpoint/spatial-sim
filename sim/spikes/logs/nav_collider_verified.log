@@ -1,0 +1,62 @@
+[pushable +    0.0s] phase=obstacles stage=/workspace/sim/observatory_avatar.usd push=True mask=False
+[pushable +   22.3s] stage root /Root (27406 prims), load 2.43
+[pushable +   22.4s] physics: {'num_threads': 16, 'carb_task_threads': 16, 'min_frame_rate': 30, 'update_to_usd': True, 'fabric_enabled': None, 'scenes': [{'path': '/PhysicsScene', 'time_steps_per_second': 60, 'solver_type': 'TGS', 'enable_ccd': False, 'enable_gpu_dynamics': False, 'broadphase_type': 'MBP', 'enable_stabilization': False}]}
+[pushable +   22.4s] collider mask SKIPPED (PP_MASK=0)
+[sensor_factory] robot BOT_01 -> /Root/Robots/BOT_01
+[sensor_factory] robot BOT_02 -> /Root/Robots/BOT_02
+[sensor_factory] robot BOT_03 -> /Root/Robots/BOT_03
+[pushable +   24.6s] referenced 3 robots
+[pushable +   24.6s] phase obstacles presses Play itself, after the robots are pinned
+[sensor_factory] robot BOT_01 pinned static: 6 bodies, 1 articulation roots
+[sensor_factory] robot BOT_02 pinned static: 17 bodies, 1 articulation roots
+[sensor_factory] robot BOT_02 lifted +0.449 m so its lowest point rests on the floor
+[sensor_factory] robot BOT_03 pinned static: 25 bodies, 1 articulation roots
+[sensor_factory] robot BOT_03 lifted +1.044 m so its lowest point rests on the floor
+[nav_obstacles] static collider /Root/NavObstacles/Root_Worker  capsule {'radius': 0.3, 'height': 1.339, 'total_height': 1.939, 'radius_source': 'declared'}  (target already had 0 enabled colliders, its own xform scale [0.01, 0.01, 0.01])
+[nav_obstacles] static collider /Root/NavObstacles/Root_Robots_BOT_01  box {'half_extent': [0.0585, 0.0758, 0.0956]}  (target already had 5 enabled colliders, its own xform scale [1.0, 1.0, 1.0])
+[nav_obstacles] static collider /Root/NavObstacles/Root_Robots_BOT_02  box {'half_extent': [0.2439, 0.1377, 0.2689]}  (target already had 25 enabled colliders, its own xform scale [1.0, 1.0, 1.0])
+[nav_obstacles] static collider /Root/NavObstacles/Root_Robots_BOT_03  capsule {'radius': 0.3, 'height': 1.206, 'total_height': 1.806, 'radius_source': 'declared'}  (target already had 3 enabled colliders, its own xform scale [1.0, 1.0, 1.0])
+[nav_obstacles] 4 nav obstacles given a static collider, 0 missing
+  controller tuning installed: step_offset=0.04 m, slope_limit=40.0 deg (cos 0.7660), climbing=constrained; re-applied for 120 frames after each Play because OgnCharacterController overwrites stepOffset
+[pushable +   31.0s] fix applied before Play (nav colliders + controller tuning)
+[pushable +   31.0s]   bounding boxes after pinning: {'/Root/Worker': [1.918, 1.454, 1.939], '/Root/Robots/BOT_01': [0.138, 0.178, 0.191], '/Root/Robots/BOT_02': [0.574, 0.324, 0.538], '/Root/Robots/BOT_03': [0.391, 0.556, 1.806]}
+[sensor_factory] station INFRA_02 declared but not sited on this stage (no stage_position) -- skipped
+[sensor_factory] station marker at /Root/Infrastructure/INFRA_01/marker (emissive, above the station)
+[sensor_factory] INFRA_01_CAM -> /Root/Infrastructure/INFRA_01/cam_01 (camera, annotators ['rgb', 'distance_to_camera', 'semantic_segmentation'])
+[sensor_factory] INFRA_01_LIDAR -> /Root/Infrastructure/INFRA_01/lidar_01 (lidar Example_Rotary, draw attached)
+[sensor_factory] skip INFRA_01_RADAR: radar needs the three Motion BVH kit flags
+[sensor_factory] skip INFRA_02_CAM: parent /World/Infrastructure/INFRA_02 is not on the stage
+[sensor_factory] skip INFRA_02_LIDAR: parent /World/Infrastructure/INFRA_02 is not on the stage
+[sensor_factory] skip INFRA_02_RADAR: parent /World/Infrastructure/INFRA_02 is not on the stage
+[sensor_factory] BOT_01_CAM -> /Root/Robots/BOT_01/cam (camera, annotators ['rgb', 'distance_to_camera'])
+[sensor_factory] BOT_02_CAM -> /Root/Robots/BOT_02/cam (camera, annotators ['rgb', 'distance_to_camera'])
+[sensor_factory] BOT_03_CAM -> /Root/Robots/BOT_03/cam (camera, annotators ['rgb', 'distance_to_camera'])
+[sensor_factory] AVATAR_CAM_FP -> /Root/Avatar/body_mesh/cam_first_person (camera, annotators ['rgb'])
+[sensor_factory] AVATAR_CAM_TP -> /Root/Avatar/body_mesh/cam_third_person (camera, annotators ['rgb'])
+[pushable +   45.6s] observation source up; lidar sensor is INFRA_01_LIDAR
+[pushable +   45.6s] Play pressed; warming up before any probe (CLAUDE.md 10)
+[pushable +   59.2s]   physics /Root/Worker: PhysX HAS its collider -- the avatar should be stopped by it (1 own of 2 hits in the box)
+[pushable +   59.2s]   physics /Root/Robots/BOT_01: PhysX HAS its collider -- the avatar should be stopped by it (6 own of 7 hits in the box)
+[pushable +   59.2s]   physics /Root/Robots/BOT_02: PhysX HAS its collider -- the avatar should be stopped by it (26 own of 27 hits in the box)
+[pushable +   59.2s]   physics /Root/Robots/BOT_03: PhysX HAS its collider -- the avatar should be stopped by it (4 own of 5 hits in the box)
+[pushable +   61.7s]   lidar /Root/Worker: 1042 points in its bbox
+[pushable +   61.7s]   lidar /Root/Robots/BOT_01: 0 points in its bbox
+[pushable +   61.7s]   lidar /Root/Robots/BOT_02: 164 points in its bbox
+[pushable +   61.7s]   lidar /Root/Robots/BOT_03: 664 points in its bbox
+[pushable +   61.8s]   neighbours of S_WetFloorSign_2 (1.5 kg): ['/Root/GroundPlane/CollisionPlane']
+[pushable +   61.8s]   neighbours of S_TrafficCone_2 (2.0 kg): ['/Root/GroundPlane/CollisionPlane']
+[pushable +   61.8s]   neighbours of S_WetFloorSign2 (1.5 kg): ['/Root/GroundPlane/CollisionPlane']
+[pushable +   61.8s]   neighbours of S_TrafficCone2 (2.0 kg): ['/Root/GroundPlane/CollisionPlane']
+[pushable +   61.8s]   neighbours of S_TrafficCone3 (2.0 kg): ['/Root/GroundPlane/CollisionPlane']
+[pushable +   61.8s]   neighbours of SM_CratePlasticNote_B_03_18 (1.2 kg): ['/Root/GroundPlane/CollisionPlane']
+[pushable +   61.8s]   neighbours of SM_CardBoxD_04_6 (1.5 kg): ['/Root/GroundPlane/CollisionPlane']
+[pushable +   61.8s]   neighbours of SM_CardBoxA_3 (8.0 kg): ['/Root/Warehouse/SM_CardBoxD_04_6/SM_CardBoxD_04', '/Root/Warehouse/SM_CardBoxD_03_9/SM_CardBoxD_03', '/Root/Warehouse/SM_BottlePlasticD_4/SM_BottlePlasticD_02', '/Root/GroundPlane/CollisionPlane']
+[pushable +   61.8s]   neighbours of SM_CardBoxB_3 (4.0 kg): ['/Root/Warehouse/SM_BarelPlastic_C_2/SM_BarelPlastic_C_01', '/Root/Warehouse/SM_BottlePlasticD_3/SM_BottlePlasticD_01', '/Root/GroundPlane/CollisionPlane']
+[pushable +   61.8s]   neighbours of SM_BarelPlastic_C_01_25 (60.0 kg): ['/Root/Warehouse/SM_PaperNote_Small_18/SM_PaperNote_Small_15', '/Root/Warehouse/SM_PaperNote_Small_09_72/SM_PaperNote_Small_09', '/Root/Warehouse/SM_PaperNote_Small_15/SM_PaperNote_Small_15', '/Root/GroundPlane/CollisionPlane']
+[pushable +   61.8s]   nav check /Root/NavObstacles/Root_Worker: exists=True enabled=True physx_saw_it=True bbox={'min': [-2.05, 6.466, -0.124], 'max': [-1.45, 7.066, 1.815]}
+[pushable +   61.8s]   nav check /Root/NavObstacles/Root_Robots_BOT_01: exists=True enabled=True physx_saw_it=True bbox={'min': [0.758, 6.687, -0.0], 'max': [0.874, 6.839, 0.191]}
+[pushable +   61.8s]   nav check /Root/NavObstacles/Root_Robots_BOT_02: exists=True enabled=True physx_saw_it=True bbox={'min': [-4.203, 7.925, -0.0], 'max': [-3.715, 8.201, 0.538]}
+[pushable +   61.8s]   nav check /Root/NavObstacles/Root_Robots_BOT_03: exists=True enabled=True physx_saw_it=True bbox={'min': [-4.52, 6.011, 0.0], 'max': [-3.92, 6.611, 1.806]}
+[pushable +   61.8s]   CCT: {'step_offset': 0.03999999910593033, 'slope_limit': 0.7660444378852844, 'climbing_mode': 'constrained', 'non_walkable_mode': 'preventClimbing', 'slope_limit_deg': 40.0}
+[pushable +   61.8s] wrote /isaac-sim/.nvidia-omniverse/logs/pushable_obstacles.json
+[pushable +   61.8s] DONE

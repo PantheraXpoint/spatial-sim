@@ -1,0 +1,18 @@
+[pushable +    0.0s] phase=drive stage=/workspace/sim/observatory_avatar.usd push=True mask=False
+[pushable +   19.8s] stage root /Root (27406 prims), load 6.63
+[pushable +   19.9s] physics: {'num_threads': 16, 'carb_task_threads': 16, 'min_frame_rate': 30, 'update_to_usd': True, 'fabric_enabled': None, 'scenes': [{'path': '/PhysicsScene', 'time_steps_per_second': 60, 'solver_type': 'TGS', 'enable_ccd': False, 'enable_gpu_dynamics': False, 'broadphase_type': 'MBP', 'enable_stabilization': False}]}
+[pushable +   19.9s] collider mask SKIPPED (PP_MASK=0)
+[pushable +   20.1s] deactivated /Root/Avatar/Controls
+[pushable +   20.1s] playing; phase drive
+[pushable +   20.7s] arm A_bare: none
+[pushable +   23.2s]   A_bare: capsule moved 0.0000 m in 70 frames (calls: none)
+[pushable +   23.3s] arm B_activate: CharacterController.activate() after Play
+[pushable +   25.1s]   B_activate: capsule moved 0.0000 m in 70 frames (calls: CharacterController.activate() after Play)
+[pushable +   25.1s] arm C_activate_cct: activate_cct -> ok['/Root/Avatar/body_mesh']
+[pushable +   27.0s]   C_activate_cct: capsule moved 0.0000 m in 70 frames (calls: activate_cct -> ok['/Root/Avatar/body_mesh'])
+[pushable +   27.0s] arm D_worldspace: enable_worldspace_move -> ok['/Root/Avatar/body_mesh', True]
+[pushable +   28.9s]   D_worldspace: capsule moved 0.0000 m in 70 frames (calls: enable_worldspace_move -> ok['/Root/Avatar/body_mesh', True])
+[pushable +   28.9s] arm E_set_position: none
+[pushable +   31.0s]   E_set_position: capsule moved 1.9806 m in 70 frames (calls: none)
+[pushable +   31.0s] wrote /isaac-sim/.nvidia-omniverse/logs/pushable_drive.json
+[pushable +   31.0s] DONE

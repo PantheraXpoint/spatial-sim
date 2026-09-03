@@ -1,0 +1,67 @@
+[pushable +    0.0s] phase=push stage=/workspace/sim/observatory_avatar.usd push=True mask=False
+[pushable +   92.0s] stage root /Root (27406 prims), load 4.47
+[pushable +   92.1s] physics: {'num_threads': 16, 'carb_task_threads': 16, 'min_frame_rate': 30, 'update_to_usd': True, 'fabric_enabled': None, 'scenes': [{'path': '/PhysicsScene', 'time_steps_per_second': 60, 'solver_type': 'TGS', 'enable_ccd': False, 'enable_gpu_dynamics': False, 'broadphase_type': 'MBP', 'enable_stabilization': False}]}
+[pushable +   92.1s] collider mask SKIPPED (PP_MASK=0)
+[pushable_props] dynamic  /Root/Warehouse/S_WetFloorSign_2  1 kg  none -> convexDecomposition  (1 collider)  predicted dv 1.380 m/s per contact frame vs 0.082 lost to friction -> MOVES
+[pushable_props] dynamic  /Root/Warehouse/S_TrafficCone_2  2 kg  none -> convexHull  (1 collider)  predicted dv 1.361 m/s per contact frame vs 0.082 lost to friction -> MOVES
+[pushable_props] dynamic  /Root/Warehouse/S_WetFloorSign2  1 kg  none -> convexDecomposition  (1 collider)  predicted dv 1.380 m/s per contact frame vs 0.082 lost to friction -> MOVES
+[pushable_props] dynamic  /Root/Warehouse/S_TrafficCone2  2 kg  none -> convexHull  (1 collider)  predicted dv 1.361 m/s per contact frame vs 0.082 lost to friction -> MOVES
+[pushable_props] dynamic  /Root/Warehouse/S_TrafficCone3  2 kg  none -> convexHull  (1 collider)  predicted dv 1.361 m/s per contact frame vs 0.082 lost to friction -> MOVES
+[pushable_props] dynamic  /Root/Warehouse/SM_CratePlasticNote_B_03_18  1 kg  none -> convexDecomposition  (1 collider)  predicted dv 1.380 m/s per contact frame vs 0.082 lost to friction -> MOVES
+[pushable_props] dynamic  /Root/Warehouse/SM_CardBoxD_04_6  1.5 kg  none -> convexHull  (1 collider)  predicted dv 1.371 m/s per contact frame vs 0.082 lost to friction -> MOVES
+[pushable_props] dynamic  /Root/Warehouse/SM_CardBoxB_3  8 kg  none -> convexHull  (1 collider)  predicted dv 0.521 m/s per contact frame vs 0.082 lost to friction -> MOVES
+[pushable_props] dynamic  /Root/Warehouse/SM_BarelPlastic_C_01_25  8 kg  none -> convexHull  (1 collider)  predicted dv 0.521 m/s per contact frame vs 0.082 lost to friction -> MOVES
+[pushable_props] dynamic  /Root/Warehouse/SM_CardBoxA_3  65 kg  none -> convexHull  (1 collider)  predicted dv 0.064 m/s per contact frame vs 0.082 lost to friction -> STAYS
+[pushable_props] 10 props dynamic, 0 declared but not converted; stall mass 51.0 kg (F_max 250 N / g / mu_d 0.5)
+[pushable +   97.2s] deactivated /Root/Avatar/Controls -- this run drives the capsule itself
+[pushable +   97.2s] CCT activated on /Root/Avatar/body_mesh via omni.physxcct CharacterController, driven from a pre-physics stage update node; interface: ['activate_cct', 'disable_first_person', 'disable_gravity', 'enable_custom_gravity', 'enable_first_person', 'enable_gravity', 'enable_worldspace_move', 'get_cct_event_stream', 'get_controller_height', 'has_gravity_enabled', 'remove_cct', 'set_controller_height', 'set_move', 'set_position']
+[pushable_props] push callback on (sweep): 10 bodies, M=70 kg, F_max=250 N, capsule r=0.300 half-h=0.575, 5 probes
+[pushable +   97.3s] negative control: nearest floor-reaching rack is /Root/Warehouse/SM_RackFrame_4488 (4.93 m)
+[pushable +   97.3s] PP_SHOOT unset -- no render product, no annotator read (CLAUDE.md 11: this phase reports no frame times either)
+[pushable +   97.3s] playing; phase push
+[pushable +  100.2s] leg 1/11  1kg_S_WetFloorSign_2  -> /Root/Warehouse/S_WetFloorSign_2 (1.0 kg)  from (-3.50, 7.32)
+[pushable +  114.4s]   1kg_S_WetFloorSign_2: target moved 0.4283 m (bbox centre 0.6909 m, turned 88.34 deg), capsule travelled 1.45 m of 1.45 commanded, stopped on frames after 0 touches, gap 1.3974 m
+[pushable +  114.4s]   push stats this leg: {'steps': 720, 'moving_steps': 63, 'hits': 0, 'impulses': 0, 'contact_events': 0, 'contact_pairs_with_cct': 0, 'impulse_ns_total': 0.0, 'capped': 0, 'woken': 0, 'errors': 0}
+[pushable +  114.4s] wrote /isaac-sim/.nvidia-omniverse/logs/pushable_push.json
+[pushable +  114.5s] leg 2/11  2kg_S_TrafficCone_2  -> /Root/Warehouse/S_TrafficCone_2 (2.0 kg)  from (-3.11, 7.55)
+[pushable +  128.7s]   2kg_S_TrafficCone_2: target moved 0.5857 m (bbox centre 0.5858 m, turned 6.59 deg), capsule travelled 1.45 m of 1.45 commanded, stopped on frames after 3 touches, gap 0.1168 m
+[pushable +  128.7s]   push stats this leg: {'steps': 720, 'moving_steps': 63, 'hits': 3, 'impulses': 3, 'contact_events': 0, 'contact_pairs_with_cct': 0, 'impulse_ns_total': 5.6142, 'capped': 0, 'woken': 1, 'errors': 0}
+[pushable +  128.7s] wrote /isaac-sim/.nvidia-omniverse/logs/pushable_push.json
+[pushable +  128.7s] leg 3/11  1kg_S_WetFloorSign2  -> /Root/Warehouse/S_WetFloorSign2 (1.0 kg)  from (-2.18, 7.37)
+[pushable +  142.7s]   1kg_S_WetFloorSign2: target moved 0.7727 m (bbox centre 1.1068 m, turned 99.46 deg), capsule travelled 1.45 m of 1.45 commanded, stopped on frames after 2 touches, gap 0.6145 m
+[pushable +  142.7s]   push stats this leg: {'steps': 720, 'moving_steps': 63, 'hits': 2, 'impulses': 2, 'contact_events': 0, 'contact_pairs_with_cct': 0, 'impulse_ns_total': 2.758, 'capped': 0, 'woken': 1, 'errors': 0}
+[pushable +  142.7s] wrote /isaac-sim/.nvidia-omniverse/logs/pushable_push.json
+[pushable +  142.8s] leg 4/11  2kg_S_TrafficCone2  -> /Root/Warehouse/S_TrafficCone2 (2.0 kg)  from (-3.90, 7.89)
+[pushable +  156.2s]   2kg_S_TrafficCone2: target moved 0.6925 m (bbox centre 0.6919 m, turned 11.55 deg), capsule travelled 1.45 m of 1.45 commanded, stopped on frames after 2 touches, gap 0.2229 m
+[pushable +  156.2s]   push stats this leg: {'steps': 720, 'moving_steps': 63, 'hits': 2, 'impulses': 2, 'contact_events': 0, 'contact_pairs_with_cct': 0, 'impulse_ns_total': 5.4176, 'capped': 0, 'woken': 1, 'errors': 0}
+[pushable +  156.2s] wrote /isaac-sim/.nvidia-omniverse/logs/pushable_push.json
+[pushable +  156.3s] leg 5/11  2kg_S_TrafficCone3  -> /Root/Warehouse/S_TrafficCone3 (2.0 kg)  from (-2.29, 7.95)
+[pushable +  170.1s]   2kg_S_TrafficCone3: target moved 0.6971 m (bbox centre 0.6964 m, turned 9.44 deg), capsule travelled 1.45 m of 1.45 commanded, stopped on frames after 2 touches, gap 0.2274 m
+[pushable +  170.1s]   push stats this leg: {'steps': 720, 'moving_steps': 63, 'hits': 2, 'impulses': 2, 'contact_events': 0, 'contact_pairs_with_cct': 0, 'impulse_ns_total': 5.4349, 'capped': 0, 'woken': 1, 'errors': 0}
+[pushable +  170.1s] wrote /isaac-sim/.nvidia-omniverse/logs/pushable_push.json
+[pushable +  170.1s] leg 6/11  1kg_SM_CratePlasticNote_B_03_18  -> /Root/Warehouse/SM_CratePlasticNote_B_03_18 (1.0 kg)  from (-3.13, 8.45)
+[pushable +  175.0s]   1kg_SM_CratePlasticNote_B_03_18: target moved 0.3122 m (bbox centre 0.3155 m, turned 17.79 deg), capsule travelled 1.329 m of 1.33 commanded, stopped on gap after 1 touches, gap -0.0623 m
+[pushable +  175.0s]   push stats this leg: {'steps': 178, 'moving_steps': 57, 'hits': 18, 'impulses': 16, 'contact_events': 0, 'contact_pairs_with_cct': 0, 'impulse_ns_total': 29.0732, 'capped': 0, 'woken': 1, 'errors': 0}
+[pushable +  175.0s] wrote /isaac-sim/.nvidia-omniverse/logs/pushable_push.json
+[pushable +  175.0s] leg 7/11  1.5kg_SM_CardBoxD_04_6  -> /Root/Warehouse/SM_CardBoxD_04_6 (1.5 kg)  from (-2.65, 9.04)
+[pushable +  180.3s]   1.5kg_SM_CardBoxD_04_6: target moved 0.563 m (bbox centre 0.563 m, turned 12.46 deg), capsule travelled 1.304 m of 1.307 commanded, stopped on touches after 6 touches, gap -0.0218 m
+[pushable +  180.3s]   push stats this leg: {'steps': 177, 'moving_steps': 56, 'hits': 28, 'impulses': 22, 'contact_events': 0, 'contact_pairs_with_cct': 0, 'impulse_ns_total': 30.2493, 'capped': 0, 'woken': 1, 'errors': 0}
+[pushable +  180.3s] wrote /isaac-sim/.nvidia-omniverse/logs/pushable_push.json
+[pushable +  180.3s] leg 8/11  8kg_SM_CardBoxB_3  -> /Root/Warehouse/SM_CardBoxB_3 (8.0 kg)  from (-4.27, 9.81)
+[pushable +  185.1s]   8kg_SM_CardBoxB_3: target moved 0.4971 m (bbox centre 0.5156 m, turned 5.03 deg), capsule travelled 1.118 m of 1.12 commanded, stopped on touches after 6 touches, gap 0.0447 m
+[pushable +  185.1s]   push stats this leg: {'steps': 169, 'moving_steps': 49, 'hits': 46, 'impulses': 34, 'contact_events': 0, 'contact_pairs_with_cct': 0, 'impulse_ns_total': 45.9011, 'capped': 1, 'woken': 0, 'errors': 0}
+[pushable +  185.1s] wrote /isaac-sim/.nvidia-omniverse/logs/pushable_push.json
+[pushable +  185.1s] leg 9/11  8kg_SM_BarelPlastic_C_01_25  -> /Root/Warehouse/SM_BarelPlastic_C_01_25 (8.0 kg)  from (-2.27, 9.70)
+[pushable +  189.2s]   8kg_SM_BarelPlastic_C_01_25: target moved 0.0622 m (bbox centre 0.0637 m, turned 15.33 deg), capsule travelled 0.84 m of 0.84 commanded, stopped on gap after 0 touches, gap -0.056 m
+[pushable +  189.2s]   push stats this leg: {'steps': 157, 'moving_steps': 36, 'hits': 1, 'impulses': 1, 'contact_events': 0, 'contact_pairs_with_cct': 0, 'impulse_ns_total': 4.1667, 'capped': 1, 'woken': 1, 'errors': 0}
+[pushable +  189.2s] wrote /isaac-sim/.nvidia-omniverse/logs/pushable_push.json
+[pushable +  189.2s] leg 10/11  65kg_SM_CardBoxA_3  -> /Root/Warehouse/SM_CardBoxA_3 (65.0 kg)  from (-3.18, 9.22)
+[pushable +  193.7s]   65kg_SM_CardBoxA_3: target moved 0.0 m (bbox centre 0.0 m, turned 0.0 deg), capsule travelled 0.702 m of 0.7 commanded, stopped on gap after 3 touches, gap -0.0524 m
+[pushable +  193.7s]   push stats this leg: {'steps': 151, 'moving_steps': 30, 'hits': 8, 'impulses': 6, 'contact_events': 0, 'contact_pairs_with_cct': 0, 'impulse_ns_total': 19.0475, 'capped': 4, 'woken': 2, 'errors': 0}
+[pushable +  193.8s] wrote /isaac-sim/.nvidia-omniverse/logs/pushable_push.json
+[pushable +  194.2s] leg 11/11  rack_selectivity  -> /Root/Warehouse/SM_RackFrame_4488 (None kg)  from (-4.90, 7.48)
+[pushable +  197.7s]   rack_selectivity: target moved 0.0 m (bbox centre 0.0 m, turned 0.0 deg), capsule travelled 0.7 m of 0.7 commanded, stopped on gap after 0 touches, gap -0.05 m
+[pushable +  197.7s]   push stats this leg: {'steps': 151, 'moving_steps': 30, 'hits': 0, 'impulses': 0, 'contact_events': 0, 'contact_pairs_with_cct': 0, 'impulse_ns_total': 0.0, 'capped': 0, 'woken': 0, 'errors': 0}
+[pushable +  197.8s] wrote /isaac-sim/.nvidia-omniverse/logs/pushable_push.json
+[pushable +  197.8s] wrote /isaac-sim/.nvidia-omniverse/logs/pushable_push.json
+[pushable +  197.8s] DONE

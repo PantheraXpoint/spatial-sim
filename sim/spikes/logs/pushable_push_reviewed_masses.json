@@ -1,0 +1,1017 @@
+{
+ "stage": "/workspace/sim/observatory_avatar.usd",
+ "with_push_callback": true,
+ "detector": "sweep",
+ "approximation_override": null,
+ "collider_mask": false,
+ "loadavg": "12.19",
+ "physics": {
+  "num_threads": 16,
+  "carb_task_threads": 16,
+  "min_frame_rate": 30,
+  "update_to_usd": true,
+  "fabric_enabled": null,
+  "scenes": [
+   {
+    "path": "/PhysicsScene",
+    "time_steps_per_second": 60,
+    "solver_type": "TGS",
+    "enable_ccd": false,
+    "enable_gpu_dynamics": false,
+    "broadphase_type": "MBP",
+    "enable_stabilization": false
+   }
+  ]
+ },
+ "converted": {
+  "enabled": true,
+  "made": {
+   "/Root/Warehouse/S_WetFloorSign_2": {
+    "prim_path": "/Root/Warehouse/S_WetFloorSign_2",
+    "mass_kg": 1.0,
+    "approximation": "convexDecomposition",
+    "approximation_was": [
+     "none"
+    ],
+    "n_colliders": 1,
+    "note": "folding A-frame sign, 0.30 x 0.28 x 0.64 m, 4.46 m from spawn. Polypropylene; manufacturers spec these at about 1 kg. Was 1.5.",
+    "moves_under_push": true,
+    "predicted_dv_ms": 1.3803,
+    "friction_dv_ms": 0.0818
+   },
+   "/Root/Warehouse/S_TrafficCone_2": {
+    "prim_path": "/Root/Warehouse/S_TrafficCone_2",
+    "mass_kg": 2.0,
+    "approximation": "convexHull",
+    "approximation_was": [
+     "none"
+    ],
+    "n_colliders": 1,
+    "note": "450 mm PVC cone with a weighted base, 1.4-2.5 kg in the catalogues. Unchanged - this one was already right.",
+    "moves_under_push": true,
+    "predicted_dv_ms": 1.3611,
+    "friction_dv_ms": 0.0818
+   },
+   "/Root/Warehouse/S_WetFloorSign2": {
+    "prim_path": "/Root/Warehouse/S_WetFloorSign2",
+    "mass_kg": 1.0,
+    "approximation": "convexDecomposition",
+    "approximation_was": [
+     "none"
+    ],
+    "n_colliders": 1,
+    "note": "second folding sign, 4.78 m from spawn",
+    "moves_under_push": true,
+    "predicted_dv_ms": 1.3803,
+    "friction_dv_ms": 0.0818
+   },
+   "/Root/Warehouse/S_TrafficCone2": {
+    "prim_path": "/Root/Warehouse/S_TrafficCone2",
+    "mass_kg": 2.0,
+    "approximation": "convexHull",
+    "approximation_was": [
+     "none"
+    ],
+    "n_colliders": 1,
+    "note": "cone, 5.06 m from spawn",
+    "moves_under_push": true,
+    "predicted_dv_ms": 1.3611,
+    "friction_dv_ms": 0.0818
+   },
+   "/Root/Warehouse/S_TrafficCone3": {
+    "prim_path": "/Root/Warehouse/S_TrafficCone3",
+    "mass_kg": 2.0,
+    "approximation": "convexHull",
+    "approximation_was": [
+     "none"
+    ],
+    "n_colliders": 1,
+    "note": "cone, 5.28 m from spawn",
+    "moves_under_push": true,
+    "predicted_dv_ms": 1.3611,
+    "friction_dv_ms": 0.0818
+   },
+   "/Root/Warehouse/SM_CratePlasticNote_B_03_18": {
+    "prim_path": "/Root/Warehouse/SM_CratePlasticNote_B_03_18",
+    "mass_kg": 1.0,
+    "approximation": "convexDecomposition",
+    "approximation_was": [
+     "none"
+    ],
+    "n_colliders": 1,
+    "note": "shallow open plastic tray, 0.37 x 0.38 x 0.14 m (~19 L). Empty HDPE at that size is well under a kilo; 1.0 allows for a little in it. Was 1.2.",
+    "moves_under_push": true,
+    "predicted_dv_ms": 1.3803,
+    "friction_dv_ms": 0.0818
+   },
+   "/Root/Warehouse/SM_CardBoxD_04_6": {
+    "prim_path": "/Root/Warehouse/SM_CardBoxD_04_6",
+    "mass_kg": 1.5,
+    "approximation": "convexHull",
+    "approximation_was": [
+     "none"
+    ],
+    "n_colliders": 1,
+    "note": "small flat carton, 0.028 m3 -> 54 kg/m3, a lightly filled box",
+    "moves_under_push": true,
+    "predicted_dv_ms": 1.3706,
+    "friction_dv_ms": 0.0818
+   },
+   "/Root/Warehouse/SM_CardBoxB_3": {
+    "prim_path": "/Root/Warehouse/SM_CardBoxB_3",
+    "mass_kg": 8.0,
+    "approximation": "convexHull",
+    "approximation_was": [
+     "none"
+    ],
+    "n_colliders": 1,
+    "note": "medium carton, 0.168 m3 -> 48 kg/m3. Was 4.0, which is 24 kg/m3 -- packing-peanuts density, lighter than any box anyone carries.",
+    "moves_under_push": true,
+    "predicted_dv_ms": 0.5208,
+    "friction_dv_ms": 0.0818
+   },
+   "/Root/Warehouse/SM_BarelPlastic_C_01_25": {
+    "prim_path": "/Root/Warehouse/SM_BarelPlastic_C_01_25",
+    "mass_kg": 8.0,
+    "approximation": "convexHull",
+    "approximation_was": [
+     "none"
+    ],
+    "n_colliders": 1,
+    "note": "EMPTY ~140 L HDPE drum. Was 60.0, which is what a drum weighs when it is FULL of something - an empty one is 7-10 kg and skids when you walk into it. Demoted from the heavy control for exactly that reason.",
+    "moves_under_push": true,
+    "predicted_dv_ms": 0.5208,
+    "friction_dv_ms": 0.0818
+   },
+   "/Root/Warehouse/SM_CardBoxA_3": {
+    "prim_path": "/Root/Warehouse/SM_CardBoxA_3",
+    "mass_kg": 65.0,
+    "approximation": "convexHull",
+    "approximation_was": [
+     "none"
+    ],
+    "n_colliders": 1,
+    "note": "THE CONTROL, and the only prop here deliberately above the 51 kg stall mass. It is the largest prop on the list at 1.02 x 1.00 x 0.50 m (0.513 m3), so 65 kg is 127 kg/m3 -- a mid-density packed load, lighter than boxed appliances and heavier than boxed clothing. A box that size that you cannot shift is the ordinary experience of a warehouse, and it LOOKS heavy, which the drum did not: it is visibly the biggest thing on the floor and the only one that does not move. Was 8.0. Margin over the stall mass is 1.27x; the 60 kg drum it replaces was 1.18x and measured immovable under 12 impulses, so the margin holds.",
+    "moves_under_push": false,
+    "predicted_dv_ms": 0.0641,
+    "friction_dv_ms": 0.0818
+   }
+  },
+  "missing": [],
+  "stall_mass_kg": 50.97,
+  "material": {
+   "prim_path": "/Root/PhysicsMaterials/pushable_prop",
+   "static_friction": 0.6,
+   "dynamic_friction": 0.5,
+   "restitution": 0.0
+  }
+ },
+ "avatar_mass_kg": 70.0,
+ "max_push_force_n": 250.0,
+ "stall_mass_kg": 50.97,
+ "legs": [
+  {
+   "name": "1kg_S_WetFloorSign_2",
+   "target": "/Root/Warehouse/S_WetFloorSign_2",
+   "mass_kg": 1.0,
+   "target_xy": [
+    -3.520004111597931,
+    8.770007139236242
+   ],
+   "stand_off_m": 1.45,
+   "target_half_extent_m": 0.152,
+   "commanded_m": 1.45,
+   "walk_frames": 600,
+   "capsule_start": [
+    -3.50344181060791,
+    7.320101737976074,
+    0.8950000405311584
+   ],
+   "touches_at_start": 1,
+   "gap_m": 1.3974,
+   "touches": 0,
+   "stopped_on": "frames",
+   "moved_m": {
+    "/Root/Warehouse/S_WetFloorSign_2": 0.4283,
+    "/Root/Warehouse/S_TrafficCone_2": 0.0,
+    "/Root/Warehouse/S_WetFloorSign2": 0.0,
+    "/Root/Warehouse/S_TrafficCone2": 0.0,
+    "/Root/Warehouse/S_TrafficCone3": 0.0,
+    "/Root/Warehouse/SM_CratePlasticNote_B_03_18": 0.0,
+    "/Root/Warehouse/SM_CardBoxD_04_6": 0.0,
+    "/Root/Warehouse/SM_CardBoxB_3": 0.0,
+    "/Root/Warehouse/SM_BarelPlastic_C_01_25": 0.0,
+    "/Root/Warehouse/SM_CardBoxA_3": 0.0
+   },
+   "moved_center_m": {
+    "/Root/Warehouse/S_WetFloorSign_2": 0.6909,
+    "/Root/Warehouse/S_TrafficCone_2": 0.0,
+    "/Root/Warehouse/S_WetFloorSign2": 0.0,
+    "/Root/Warehouse/S_TrafficCone2": 0.0,
+    "/Root/Warehouse/S_TrafficCone3": 0.0,
+    "/Root/Warehouse/SM_CratePlasticNote_B_03_18": 0.0,
+    "/Root/Warehouse/SM_CardBoxD_04_6": 0.0,
+    "/Root/Warehouse/SM_CardBoxB_3": 0.0,
+    "/Root/Warehouse/SM_BarelPlastic_C_01_25": 0.0,
+    "/Root/Warehouse/SM_CardBoxA_3": 0.0
+   },
+   "turned_deg": {
+    "/Root/Warehouse/S_WetFloorSign_2": 88.34,
+    "/Root/Warehouse/S_TrafficCone_2": 0.0,
+    "/Root/Warehouse/S_WetFloorSign2": 0.0,
+    "/Root/Warehouse/S_TrafficCone2": 0.0,
+    "/Root/Warehouse/S_TrafficCone3": 0.0,
+    "/Root/Warehouse/SM_CratePlasticNote_B_03_18": 0.0,
+    "/Root/Warehouse/SM_CardBoxD_04_6": 0.0,
+    "/Root/Warehouse/SM_CardBoxB_3": 0.0,
+    "/Root/Warehouse/SM_BarelPlastic_C_01_25": 0.0,
+    "/Root/Warehouse/SM_CardBoxA_3": 0.0
+   },
+   "target_moved_m": 0.4283,
+   "target_moved_center_m": 0.6909,
+   "target_turned_deg": 88.34,
+   "capsule_travelled_m": 1.45,
+   "capsule_blocked": false,
+   "push": {
+    "steps": 720,
+    "moving_steps": 63,
+    "hits": 0,
+    "impulses": 0,
+    "contact_events": 0,
+    "contact_pairs_with_cct": 0,
+    "impulse_ns_total": 0.0,
+    "capped": 0,
+    "woken": 0,
+    "errors": 0
+   }
+  },
+  {
+   "name": "2kg_S_TrafficCone_2",
+   "target": "/Root/Warehouse/S_TrafficCone_2",
+   "mass_kg": 2.0,
+   "target_xy": [
+    -2.9493340513291173,
+    8.990634263989945
+   ],
+   "stand_off_m": 1.45,
+   "target_half_extent_m": 0.169,
+   "commanded_m": 1.45,
+   "walk_frames": 600,
+   "capsule_start": [
+    -3.10916805267334,
+    7.5494704246521,
+    0.8950000405311584
+   ],
+   "touches_at_start": 0,
+   "gap_m": 0.1168,
+   "touches": 3,
+   "stopped_on": "frames",
+   "moved_m": {
+    "/Root/Warehouse/S_WetFloorSign_2": 0.0,
+    "/Root/Warehouse/S_TrafficCone_2": 0.5857,
+    "/Root/Warehouse/S_WetFloorSign2": 0.0,
+    "/Root/Warehouse/S_TrafficCone2": 0.0,
+    "/Root/Warehouse/S_TrafficCone3": 0.0,
+    "/Root/Warehouse/SM_CratePlasticNote_B_03_18": 0.1205,
+    "/Root/Warehouse/SM_CardBoxD_04_6": 0.0,
+    "/Root/Warehouse/SM_CardBoxB_3": 0.0,
+    "/Root/Warehouse/SM_BarelPlastic_C_01_25": 0.0,
+    "/Root/Warehouse/SM_CardBoxA_3": 0.0
+   },
+   "moved_center_m": {
+    "/Root/Warehouse/S_WetFloorSign_2": 0.0,
+    "/Root/Warehouse/S_TrafficCone_2": 0.5858,
+    "/Root/Warehouse/S_WetFloorSign2": 0.0,
+    "/Root/Warehouse/S_TrafficCone2": 0.0,
+    "/Root/Warehouse/S_TrafficCone3": 0.0,
+    "/Root/Warehouse/SM_CratePlasticNote_B_03_18": 0.1201,
+    "/Root/Warehouse/SM_CardBoxD_04_6": 0.0,
+    "/Root/Warehouse/SM_CardBoxB_3": 0.0,
+    "/Root/Warehouse/SM_BarelPlastic_C_01_25": 0.0,
+    "/Root/Warehouse/SM_CardBoxA_3": 0.0
+   },
+   "turned_deg": {
+    "/Root/Warehouse/S_WetFloorSign_2": 0.0,
+    "/Root/Warehouse/S_TrafficCone_2": 6.59,
+    "/Root/Warehouse/S_WetFloorSign2": 0.0,
+    "/Root/Warehouse/S_TrafficCone2": 0.0,
+    "/Root/Warehouse/S_TrafficCone3": 0.0,
+    "/Root/Warehouse/SM_CratePlasticNote_B_03_18": 3.09,
+    "/Root/Warehouse/SM_CardBoxD_04_6": 0.0,
+    "/Root/Warehouse/SM_CardBoxB_3": 0.0,
+    "/Root/Warehouse/SM_BarelPlastic_C_01_25": 0.0,
+    "/Root/Warehouse/SM_CardBoxA_3": 0.0
+   },
+   "target_moved_m": 0.5857,
+   "target_moved_center_m": 0.5858,
+   "target_turned_deg": 6.59,
+   "capsule_travelled_m": 1.45,
+   "capsule_blocked": false,
+   "push": {
+    "steps": 720,
+    "moving_steps": 63,
+    "hits": 3,
+    "impulses": 3,
+    "contact_events": 0,
+    "contact_pairs_with_cct": 0,
+    "impulse_ns_total": 5.6142,
+    "capped": 0,
+    "woken": 1,
+    "errors": 0
+   }
+  },
+  {
+   "name": "1kg_S_WetFloorSign2",
+   "target": "/Root/Warehouse/S_WetFloorSign2",
+   "mass_kg": 1.0,
+   "target_xy": [
+    -1.620006454212883,
+    8.71000232128638
+   ],
+   "stand_off_m": 1.45,
+   "target_half_extent_m": 0.165,
+   "commanded_m": 1.45,
+   "walk_frames": 600,
+   "capsule_start": [
+    -2.1812078952789307,
+    7.3730082511901855,
+    0.8949998617172241
+   ],
+   "touches_at_start": 0,
+   "gap_m": 0.6145,
+   "touches": 2,
+   "stopped_on": "frames",
+   "moved_m": {
+    "/Root/Warehouse/S_WetFloorSign_2": 0.0,
+    "/Root/Warehouse/S_TrafficCone_2": 0.0,
+    "/Root/Warehouse/S_WetFloorSign2": 0.7727,
+    "/Root/Warehouse/S_TrafficCone2": 0.0,
+    "/Root/Warehouse/S_TrafficCone3": 0.0,
+    "/Root/Warehouse/SM_CratePlasticNote_B_03_18": 0.0,
+    "/Root/Warehouse/SM_CardBoxD_04_6": 0.0,
+    "/Root/Warehouse/SM_CardBoxB_3": 0.0,
+    "/Root/Warehouse/SM_BarelPlastic_C_01_25": 0.0,
+    "/Root/Warehouse/SM_CardBoxA_3": 0.0
+   },
+   "moved_center_m": {
+    "/Root/Warehouse/S_WetFloorSign_2": 0.0,
+    "/Root/Warehouse/S_TrafficCone_2": 0.0,
+    "/Root/Warehouse/S_WetFloorSign2": 1.1068,
+    "/Root/Warehouse/S_TrafficCone2": 0.0,
+    "/Root/Warehouse/S_TrafficCone3": 0.0,
+    "/Root/Warehouse/SM_CratePlasticNote_B_03_18": 0.0,
+    "/Root/Warehouse/SM_CardBoxD_04_6": 0.0,
+    "/Root/Warehouse/SM_CardBoxB_3": 0.0,
+    "/Root/Warehouse/SM_BarelPlastic_C_01_25": 0.0,
+    "/Root/Warehouse/SM_CardBoxA_3": 0.0
+   },
+   "turned_deg": {
+    "/Root/Warehouse/S_WetFloorSign_2": 0.0,
+    "/Root/Warehouse/S_TrafficCone_2": 0.0,
+    "/Root/Warehouse/S_WetFloorSign2": 99.46,
+    "/Root/Warehouse/S_TrafficCone2": 0.0,
+    "/Root/Warehouse/S_TrafficCone3": 0.0,
+    "/Root/Warehouse/SM_CratePlasticNote_B_03_18": 0.0,
+    "/Root/Warehouse/SM_CardBoxD_04_6": 0.0,
+    "/Root/Warehouse/SM_CardBoxB_3": 0.0,
+    "/Root/Warehouse/SM_BarelPlastic_C_01_25": 0.0,
+    "/Root/Warehouse/SM_CardBoxA_3": 0.0
+   },
+   "target_moved_m": 0.7727,
+   "target_moved_center_m": 1.1068,
+   "target_turned_deg": 99.46,
+   "capsule_travelled_m": 1.45,
+   "capsule_blocked": false,
+   "push": {
+    "steps": 720,
+    "moving_steps": 63,
+    "hits": 2,
+    "impulses": 2,
+    "contact_events": 0,
+    "contact_pairs_with_cct": 0,
+    "impulse_ns_total": 2.758,
+    "capped": 0,
+    "woken": 1,
+    "errors": 0
+   }
+  },
+  {
+   "name": "2kg_S_TrafficCone2",
+   "target": "/Root/Warehouse/S_TrafficCone2",
+   "mass_kg": 2.0,
+   "target_xy": [
+    -4.079333452535502,
+    9.33063533317636
+   ],
+   "stand_off_m": 1.45,
+   "target_half_extent_m": 0.169,
+   "commanded_m": 1.45,
+   "walk_frames": 600,
+   "capsule_start": [
+    -3.904524087905884,
+    7.891211032867432,
+    0.8950001001358032
+   ],
+   "touches_at_start": 0,
+   "gap_m": 0.2229,
+   "touches": 2,
+   "stopped_on": "frames",
+   "moved_m": {
+    "/Root/Warehouse/S_WetFloorSign_2": 0.0,
+    "/Root/Warehouse/S_TrafficCone_2": 0.0,
+    "/Root/Warehouse/S_WetFloorSign2": 0.0,
+    "/Root/Warehouse/S_TrafficCone2": 0.6925,
+    "/Root/Warehouse/S_TrafficCone3": 0.0,
+    "/Root/Warehouse/SM_CratePlasticNote_B_03_18": 0.0,
+    "/Root/Warehouse/SM_CardBoxD_04_6": 0.0,
+    "/Root/Warehouse/SM_CardBoxB_3": 0.0,
+    "/Root/Warehouse/SM_BarelPlastic_C_01_25": 0.0,
+    "/Root/Warehouse/SM_CardBoxA_3": 0.0
+   },
+   "moved_center_m": {
+    "/Root/Warehouse/S_WetFloorSign_2": 0.0,
+    "/Root/Warehouse/S_TrafficCone_2": 0.0,
+    "/Root/Warehouse/S_WetFloorSign2": 0.0,
+    "/Root/Warehouse/S_TrafficCone2": 0.6919,
+    "/Root/Warehouse/S_TrafficCone3": 0.0,
+    "/Root/Warehouse/SM_CratePlasticNote_B_03_18": 0.0,
+    "/Root/Warehouse/SM_CardBoxD_04_6": 0.0,
+    "/Root/Warehouse/SM_CardBoxB_3": 0.0,
+    "/Root/Warehouse/SM_BarelPlastic_C_01_25": 0.0,
+    "/Root/Warehouse/SM_CardBoxA_3": 0.0
+   },
+   "turned_deg": {
+    "/Root/Warehouse/S_WetFloorSign_2": 0.0,
+    "/Root/Warehouse/S_TrafficCone_2": 0.0,
+    "/Root/Warehouse/S_WetFloorSign2": 0.0,
+    "/Root/Warehouse/S_TrafficCone2": 11.55,
+    "/Root/Warehouse/S_TrafficCone3": 0.0,
+    "/Root/Warehouse/SM_CratePlasticNote_B_03_18": 0.0,
+    "/Root/Warehouse/SM_CardBoxD_04_6": 0.0,
+    "/Root/Warehouse/SM_CardBoxB_3": 0.0,
+    "/Root/Warehouse/SM_BarelPlastic_C_01_25": 0.0,
+    "/Root/Warehouse/SM_CardBoxA_3": 0.0
+   },
+   "target_moved_m": 0.6925,
+   "target_moved_center_m": 0.6919,
+   "target_turned_deg": 11.55,
+   "capsule_travelled_m": 1.45,
+   "capsule_blocked": false,
+   "push": {
+    "steps": 720,
+    "moving_steps": 63,
+    "hits": 2,
+    "impulses": 2,
+    "contact_events": 0,
+    "contact_pairs_with_cct": 0,
+    "impulse_ns_total": 5.4176,
+    "capped": 0,
+    "woken": 1,
+    "errors": 0
+   }
+  },
+  {
+   "name": "2kg_S_TrafficCone3",
+   "target": "/Root/Warehouse/S_TrafficCone3",
+   "mass_kg": 2.0,
+   "target_xy": [
+    -1.8393345548511413,
+    9.330635321692839
+   ],
+   "stand_off_m": 1.45,
+   "target_half_extent_m": 0.169,
+   "commanded_m": 1.45,
+   "walk_frames": 600,
+   "capsule_start": [
+    -2.2865991592407227,
+    7.951340675354004,
+    0.8949999213218689
+   ],
+   "touches_at_start": 0,
+   "gap_m": 0.2274,
+   "touches": 2,
+   "stopped_on": "frames",
+   "moved_m": {
+    "/Root/Warehouse/S_WetFloorSign_2": 0.0,
+    "/Root/Warehouse/S_TrafficCone_2": 0.0,
+    "/Root/Warehouse/S_WetFloorSign2": 0.0,
+    "/Root/Warehouse/S_TrafficCone2": 0.0,
+    "/Root/Warehouse/S_TrafficCone3": 0.6971,
+    "/Root/Warehouse/SM_CratePlasticNote_B_03_18": 0.0,
+    "/Root/Warehouse/SM_CardBoxD_04_6": 0.0,
+    "/Root/Warehouse/SM_CardBoxB_3": 0.0,
+    "/Root/Warehouse/SM_BarelPlastic_C_01_25": 0.0,
+    "/Root/Warehouse/SM_CardBoxA_3": 0.0
+   },
+   "moved_center_m": {
+    "/Root/Warehouse/S_WetFloorSign_2": 0.0,
+    "/Root/Warehouse/S_TrafficCone_2": 0.0,
+    "/Root/Warehouse/S_WetFloorSign2": 0.0,
+    "/Root/Warehouse/S_TrafficCone2": 0.0,
+    "/Root/Warehouse/S_TrafficCone3": 0.6964,
+    "/Root/Warehouse/SM_CratePlasticNote_B_03_18": 0.0,
+    "/Root/Warehouse/SM_CardBoxD_04_6": 0.0,
+    "/Root/Warehouse/SM_CardBoxB_3": 0.0,
+    "/Root/Warehouse/SM_BarelPlastic_C_01_25": 0.0,
+    "/Root/Warehouse/SM_CardBoxA_3": 0.0
+   },
+   "turned_deg": {
+    "/Root/Warehouse/S_WetFloorSign_2": 0.0,
+    "/Root/Warehouse/S_TrafficCone_2": 0.0,
+    "/Root/Warehouse/S_WetFloorSign2": 0.0,
+    "/Root/Warehouse/S_TrafficCone2": 0.0,
+    "/Root/Warehouse/S_TrafficCone3": 9.44,
+    "/Root/Warehouse/SM_CratePlasticNote_B_03_18": 0.0,
+    "/Root/Warehouse/SM_CardBoxD_04_6": 0.0,
+    "/Root/Warehouse/SM_CardBoxB_3": 0.0,
+    "/Root/Warehouse/SM_BarelPlastic_C_01_25": 0.0,
+    "/Root/Warehouse/SM_CardBoxA_3": 0.0
+   },
+   "target_moved_m": 0.6971,
+   "target_moved_center_m": 0.6964,
+   "target_turned_deg": 9.44,
+   "capsule_travelled_m": 1.45,
+   "capsule_blocked": false,
+   "push": {
+    "steps": 720,
+    "moving_steps": 63,
+    "hits": 2,
+    "impulses": 2,
+    "contact_events": 0,
+    "contact_pairs_with_cct": 0,
+    "impulse_ns_total": 5.4349,
+    "capped": 0,
+    "woken": 1,
+    "errors": 0
+   }
+  },
+  {
+   "name": "1kg_SM_CratePlasticNote_B_03_18",
+   "target": "/Root/Warehouse/SM_CratePlasticNote_B_03_18",
+   "mass_kg": 1.0,
+   "target_xy": [
+    -3.0173133586586856,
+    9.896197714407975
+   ],
+   "stand_off_m": 1.45,
+   "target_half_extent_m": 0.19,
+   "commanded_m": 1.33,
+   "walk_frames": 58,
+   "capsule_start": [
+    -3.1340715885162354,
+    8.450905799865723,
+    0.8950000405311584
+   ],
+   "touches_at_start": 0,
+   "gap_m": -0.0623,
+   "touches": 1,
+   "stopped_on": "gap",
+   "moved_m": {
+    "/Root/Warehouse/S_WetFloorSign_2": 0.0,
+    "/Root/Warehouse/S_TrafficCone_2": 0.7411,
+    "/Root/Warehouse/S_WetFloorSign2": 0.0,
+    "/Root/Warehouse/S_TrafficCone2": 0.0,
+    "/Root/Warehouse/S_TrafficCone3": 0.0,
+    "/Root/Warehouse/SM_CratePlasticNote_B_03_18": 0.3122,
+    "/Root/Warehouse/SM_CardBoxD_04_6": 0.3046,
+    "/Root/Warehouse/SM_CardBoxB_3": 0.0,
+    "/Root/Warehouse/SM_BarelPlastic_C_01_25": 0.0,
+    "/Root/Warehouse/SM_CardBoxA_3": 0.0022
+   },
+   "moved_center_m": {
+    "/Root/Warehouse/S_WetFloorSign_2": 0.0,
+    "/Root/Warehouse/S_TrafficCone_2": 0.7401,
+    "/Root/Warehouse/S_WetFloorSign2": 0.0,
+    "/Root/Warehouse/S_TrafficCone2": 0.0,
+    "/Root/Warehouse/S_TrafficCone3": 0.0,
+    "/Root/Warehouse/SM_CratePlasticNote_B_03_18": 0.3155,
+    "/Root/Warehouse/SM_CardBoxD_04_6": 0.3046,
+    "/Root/Warehouse/SM_CardBoxB_3": 0.0,
+    "/Root/Warehouse/SM_BarelPlastic_C_01_25": 0.0,
+    "/Root/Warehouse/SM_CardBoxA_3": 0.0022
+   },
+   "turned_deg": {
+    "/Root/Warehouse/S_WetFloorSign_2": 0.0,
+    "/Root/Warehouse/S_TrafficCone_2": 49.64,
+    "/Root/Warehouse/S_WetFloorSign2": 0.0,
+    "/Root/Warehouse/S_TrafficCone2": 0.0,
+    "/Root/Warehouse/S_TrafficCone3": 0.0,
+    "/Root/Warehouse/SM_CratePlasticNote_B_03_18": 17.79,
+    "/Root/Warehouse/SM_CardBoxD_04_6": 5.59,
+    "/Root/Warehouse/SM_CardBoxB_3": 0.0,
+    "/Root/Warehouse/SM_BarelPlastic_C_01_25": 0.0,
+    "/Root/Warehouse/SM_CardBoxA_3": 0.3
+   },
+   "target_moved_m": 0.3122,
+   "target_moved_center_m": 0.3155,
+   "target_turned_deg": 17.79,
+   "capsule_travelled_m": 1.329,
+   "capsule_blocked": false,
+   "push": {
+    "steps": 178,
+    "moving_steps": 57,
+    "hits": 18,
+    "impulses": 16,
+    "contact_events": 0,
+    "contact_pairs_with_cct": 0,
+    "impulse_ns_total": 29.0732,
+    "capped": 0,
+    "woken": 1,
+    "errors": 0
+   }
+  },
+  {
+   "name": "1.5kg_SM_CardBoxD_04_6",
+   "target": "/Root/Warehouse/SM_CardBoxD_04_6",
+   "mass_kg": 1.5,
+   "target_xy": [
+    -2.4065431949119445,
+    10.467046159562397
+   ],
+   "stand_off_m": 1.45,
+   "target_half_extent_m": 0.227,
+   "commanded_m": 1.307,
+   "walk_frames": 57,
+   "capsule_start": [
+    -2.652916193008423,
+    9.038130760192871,
+    0.8949999809265137
+   ],
+   "touches_at_start": 0,
+   "gap_m": -0.0218,
+   "touches": 6,
+   "stopped_on": "touches",
+   "moved_m": {
+    "/Root/Warehouse/S_WetFloorSign_2": 0.0,
+    "/Root/Warehouse/S_TrafficCone_2": 0.5226,
+    "/Root/Warehouse/S_WetFloorSign2": 0.0,
+    "/Root/Warehouse/S_TrafficCone2": 0.0,
+    "/Root/Warehouse/S_TrafficCone3": 0.0,
+    "/Root/Warehouse/SM_CratePlasticNote_B_03_18": 0.0,
+    "/Root/Warehouse/SM_CardBoxD_04_6": 0.563,
+    "/Root/Warehouse/SM_CardBoxB_3": 0.0,
+    "/Root/Warehouse/SM_BarelPlastic_C_01_25": 0.2359,
+    "/Root/Warehouse/SM_CardBoxA_3": 0.022
+   },
+   "moved_center_m": {
+    "/Root/Warehouse/S_WetFloorSign_2": 0.0,
+    "/Root/Warehouse/S_TrafficCone_2": 0.5248,
+    "/Root/Warehouse/S_WetFloorSign2": 0.0,
+    "/Root/Warehouse/S_TrafficCone2": 0.0,
+    "/Root/Warehouse/S_TrafficCone3": 0.0,
+    "/Root/Warehouse/SM_CratePlasticNote_B_03_18": 0.0,
+    "/Root/Warehouse/SM_CardBoxD_04_6": 0.563,
+    "/Root/Warehouse/SM_CardBoxB_3": 0.0,
+    "/Root/Warehouse/SM_BarelPlastic_C_01_25": 0.2079,
+    "/Root/Warehouse/SM_CardBoxA_3": 0.0217
+   },
+   "turned_deg": {
+    "/Root/Warehouse/S_WetFloorSign_2": 0.0,
+    "/Root/Warehouse/S_TrafficCone_2": 17.71,
+    "/Root/Warehouse/S_WetFloorSign2": 0.0,
+    "/Root/Warehouse/S_TrafficCone2": 0.0,
+    "/Root/Warehouse/S_TrafficCone3": 0.0,
+    "/Root/Warehouse/SM_CratePlasticNote_B_03_18": 0.0,
+    "/Root/Warehouse/SM_CardBoxD_04_6": 12.46,
+    "/Root/Warehouse/SM_CardBoxB_3": 0.0,
+    "/Root/Warehouse/SM_BarelPlastic_C_01_25": 23.82,
+    "/Root/Warehouse/SM_CardBoxA_3": 1.93
+   },
+   "target_moved_m": 0.563,
+   "target_moved_center_m": 0.563,
+   "target_turned_deg": 12.46,
+   "capsule_travelled_m": 1.304,
+   "capsule_blocked": false,
+   "push": {
+    "steps": 177,
+    "moving_steps": 56,
+    "hits": 28,
+    "impulses": 22,
+    "contact_events": 0,
+    "contact_pairs_with_cct": 0,
+    "impulse_ns_total": 30.2493,
+    "capped": 0,
+    "woken": 1,
+    "errors": 0
+   }
+  },
+  {
+   "name": "8kg_SM_CardBoxB_3",
+   "target": "/Root/Warehouse/SM_CardBoxB_3",
+   "mass_kg": 8.0,
+   "target_xy": [
+    -4.473796525667801,
+    11.246586549493584
+   ],
+   "stand_off_m": 1.45,
+   "target_half_extent_m": 0.29,
+   "commanded_m": 1.12,
+   "walk_frames": 49,
+   "capsule_start": [
+    -4.266073703765869,
+    9.811542510986328,
+    0.8950002193450928
+   ],
+   "touches_at_start": 0,
+   "gap_m": 0.0447,
+   "touches": 6,
+   "stopped_on": "touches",
+   "moved_m": {
+    "/Root/Warehouse/S_WetFloorSign_2": 0.0,
+    "/Root/Warehouse/S_TrafficCone_2": 0.0,
+    "/Root/Warehouse/S_WetFloorSign2": 0.0,
+    "/Root/Warehouse/S_TrafficCone2": 1.2343,
+    "/Root/Warehouse/S_TrafficCone3": 0.0,
+    "/Root/Warehouse/SM_CratePlasticNote_B_03_18": 0.0,
+    "/Root/Warehouse/SM_CardBoxD_04_6": 0.0,
+    "/Root/Warehouse/SM_CardBoxB_3": 0.4971,
+    "/Root/Warehouse/SM_BarelPlastic_C_01_25": 0.0,
+    "/Root/Warehouse/SM_CardBoxA_3": 0.0
+   },
+   "moved_center_m": {
+    "/Root/Warehouse/S_WetFloorSign_2": 0.0,
+    "/Root/Warehouse/S_TrafficCone_2": 0.0,
+    "/Root/Warehouse/S_WetFloorSign2": 0.0,
+    "/Root/Warehouse/S_TrafficCone2": 1.2337,
+    "/Root/Warehouse/S_TrafficCone3": 0.0,
+    "/Root/Warehouse/SM_CratePlasticNote_B_03_18": 0.0,
+    "/Root/Warehouse/SM_CardBoxD_04_6": 0.0,
+    "/Root/Warehouse/SM_CardBoxB_3": 0.5156,
+    "/Root/Warehouse/SM_BarelPlastic_C_01_25": 0.0,
+    "/Root/Warehouse/SM_CardBoxA_3": 0.0
+   },
+   "turned_deg": {
+    "/Root/Warehouse/S_WetFloorSign_2": 0.0,
+    "/Root/Warehouse/S_TrafficCone_2": 0.0,
+    "/Root/Warehouse/S_WetFloorSign2": 0.0,
+    "/Root/Warehouse/S_TrafficCone2": 30.12,
+    "/Root/Warehouse/S_TrafficCone3": 0.0,
+    "/Root/Warehouse/SM_CratePlasticNote_B_03_18": 0.0,
+    "/Root/Warehouse/SM_CardBoxD_04_6": 0.0,
+    "/Root/Warehouse/SM_CardBoxB_3": 5.03,
+    "/Root/Warehouse/SM_BarelPlastic_C_01_25": 0.0,
+    "/Root/Warehouse/SM_CardBoxA_3": 0.0
+   },
+   "target_moved_m": 0.4971,
+   "target_moved_center_m": 0.5156,
+   "target_turned_deg": 5.03,
+   "capsule_travelled_m": 1.118,
+   "capsule_blocked": false,
+   "push": {
+    "steps": 169,
+    "moving_steps": 49,
+    "hits": 46,
+    "impulses": 34,
+    "contact_events": 0,
+    "contact_pairs_with_cct": 0,
+    "impulse_ns_total": 45.9011,
+    "capped": 1,
+    "woken": 0,
+    "errors": 0
+   }
+  },
+  {
+   "name": "8kg_SM_BarelPlastic_C_01_25",
+   "target": "/Root/Warehouse/SM_BarelPlastic_C_01_25",
+   "mass_kg": 8.0,
+   "target_xy": [
+    -1.9580487208621713,
+    11.11307670150318
+   ],
+   "stand_off_m": 1.45,
+   "target_half_extent_m": 0.366,
+   "commanded_m": 0.84,
+   "walk_frames": 37,
+   "capsule_start": [
+    -2.2722105979919434,
+    9.697519302368164,
+    0.8949999809265137
+   ],
+   "touches_at_start": 0,
+   "gap_m": -0.056,
+   "touches": 0,
+   "stopped_on": "gap",
+   "moved_m": {
+    "/Root/Warehouse/S_WetFloorSign_2": 0.0,
+    "/Root/Warehouse/S_TrafficCone_2": 0.0,
+    "/Root/Warehouse/S_WetFloorSign2": 0.0,
+    "/Root/Warehouse/S_TrafficCone2": 0.0,
+    "/Root/Warehouse/S_TrafficCone3": 0.0,
+    "/Root/Warehouse/SM_CratePlasticNote_B_03_18": 0.0,
+    "/Root/Warehouse/SM_CardBoxD_04_6": 0.0,
+    "/Root/Warehouse/SM_CardBoxB_3": 0.0,
+    "/Root/Warehouse/SM_BarelPlastic_C_01_25": 0.0622,
+    "/Root/Warehouse/SM_CardBoxA_3": 0.0
+   },
+   "moved_center_m": {
+    "/Root/Warehouse/S_WetFloorSign_2": 0.0,
+    "/Root/Warehouse/S_TrafficCone_2": 0.0,
+    "/Root/Warehouse/S_WetFloorSign2": 0.0,
+    "/Root/Warehouse/S_TrafficCone2": 0.0,
+    "/Root/Warehouse/S_TrafficCone3": 0.0,
+    "/Root/Warehouse/SM_CratePlasticNote_B_03_18": 0.0,
+    "/Root/Warehouse/SM_CardBoxD_04_6": 0.0,
+    "/Root/Warehouse/SM_CardBoxB_3": 0.0,
+    "/Root/Warehouse/SM_BarelPlastic_C_01_25": 0.0637,
+    "/Root/Warehouse/SM_CardBoxA_3": 0.0
+   },
+   "turned_deg": {
+    "/Root/Warehouse/S_WetFloorSign_2": 0.0,
+    "/Root/Warehouse/S_TrafficCone_2": 0.0,
+    "/Root/Warehouse/S_WetFloorSign2": 0.0,
+    "/Root/Warehouse/S_TrafficCone2": 0.0,
+    "/Root/Warehouse/S_TrafficCone3": 0.0,
+    "/Root/Warehouse/SM_CratePlasticNote_B_03_18": 0.0,
+    "/Root/Warehouse/SM_CardBoxD_04_6": 0.0,
+    "/Root/Warehouse/SM_CardBoxB_3": 0.0,
+    "/Root/Warehouse/SM_BarelPlastic_C_01_25": 15.33,
+    "/Root/Warehouse/SM_CardBoxA_3": 0.0
+   },
+   "target_moved_m": 0.0622,
+   "target_moved_center_m": 0.0637,
+   "target_turned_deg": 15.33,
+   "capsule_travelled_m": 0.84,
+   "capsule_blocked": false,
+   "push": {
+    "steps": 157,
+    "moving_steps": 36,
+    "hits": 1,
+    "impulses": 1,
+    "contact_events": 0,
+    "contact_pairs_with_cct": 0,
+    "impulse_ns_total": 4.1667,
+    "capped": 1,
+    "woken": 1,
+    "errors": 0
+   }
+  },
+  {
+   "name": "65kg_SM_CardBoxA_3",
+   "target": "/Root/Warehouse/SM_CardBoxA_3",
+   "mass_kg": 65.0,
+   "target_xy": [
+    -3.0966885100972257,
+    10.674568480143991
+   ],
+   "stand_off_m": 1.459,
+   "target_half_extent_m": 0.509,
+   "commanded_m": 0.7,
+   "walk_frames": 31,
+   "capsule_start": [
+    -3.1818411350250244,
+    9.21776294708252,
+    0.8950000405311584
+   ],
+   "touches_at_start": 1,
+   "gap_m": -0.0524,
+   "touches": 3,
+   "stopped_on": "gap",
+   "moved_m": {
+    "/Root/Warehouse/S_WetFloorSign_2": 0.0,
+    "/Root/Warehouse/S_TrafficCone_2": 0.0031,
+    "/Root/Warehouse/S_WetFloorSign2": 0.0,
+    "/Root/Warehouse/S_TrafficCone2": 0.0,
+    "/Root/Warehouse/S_TrafficCone3": 0.0,
+    "/Root/Warehouse/SM_CratePlasticNote_B_03_18": 0.375,
+    "/Root/Warehouse/SM_CardBoxD_04_6": 0.0002,
+    "/Root/Warehouse/SM_CardBoxB_3": 0.0,
+    "/Root/Warehouse/SM_BarelPlastic_C_01_25": 0.0,
+    "/Root/Warehouse/SM_CardBoxA_3": 0.0
+   },
+   "moved_center_m": {
+    "/Root/Warehouse/S_WetFloorSign_2": 0.0,
+    "/Root/Warehouse/S_TrafficCone_2": 0.0025,
+    "/Root/Warehouse/S_WetFloorSign2": 0.0,
+    "/Root/Warehouse/S_TrafficCone2": 0.0,
+    "/Root/Warehouse/S_TrafficCone3": 0.0,
+    "/Root/Warehouse/SM_CratePlasticNote_B_03_18": 0.3752,
+    "/Root/Warehouse/SM_CardBoxD_04_6": 0.0002,
+    "/Root/Warehouse/SM_CardBoxB_3": 0.0,
+    "/Root/Warehouse/SM_BarelPlastic_C_01_25": 0.0,
+    "/Root/Warehouse/SM_CardBoxA_3": 0.0
+   },
+   "turned_deg": {
+    "/Root/Warehouse/S_WetFloorSign_2": 0.0,
+    "/Root/Warehouse/S_TrafficCone_2": 0.76,
+    "/Root/Warehouse/S_WetFloorSign2": 0.0,
+    "/Root/Warehouse/S_TrafficCone2": 0.0,
+    "/Root/Warehouse/S_TrafficCone3": 0.0,
+    "/Root/Warehouse/SM_CratePlasticNote_B_03_18": 0.83,
+    "/Root/Warehouse/SM_CardBoxD_04_6": 0.05,
+    "/Root/Warehouse/SM_CardBoxB_3": 0.0,
+    "/Root/Warehouse/SM_BarelPlastic_C_01_25": 0.0,
+    "/Root/Warehouse/SM_CardBoxA_3": 0.0
+   },
+   "target_moved_m": 0.0,
+   "target_moved_center_m": 0.0,
+   "target_turned_deg": 0.0,
+   "capsule_travelled_m": 0.702,
+   "capsule_blocked": false,
+   "push": {
+    "steps": 151,
+    "moving_steps": 30,
+    "hits": 8,
+    "impulses": 6,
+    "contact_events": 0,
+    "contact_pairs_with_cct": 0,
+    "impulse_ns_total": 19.0475,
+    "capped": 4,
+    "woken": 2,
+    "errors": 0
+   }
+  },
+  {
+   "name": "rack_selectivity",
+   "target": "/Root/Warehouse/SM_RackFrame_4488",
+   "mass_kg": null,
+   "target_xy": [
+    -5.500003662092019,
+    8.798941798198204
+   ],
+   "stand_off_m": 1.45,
+   "target_half_extent_m": 0.5,
+   "commanded_m": 0.7,
+   "walk_frames": 31,
+   "capsule_start": [
+    -4.902841091156006,
+    7.4776177406311035,
+    0.8950002193450928
+   ],
+   "touches_at_start": 0,
+   "gap_m": -0.05,
+   "touches": 0,
+   "stopped_on": "gap",
+   "moved_m": {
+    "/Root/Warehouse/S_WetFloorSign_2": 0.0,
+    "/Root/Warehouse/S_TrafficCone_2": 0.0,
+    "/Root/Warehouse/S_WetFloorSign2": 0.0,
+    "/Root/Warehouse/S_TrafficCone2": 0.0,
+    "/Root/Warehouse/S_TrafficCone3": 0.0,
+    "/Root/Warehouse/SM_CratePlasticNote_B_03_18": 0.0,
+    "/Root/Warehouse/SM_CardBoxD_04_6": 0.0,
+    "/Root/Warehouse/SM_CardBoxB_3": 0.0,
+    "/Root/Warehouse/SM_BarelPlastic_C_01_25": 0.0,
+    "/Root/Warehouse/SM_CardBoxA_3": 0.0,
+    "/Root/Warehouse/SM_RackFrame_4488": 0.0
+   },
+   "moved_center_m": {
+    "/Root/Warehouse/S_WetFloorSign_2": 0.0,
+    "/Root/Warehouse/S_TrafficCone_2": 0.0,
+    "/Root/Warehouse/S_WetFloorSign2": 0.0,
+    "/Root/Warehouse/S_TrafficCone2": 0.0,
+    "/Root/Warehouse/S_TrafficCone3": 0.0,
+    "/Root/Warehouse/SM_CratePlasticNote_B_03_18": 0.0,
+    "/Root/Warehouse/SM_CardBoxD_04_6": 0.0,
+    "/Root/Warehouse/SM_CardBoxB_3": 0.0,
+    "/Root/Warehouse/SM_BarelPlastic_C_01_25": 0.0,
+    "/Root/Warehouse/SM_CardBoxA_3": 0.0,
+    "/Root/Warehouse/SM_RackFrame_4488": 0.0
+   },
+   "turned_deg": {
+    "/Root/Warehouse/S_WetFloorSign_2": 0.0,
+    "/Root/Warehouse/S_TrafficCone_2": 0.0,
+    "/Root/Warehouse/S_WetFloorSign2": 0.0,
+    "/Root/Warehouse/S_TrafficCone2": 0.0,
+    "/Root/Warehouse/S_TrafficCone3": 0.0,
+    "/Root/Warehouse/SM_CratePlasticNote_B_03_18": 0.0,
+    "/Root/Warehouse/SM_CardBoxD_04_6": 0.0,
+    "/Root/Warehouse/SM_CardBoxB_3": 0.0,
+    "/Root/Warehouse/SM_BarelPlastic_C_01_25": 0.0,
+    "/Root/Warehouse/SM_CardBoxA_3": 0.0,
+    "/Root/Warehouse/SM_RackFrame_4488": 0.0
+   },
+   "target_moved_m": 0.0,
+   "target_moved_center_m": 0.0,
+   "target_turned_deg": 0.0,
+   "capsule_travelled_m": 0.7,
+   "capsule_blocked": false,
+   "push": {
+    "steps": 151,
+    "moving_steps": 30,
+    "hits": 0,
+    "impulses": 0,
+    "contact_events": 0,
+    "contact_pairs_with_cct": 0,
+    "impulse_ns_total": 0.0,
+    "capped": 0,
+    "woken": 0,
+    "errors": 0
+   }
+  }
+ ],
+ "push_stats_total": {
+  "steps": 4920,
+  "moving_steps": 584,
+  "hits": 114,
+  "impulses": 92,
+  "contact_events": 0,
+  "contact_pairs_with_cct": 0,
+  "impulse_ns_total": 164.3291106401104,
+  "capped": 10,
+  "woken": 12,
+  "errors": 0
+ },
+ "push_notes": [],
+ "shots": [],
+ "reads_annotators": false
+}

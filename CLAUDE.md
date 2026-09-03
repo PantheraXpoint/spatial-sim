@@ -8,14 +8,44 @@ every session in this repo. Keep it short enough that it always gets read.
 ## What this project is
 
 An Isaac Sim "sensor observatory": an instrumented warehouse/factory with static
-multi-modal sensor stations, static robot observation platforms, and one
-keyboard-driven avatar. **The avatar is the only moving entity.** The goal is
-that sensor readings visibly change as it moves through the space.
+multi-modal sensor stations, **displaceable** robot observation platforms, and
+one keyboard-driven avatar. **The avatar is the only self-propelled entity.**
+The goal is that sensor readings visibly change as it moves through the space.
 
-Robots do not move. There is no task or algorithm yet. Making the robots static
-deletes locomotion policies, teleop, and navmesh baking while *sharpening* the
-demo: multiple heterogeneous sensors observing one dynamic element is the
-research claim in miniature.
+**AMENDED 2026-09-02. The robots used to be static and the file used to say
+"the avatar is the only moving entity".** They are now dynamic rigid bodies
+carrying their real hardware masses — TurtleBot3 Burger 1 kg, Unitree Go2
+15 kg, Unitree H1 47 kg — so the avatar can shove them, and mass alone decides
+how far: measured, the Burger goes 0.32 m and spins, the Go2 slides 0.27 m, the
+H1 shifts 0.015 m. None is tuned to be immovable. `/Root/Worker` stays a static
+collider.
+
+What that costs, stated at the top because it is a premise and not a detail:
+
+* **A sensor platform that moves has moved its sensor.** S9's contrast — the
+  same event seen from 0.2 m, 0.4 m and 1.7 m — still holds, but the heights
+  are no longer guaranteed constant across an episode. `config/scene.yaml`'s
+  `stage_position` is now an INITIAL condition, not a property.
+* **Frame-to-frame comparisons must name which sensors they assume are still.**
+  `sim/spikes/move_object_exec.py` compares readings across a step and its
+  claims hold for the four INFRA/station sensors, which are still fixed to the
+  building; they no longer hold for the three robot cameras. There is a note in
+  that file.
+* **Published extrinsics stay correct.** `sim/observation_adapter.py` builds a
+  fresh `UsdGeom.XformCache` every tick and reads each sensor's pose live, so a
+  robot that has been pushed reports where it actually is.
+
+Nothing else came back: the robots are still not self-propelled, so there is
+still no locomotion policy, no teleop and no navmesh. Their own articulations
+stay disabled and a single convex proxy carries the physics
+(`sim/nav_obstacles.py`); the shipped link colliders are switched off, which is
+**29 fewer colliders** than before. Legged robots still collapse without a
+controller — that has not changed and is why the articulation stays off.
+
+There is no task or algorithm yet. Multiple heterogeneous sensors observing one
+dynamic element is still the research claim in miniature; the world around that
+element is now allowed to be moved by it, which is the benchmark's stated
+contribution rather than a departure from it.
 
 ---
 
@@ -229,11 +259,19 @@ If you cannot verify an API against current docs, say so rather than guessing.
 
 Ranked by how much time they cost.
 
-1. **Avatar with no collision mesh.** The free-fly viewport camera is not a
+1. **Avatar with no RENDER mesh.** The free-fly viewport camera is not a
    physical object — no mesh, no collision, no material. Lidar rays pass
    through it, cameras render nothing, radar returns nothing, segmentation has
    nothing to label. *Every sensor reading stays constant and nothing warns
    you.* This is the most likely failure of the entire design.
+
+   **It is about render geometry, and collision is a separate axis.** Ray
+   sensors trace the render BVH, so the two fail independently and neither
+   subsystem mentions the other. Measured 2026-09-02: `/Root/Worker` has
+   **zero colliders in the PhysX scene** and is the **best-lit target on the
+   stage** at 1,042 lidar returns — the avatar walks straight through the man
+   it can see perfectly. Do not read "no collider" as "invisible to sensors",
+   or the reverse.
 2. **Reading `generic-model-output` as if it were metres.** It is **spherical
    and sensor-local by default** — per-element `x`/`y`/`z` are azimuth degrees,
    elevation degrees, range metres — while `core/observation.py` promises
@@ -335,9 +373,69 @@ Ranked by how much time they cost.
     The **6.23 ms residual is unexplained** — repeatable, and appearing in
     neither timed region. See `sim/spikes/FINDINGS.md`.
 
-    Last in this list because it was measured last, not because it costs least.
-    The numbering above is cited by number from `sim/observation_adapter.py`,
-    `tests/contract.py` and `sim/spikes/`, so it is deliberately append-only.
+    Eleventh because it was measured eleventh, not because it costs least.
+    The numbering in this list is cited by number from
+    `sim/observation_adapter.py`, `tests/contract.py` and `sim/spikes/`, so it
+    is deliberately append-only.
+
+12. **An exception inside a carb subscription callback is caught and logged,
+    never raised.** Kit prints the traceback and calls your callback again next
+    frame, forever. Nothing downstream sees a failure: the subscribing code's
+    own `try/except` never fires, because the exception happened *inside* the
+    callback and not at the call site. Measured 2026-09-01 — an update-event
+    handler died on `e.payload.get("dt")` (**the update event's payload is a
+    carb binding, not a dict, and has no `.get`**; `omni.physxcct` reads it by
+    subscript, `e.payload["dt"]`) and produced **3,872 identical tracebacks in
+    about a minute** while the spike sat in its warm-up phase, advanced no
+    state and wrote no result. The visible symptom is a hung run, not an error,
+    and the traceback body is easy to filter out of a log you are grepping for
+    your own prefix.
+
+    Two rules follow:
+
+    - **Wrap every per-frame callback whole, and disarm it on first failure**
+      rather than logging at 60 Hz. `sim/pushable_props.py`'s
+      `PushCallback._on_step` does this and records the traceback in
+      `stats["errors"]`, so the failure lands in the run's JSON.
+    - **Timestamp your own log lines.** The Kit log's clock stops where the
+      script's work begins, so without them a hung run looks exactly like a
+      slow step — this one was misread as a slow collider-mask pass for
+      twenty minutes. With them: the mask is **84 s**, not minutes.
+
+13. **A prop cannot become pushable and keep its exact collider.** PhysX has no
+    dynamic triangle mesh, so applying `RigidBodyAPI` to a prim whose collider
+    is `approximation = "none"` silently changes what the scene collides
+    against — NVIDIA's own `omni.physx.scripts.utils.setCollider` rewrites
+    `none` to `convexHull` for you, and authoring the schema directly (which is
+    what `sim/pushable_props.py` does) gets the conversion without even the
+    `carb.log_warn`. Every floor prop in this warehouse ships as `none`. It
+    matters because the benchmark measures navigation against collision
+    geometry: a hull fills concavities, so an open crate becomes a closed box.
+    `make_pushable` records `approximation_was` per prop for exactly this
+    reason, and concave props take `convexDecomposition` instead.
+
+14. **A prim's own Xform scale silently resizes any collider authored under
+    it.** `/Root/Worker`'s Xform is at **0.01**, so a capsule authored as a
+    child of it with radius 0.30 comes out **9 mm across**. Measured
+    2026-09-02, and the reason it is on this list rather than in a commit
+    message: the prim existed, its `CollisionAPI` was applied, its
+    `collisionEnabled` was true, and a PhysX overlap **reported it** — every
+    check available said yes, and the collider was the size of a grape. Author
+    colliders in world space under a scope of their own
+    (`sim/nav_obstacles.py` uses `/Root/NavObstacles`) unless the target has to
+    carry them, and if it does, divide by the target's own world scale and
+    print it.
+
+15. **`Usd.PrimRange` does not descend into instance prototypes.** A referenced
+    robot is mostly instance proxies — BOT_02 is 213 prims of 283 — so a plain
+    traversal reports **0 meshes and 0 colliders whether or not it has any**.
+    Measured 2026-09-02, and it produced a report that all three robots were
+    collisionless when they carry 5, 25 and 3. Use
+    `Usd.PrimRange(prim, Usd.TraverseInstanceProxies())` for any question of
+    the form "what does this asset contain", and note that
+    `sensor_factory.pin_robots_static` traverses without it too — it is
+    counting rigid bodies, which happen to live outside the prototypes here,
+    so it is right by luck rather than by construction.
 
 ---
 

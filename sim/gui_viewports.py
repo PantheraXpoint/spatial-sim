@@ -25,6 +25,22 @@ Once it is up, in this order
 
 Controls once you press Play: W/S forward/back, A/D left/right, E/Q up/down.
 Movement is world-axis; the view does not turn (see sim/avatar.py).
+
+Ten floor-level props are dynamic rigid bodies (config/scene.yaml ->
+pushable_props): walk into a cone or a carton and it moves; walk into a rack,
+a wall or the 60 kg drum and it does not. ``GUI_PUSHABLE=0`` puts them back to
+static colliders. See sim/pushable_props.py for the impulse model and
+sim/spikes/FINDINGS.md for what it costs.
+
+The Worker gets a static collider and the three robots get DYNAMIC physics
+proxies at their real masses -- Burger 1 kg, Go2 15 kg, H1 47 kg
+(sim/nav_obstacles.py). Walk into the Burger and it skitters; walk into the H1
+and it barely shifts. That is an amendment to CLAUDE.md's opening invariant and
+to S9, both of which say so. The character controller is tuned here too --
+step offset 0.04 m, slope limit 40 deg, climbing mode constrained -- and the
+step offset is re-applied after every Play because OgnCharacterController
+overwrites it with 0.01. ``GUI_NAV_OBSTACLES=0`` and ``GUI_CCT_TUNING=0``
+restore the old behaviour for an A/B.
 """
 
 from __future__ import annotations
@@ -55,6 +71,8 @@ os.environ["SF_NO_AUTORUN"] = "1"
 import avatar as av  # noqa: E402  -- sibling module, see sys.path above
 import sensor_factory as sf  # noqa: E402
 import sensor_inspector as si  # noqa: E402
+import nav_obstacles as no  # noqa: E402
+import pushable_props as pp  # noqa: E402
 from core.observation import Modality  # noqa: E402
 
 STAGE = os.environ.get("SF_STAGE", str(REPO / "sim" / "observatory_avatar.usd"))
@@ -90,6 +108,27 @@ DISABLE_HIGH_COLLIDERS = os.environ.get("GUI_KEEP_ALL_COLLIDERS") != "1"
 # behaviour every earlier session measured.
 LIDAR = os.environ.get("GUI_LIDAR") != "0"
 LIDAR_DRAW = os.environ.get("GUI_LIDAR_DRAW") != "0"
+# The pushable props (config/scene.yaml -> pushable_props). Two gates rather
+# than one, because they cost differently and separating them is what made the
+# cost attributable. Measured 2026-09-01, headless, collider mask on, no
+# annotator read on any arm:
+#     10 dynamic bodies, avatar standing    +0.01 ms/frame   (they sleep)
+#     10 dynamic bodies, walked through    +11.05 ms
+#     ... plus the hit callback             +5.44 ms         (5 sweeps a step)
+# The idle arms sit on the 60 fps cap, so those two deltas are lower bounds.
+#     GUI_PUSHABLE=0        props stay static colliders (as shipped)
+#     GUI_PUSH_CALLBACK=0   props are dynamic, nothing pushes them
+# Both default ON. Derivation in sim/spikes/FINDINGS.md; the config's own
+# `enabled: false` turns them off for every entry point at once.
+PUSHABLE = os.environ.get("GUI_PUSHABLE") != "0"
+PUSH_CALLBACK = os.environ.get("GUI_PUSH_CALLBACK") != "0"
+# Static collision for the Worker and the three robots, and the character
+# controller's own step offset / slope limit / climbing mode. Both default ON;
+# GUI_NAV_OBSTACLES=0 and GUI_CCT_TUNING=0 restore the state in which the
+# avatar walked through the Worker and climbed onto a barrel, which is the only
+# reason the gates exist -- they are for A/B, not for production.
+NAV_OBSTACLES = os.environ.get("GUI_NAV_OBSTACLES") != "0"
+CCT_TUNING = os.environ.get("GUI_CCT_TUNING") != "0"
 
 
 def log(msg: str) -> None:
@@ -209,6 +248,11 @@ class Boot:
         self.follow_sub = None
         self.robots: dict = {}
         self.inspector = None
+        self.pushable: dict = {}
+        self.push_cb = None
+        self.nav: dict = {}
+        self.cct_tuning = None
+        self.proxy_follow = None
         self.pin_at = None
         self.fps_at = None
         self._t = None
@@ -218,9 +262,39 @@ class Boot:
         if self.pin_at is None or self.frame < self.pin_at:
             return
         self.pin_at = None
+        stage = self.ctx.get_stage()
         if self.robots:
-            sf.pin_robots_static(self.ctx.get_stage(), self.robots)
-            log("robots pinned static -- they will not collapse at Play")
+            sf.pin_robots_static(stage, self.robots)
+            log("robots pinned static -- their own articulations stay disabled; "
+                "a physics proxy carries them from here")
+
+        # Everything physics-side that depends on a settled robot, in order.
+        if NAV_OBSTACLES:
+            self.nav = no.add_nav_obstacles(stage)
+            self.proxy_follow = no.install_proxy_follow(stage, self.nav)
+        else:
+            log("nav obstacles SKIPPED (GUI_NAV_OBSTACLES=0) -- the avatar will "
+                "walk through the Worker and the robots are back to being walls")
+        if PUSHABLE and PUSH_CALLBACK:  # noqa: SIM102
+            # Kept on the instance. Dropping the reference unsubscribes and the
+            # boxes silently stop moving -- the same failure shape as
+            # follow_sub. The robots' proxies go through the SAME callback, so
+            # a 15 kg robot and a 15 kg crate get the same impulse.
+            self.push_cb = pp.install_push_callback(
+                stage, self.pushable,
+                extra_bodies=no.dynamic_bodies(self.nav) if NAV_OBSTACLES else None)
+            n_dyn = sum(1 for r in (self.nav.get("made") or {}).values()
+                        if r.get("dynamic"))
+            log("=" * 68)
+            log(f"PHYSICS READY -- {len(self.pushable.get('made') or {})} pushable "
+                f"props, {len(self.nav.get('made') or {})} nav obstacles "
+                f"({n_dyn} of them dynamic robots), "
+                f"follow={'on' if self.proxy_follow else 'OFF'}, "
+                f"push={'on' if self.push_cb else 'OFF'}")
+            log("=" * 68)
+        elif PUSHABLE:
+            log("push callback SKIPPED (GUI_PUSH_CALLBACK=0) -- props and robot "
+                "proxies are dynamic but the avatar will not push them")
 
     def _log_fps(self) -> None:
         """A frame-rate line every ~300 frames, so the number in this session is
@@ -314,6 +388,15 @@ class Boot:
         # subscription is stashed on the instance because dropping it
         # unsubscribes and the body silently stops following.
         self.follow_sub = av.install_character_follow(stage)
+        # The controller's own settings, and they are re-applied after every
+        # Play on purpose: OgnCharacterController writes stepOffset=0.01 when
+        # the graph activates. Kept on the instance -- dropping it stops the
+        # re-apply and the step offset silently reverts on the next Play.
+        if CCT_TUNING:
+            self.cct_tuning = av.install_controller_tuning(stage)
+        else:
+            log("controller tuning SKIPPED (GUI_CCT_TUNING=0) -- expect "
+                "step_offset 0.01 m and climbing_mode 'easy' at Play")
         # S12 readout. Kept on the instance: dropping either reference stops
         # the panel updating, silently.
         try:
@@ -328,6 +411,25 @@ class Boot:
             sf.disable_unreachable_colliders(stage)
         else:
             log("collider mask SKIPPED (GUI_KEEP_ALL_COLLIDERS=1) -- expect ~2.5 fps at Play")
+
+        # Pushable props LAST among the physics edits, and after the mask: the
+        # mask walks every collider on the stage and switches off the ones out
+        # of reach, and these props are all within reach, so the order is not
+        # load-bearing -- but a prop that the mask had disabled would be a
+        # dynamic body with no collision, which is the kind of silent nothing
+        # this project keeps a list of. Running second makes that impossible.
+        # Props here; the nav obstacles, the proxy follow and the push callback
+        # all wait for _pin_pending. ONE authoring pass, after the robots have
+        # been pinned and dropped onto the floor, because a proxy sized from a
+        # bounding box taken before the drop is a metre underground and the
+        # follow's reference pose would be taken from a robot that is about to
+        # move. The push callback goes last of all because it needs both the
+        # props and the robot proxies.
+        if PUSHABLE:
+            self.pushable = pp.make_pushable(stage)
+        else:
+            log("pushable props SKIPPED (GUI_PUSHABLE=0) -- every prop stays a "
+                "static collider")
 
         cams = {sid: rec["prim_path"] for sid, rec in created.items() if rec["kind"] == "camera"}
         if PANEL not in cams:
@@ -350,7 +452,12 @@ class Boot:
         log("=" * 68)
         log(f"READY -- {len(created)} sensors, {len(made)} viewport panels bound, "
             f"follow={'on' if self.follow_sub else 'OFF'}, "
-            f"inspector={'on' if self.inspector else 'OFF'}")
+            f"inspector={'on' if self.inspector else 'OFF'}, "
+            f"pushable={len(self.pushable.get('made') or {})} props "
+            f"({'push on' if self.push_cb else 'push OFF'}), "
+            f"cct={'tuned' if self.cct_tuning else 'SHIPPED'} "
+            f"(nav obstacles and the push callback arrive at the robot pin, "
+            f"~90 frames from now)")
         log_panel_resolutions(made)
         log_lidar_config(created)
         log("Sensor Inspector panel: select a sensor prim to see its live numbers")

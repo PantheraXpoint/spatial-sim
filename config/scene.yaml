@@ -59,7 +59,29 @@ avatar:
   spawn_xy: [-3.469, 4.305]
   # The character-controller OmniGraph node types speed as an int in units/s
   # and this stage is 1.0 m/unit, so this rounds to 1 m/s at runtime.
-  move_speed: 1.4            # m/s, roughly human walking pace
+  move_speed: 1.4
+  # PhysX character-controller settings. Every number here is measured against
+  # this stage; the derivation is in sim/avatar.py:apply_controller_tuning and
+  # sim/spikes/FINDINGS.md.
+  controller:
+    # Maximum height of an obstacle the avatar steps over instead of colliding
+    # with. Chosen from an EMPTY BAND in the scene: nothing resting on the
+    # floor within 14 m of spawn has a top between 0.025 m (paper notes) and
+    # 0.061 m (plastic bottles). Below 0.025 the avatar is stopped by sheets of
+    # paper; above 0.137 it levitates over the crates.
+    step_offset: 0.04
+    # DEGREES here, cosine in the schema -- sim/avatar.py converts. The value
+    # this replaces was 0.5, which is 60 degrees and let the avatar walk up the
+    # flank of a drum.
+    slope_limit_deg: 40.0
+    contact_offset: 0.02
+    # "easy" (the PhysX default, and what this stage was running) lets the
+    # capsule climb over an obstacle from the impact normal REGARDLESS of the
+    # step offset. That is what put the avatar on top of a 60 kg barrel while
+    # the step offset was 0.01 m. "constrained" limits climbing to the step
+    # offset.
+    climbing_mode: constrained
+    non_walkable_mode: preventClimbing            # m/s, roughly human walking pace
 
 robots:
   # `position` is the MOCK's world (Layer 3 calibration, unchanged);
@@ -169,3 +191,210 @@ renderer:
   # Radar needs these. They raise VRAM and render cost for EVERY sensor, so
   # keep them false until M9 and toggle off when not demoing radar.
   raytracing_motion: false
+
+# =============================================================================
+# PUSHABLE PROPS -- the small set of floor-level warehouse props the avatar can
+# shove. Everything else in the warehouse stays a static collider.
+#
+# HOW THIS LIST WAS MADE, because hard rule 1 says never invent a prim path.
+# `sim/spikes/_diag_pushable.py PP_PHASE=enumerate` walks the 3,137 children of
+# /Root/Warehouse, computes a world bbox for each, and reports the 150 that sit
+# on the floor (z_min <= 0.40), stay within the avatar's 2.2 m reach, are under
+# 1.6 m across, and are within 14 m of the spawn point. That list is a
+# PROPOSAL. This one is the shortlist, chosen by hand from it, and three
+# families in the proposal were rejected outright:
+#
+#   SM_FloorDecal_RecRed1X*   zero-thickness paint on the concrete (size z=0.0)
+#   SM_Rackshield_*           steel guards bolted to the rack feet
+#   SM_PaperNote_Small_*      2 cm of paper; a convex hull of it is a sliver
+#
+# and three more on the brief's own terms -- no pallets (they are what other
+# props rest ON), nothing stacked on a pallet (z_min 0.21, so its support would
+# have to move too), nothing in a rack.
+#
+# MASS IS NOT A TUNING KNOB HERE. sim/pushable_props.py caps the push at a
+# person's force budget, so a prop stops responding above
+#     m = F_max / (g * mu_dynamic) = 250 / (9.81 * 0.5) = 51.0 kg
+# The list deliberately straddles that: nine props from 1.2 to 8 kg that slide,
+# and one 60 kg drum that does not. The drum is the control -- it is how you
+# tell "the push works" apart from "everything is frictionless".
+#
+# APPROXIMATION. PhysX has no dynamic triangle mesh, so becoming pushable means
+# becoming convex; every prop here is `approximation: none` (exact) today.
+# Convex-by-nature shapes (cartons, cone, drum) take convexHull and lose
+# nothing. The A-frame wet-floor signs and the open crate are concave and take
+# convexDecomposition so the concavity survives. See sim/pushable_props.py.
+# =============================================================================
+pushable_props:
+  enabled: true
+  # The avatar's effective mass, for the inelastic momentum transfer. A person.
+  avatar_mass_kg: 70.0
+  # The most a walking person can shove with. Together with dynamic_friction
+  # this is what makes a heavy prop immovable; see the stall mass above.
+  max_push_force_n: 250.0
+  # Below this the avatar is standing still and nothing is pushed.
+  min_push_speed_ms: 0.05
+  # "sweep": rebuild PxUserControllerHitReport with forward sphere sweeps.
+  # "contact": PhysX contact reports (needs the CCT actor to appear in them).
+  # "both": sweep pushes, contact reports are counted for comparison.
+  detector: sweep
+  # Sphere probes along the capsule for the sweep. Five, not three: a sphere at
+  # the capsule's mid-height bulges 0.3 m past the cylinder's ends, so a sparse
+  # ladder both misses low props and reaches for things the capsule could not
+  # touch. Costs ~5.4 ms/frame while walking (measured); lower it if you need
+  # the frames back and can live with small props being missed.
+  n_probes: 5
+  material:
+    prim_path: /Root/PhysicsMaterials/pushable_prop
+    static_friction: 0.6
+    dynamic_friction: 0.5
+    restitution: 0.0
+  props:
+    # MASSES ARE THE EMPTY CONTAINER'S OWN WEIGHT. Every prop on this floor is
+    # an empty carton, crate, drum or sign -- cardboard, plastic and air -- so
+    # a density argument is the wrong tool: it prices contents that are not
+    # there. A large empty carton is a few kilograms however big it looks.
+    #
+    # Cardboard is priced by SURFACE, not volume: single-wall corrugated runs
+    # about 0.5 kg/m2 and double-wall about 0.85.
+    #
+    #   prop            measured (m)           empty-weight derivation
+    #   wet floor sign  0.30 x 0.28 x 0.645   folding PP A-frame, ~1 kg spec
+    #   traffic cone    0.34 x 0.33 x 0.463   450 mm PVC, weighted base, 1.4-2.5 kg
+    #   plastic tray    0.37 x 0.38 x 0.137   ~19 L HDPE crate, empty
+    #   small carton    0.45 x 0.41 x 0.149   0.63 m2 single-wall -> 0.4 kg
+    #   medium carton   0.58 x 0.58 x 0.501   1.84 m2 single-wall -> 1.1 kg
+    #   large carton    1.02 x 1.00 x 0.503   4.07 m2 double-wall -> 3.5 kg
+    #   plastic drum    0.66 x 0.65 x 0.422   ~140 L HDPE, empty
+    #
+    # THERE IS NO STALL CONTROL HERE ANY MORE, and that is deliberate. Nothing
+    # on this floor plausibly exceeds the 51 kg stall mass, so a prop set to
+    # exceed it would be a number invented to make a demo work. The previous
+    # 65 kg entry on SM_CardBoxA_3 was exactly that. If a stall control is
+    # wanted it has to be something structurally heavy that is already in the
+    # scene -- the forklift, or a stack of pallets -- not a hand-set mass on an
+    # empty box. The consequence, stated so nobody has to rediscover it: the
+    # force-cap term of the impulse model is now UNEXERCISED by the props. The
+    # heaviest real object the avatar can walk into is the 47 kg H1, which is
+    # still below the stall mass and therefore creeps rather than refuses.
+    - prim_path: /Root/Warehouse/S_WetFloorSign_2
+      mass_kg: 1.0
+      approximation: convexDecomposition
+      note: folding A-frame sign, polypropylene shell; ~1 kg is the catalogue
+        weight and there is nothing to put inside it
+    - prim_path: /Root/Warehouse/S_TrafficCone_2
+      mass_kg: 2.0
+      approximation: convexHull
+      note: 450 mm PVC cone. Not a container -- the base is deliberately
+        weighted, which is why it is the heaviest small prop here
+    - prim_path: /Root/Warehouse/S_WetFloorSign2
+      mass_kg: 1.0
+      approximation: convexDecomposition
+      note: second folding sign, 4.78 m from spawn
+    - prim_path: /Root/Warehouse/S_TrafficCone2
+      mass_kg: 2.0
+      approximation: convexHull
+      note: cone, 5.06 m from spawn
+    - prim_path: /Root/Warehouse/S_TrafficCone3
+      mass_kg: 2.0
+      approximation: convexHull
+      note: cone, 5.28 m from spawn
+    - prim_path: /Root/Warehouse/SM_CratePlasticNote_B_03_18
+      mass_kg: 0.7
+      approximation: convexDecomposition
+      note: open plastic tray, ~19 L. An empty HDPE crate that size is well
+        under a kilo. Was 1.0, which still allowed for contents.
+    - prim_path: /Root/Warehouse/SM_CardBoxD_04_6
+      mass_kg: 0.4
+      approximation: convexHull
+      note: small carton, 0.63 m2 of single-wall corrugated. Was 1.5, which was
+        a box with something in it.
+    - prim_path: /Root/Warehouse/SM_CardBoxB_3
+      mass_kg: 1.1
+      approximation: convexHull
+      note: medium carton, 1.84 m2 of single-wall. Was 8.0 by density.
+    - prim_path: /Root/Warehouse/SM_CardBoxA_3
+      mass_kg: 3.5
+      approximation: convexHull
+      note: >-
+        large carton, 4.07 m2 of double-wall corrugated -- big, and still light,
+        which is the whole point of this revision. Was 65.0 as a fabricated
+        stall control; an empty box of this size weighs about what a full
+        kettle does.
+    - prim_path: /Root/Warehouse/SM_BarelPlastic_C_01_25
+      mass_kg: 8.0
+      approximation: convexHull
+      note: EMPTY ~140 L HDPE drum, 7-10 kg. The heaviest prop on the list and
+        still a quarter of a person.
+
+# =============================================================================
+# NAV OBSTACLES -- static collision for prims that are obstacles but were never
+# colliders. See sim/nav_obstacles.py for the measurements behind each entry.
+#
+# These are NOT rigid bodies and must not become any: they are fixed
+# observation platforms and a stationary character, and a shoveable sensor
+# platform would contradict the one thing the demo rests on -- a fixed sensor
+# that did not move while the world did.
+#
+# Measured at Play with a PhysX overlap over each prim's own footprint:
+#   /Root/Worker         0 colliders in the physics scene   (none at all)
+#   /Root/Robots/BOT_01  5   whole robot, but only 0.19 m tall
+#   /Root/Robots/BOT_02  25  calves, thighs and feet -- you walk between them
+#   /Root/Robots/BOT_03  3   two ankles and the torso, of 25 links
+# and the lidar sees all four regardless (1046 points on the Worker, which has
+# no collider at all), because ray sensors trace render geometry.
+# =============================================================================
+nav_obstacles:
+  enabled: true
+  # Physics for the dynamic proxies. Angular damping is high and rotation about
+  # X and Y is locked in code: these are machines that stay upright, and a
+  # standing capsule that is free to rotate falls over the first time anything
+  # touches it and then rolls.
+  linear_damping: 0.15
+  angular_damping: 0.60
+  max_linear_velocity: 4.0
+  sleep_threshold: 0.005
+  # Where the colliders live. A scope of their own in WORLD space, not a child
+  # of each target: /Root/Worker's Xform carries a scale, and a capsule
+  # authored under it came out 9 mm across while every check still said the
+  # collider existed and was enabled. See sim/nav_obstacles.py.
+  scope: /Root/NavObstacles
+  # Footprint shrink, applied in X and Y only. A bounding box is bigger than
+  # the thing inside it -- an H1's outstretched-arm bbox is much wider than the
+  # robot -- and a collider you cannot see is one you must not oversize.
+  footprint_scale: 0.85
+  targets:
+    - prim_path: /Root/Worker
+      shape: capsule
+      # Declared, not derived: his bbox is 1.45 m across because his arms are
+      # out, and 0.30 m is what the avatar's own capsule uses for a person.
+      radius: 0.30
+      note: skinned character, zero colliders, 11 render meshes; the lidar's
+        best-lit target on the stage and completely absent from physics
+    - prim_path: /Root/Robots/BOT_01
+      shape: box
+      dynamic: true
+      # A TurtleBot3 Burger is about 1 kg. Nothing is tuned here -- that is
+      # what the machine weighs, and at 1 kg against a 70 kg avatar it
+      # skitters, which is what happens if you kick one.
+      mass_kg: 1.0
+      note: TurtleBot3 Burger, 0.19 m tall, ~1 kg
+    - prim_path: /Root/Robots/BOT_02
+      shape: box
+      dynamic: true
+      # Unitree Go2, 15 kg for the standard model.
+      mass_kg: 15.0
+      note: Go2 quadruped, ~15 kg; shipped collision was calves, thighs and
+        feet, so there was a person-sized gap under the trunk
+    - prim_path: /Root/Robots/BOT_03
+      shape: capsule
+      # Same reason as the Worker, more so: the H1's arm span is 2.1 m, which
+      # derived a capsule wider than the robot is tall.
+      radius: 0.30
+      dynamic: true
+      # Unitree H1, 47 kg. The heaviest thing the avatar can walk into on this
+      # floor and STILL below the 51 kg stall mass, so it creeps rather than
+      # refuses. Not tuned to be immovable; it simply nearly is.
+      mass_kg: 47.0
+      note: H1 humanoid, ~47 kg, 1.81 m; a capsule is the honest shape for a
+        standing biped and rotation about X and Y is locked so it cannot topple

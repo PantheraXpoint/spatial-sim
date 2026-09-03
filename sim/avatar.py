@@ -132,7 +132,10 @@ from pathlib import Path  # noqa: E402
 import omni.graph.core as og  # noqa: E402
 import omni.usd  # noqa: E402
 import yaml  # noqa: E402
-from isaacsim.core.experimental.materials import NonVisualMaterial, PreviewSurfaceMaterial  # noqa: E402
+from isaacsim.core.experimental.materials import (  # noqa: E402
+    NonVisualMaterial,
+    PreviewSurfaceMaterial,
+)
 from isaacsim.core.experimental.utils.app import enable_extension  # noqa: E402
 from isaacsim.core.experimental.utils.semantics import add_labels  # noqa: E402
 from pxr import Gf, PhysxSchema, Sdf, Usd, UsdGeom, UsdShade, Vt  # noqa: E402
@@ -281,9 +284,7 @@ def add_avatar(
     # stage declares the intent and verify_avatar.py can read it statically.
     cct = PhysxSchema.PhysxCharacterControllerAPI.Apply(body_prim)
     cct.CreateUpAxisAttr(up_axis)
-    cct.CreateSlopeLimitAttr(0.5)
-    cct.CreateStepOffsetAttr(0.2)
-    cct.CreateContactOffsetAttr(0.02)
+    apply_controller_tuning(body_prim, cfg.get("controller"))
 
     # --- semantics ---------------------------------------------------------
     # 6.x schema: UsdSemantics.LabelsAPI -> semantics:labels:class. Note the
@@ -507,9 +508,172 @@ def _add_character(
     UsdGeom.Imageable(char).CreateVisibilityAttr(UsdGeom.Tokens.inherited)
 
 
+# ---------------------------------------------------------------------------
+# The character controller's own settings
+# ---------------------------------------------------------------------------
+#: Defaults, used when config/scene.yaml carries no ``avatar.controller`` block.
+#: Every one of these is a measured choice; see apply_controller_tuning.
+CONTROLLER_DEFAULTS = {
+    "step_offset": 0.04,
+    "slope_limit_deg": 40.0,
+    "contact_offset": 0.02,
+    "climbing_mode": "constrained",
+    "non_walkable_mode": "preventClimbing",
+}
+
+
+def slope_limit_cosine(degrees: float) -> float:
+    """Degrees in, schema value out. **`slopeLimit` is a COSINE.**
+
+    PhysxSchema's own doc: "Slope limit which the CCT can climb. The limit is
+    expressed as the cosine of the desired limit angle. A value of 0 disables
+    this feature." So 0.5 is not a small number, it is **60 degrees**, and
+    raising the value makes the controller *stricter*, not looser. The config
+    declares degrees for that reason.
+    """
+    import math
+
+    d = max(0.0, min(89.9, float(degrees)))
+    return float(math.cos(math.radians(d)))
+
+
+def apply_controller_tuning(body_prim: Usd.Prim, controller: dict | None = None) -> dict:
+    """Write step offset, slope limit, climbing mode and contact offset.
+
+    WHY EACH NUMBER, all measured on this stage 2026-09-02.
+
+    ``step_offset = 0.04`` -- the maximum height of an obstacle the character
+    can climb. The scene decides where this belongs, and it leaves an empty
+    band to put it in. Every collider resting on the floor within 14 m of the
+    spawn point, by height::
+
+        0.005-0.025 m   9   SM_PaperNote_Small_*   sheets of paper
+        --------------------  nothing at all between 0.025 and 0.061  --------
+        0.061 m         4   SM_BottlePlasticD_*
+        0.080 m         1   SM_CratePlastic_E_03
+        0.137 m         2   SM_CratePlasticNote_B_*
+        0.149 m         1   SM_CardBoxD_04
+        0.211 m        27   SM_PaletteA_*          pallets
+
+    0.04 sits in the middle of that gap: it steps over all nine paper notes and
+    stops at everything from the bottles up. The value it replaces was
+    **0.01**, which is below the paper -- the avatar was being stopped dead by
+    sheets of A4, which is the "too low catches on floor decals" failure in its
+    literal form. Anything above 0.061 starts levitating over litter and above
+    0.137 over the crates.
+
+    ``slope_limit_deg = 40`` -- cos(40 deg) = 0.766, replacing 0.5, which is
+    **60 degrees**. A warehouse floor is flat; 40 degrees is already generous
+    for a walking person and it makes the flank of a drum non-walkable.
+
+    ``climbing_mode = "constrained"`` -- and this is the one that matters for
+    "the avatar climbs onto a barrel". PhysX's default ``easy`` lets the capsule
+    climb over an obstacle according to the impact normal **regardless of the
+    step offset**; ``constrained`` limits it to the step offset. The step offset
+    was already 0.01 m when the avatar was riding a 0.42 m drum, so the step
+    offset was never the mechanism -- this was.
+
+    THE ONE THING THIS CANNOT FIX BY ITSELF: ``OgnCharacterController`` builds
+    ``CharacterController(path, cam, gravity, 0.01)`` and its ``activate()``
+    does ``GetStepOffsetAttr().Set(0.01)`` on 'Simulation Start Play'. So the
+    graph overwrites ``stepOffset`` -- and only ``stepOffset`` -- every time you
+    press Play. :func:`install_controller_tuning` is what puts it back.
+    """
+    from pxr import PhysxSchema
+
+    c = dict(CONTROLLER_DEFAULTS)
+    c.update(controller or {})
+    api = PhysxSchema.PhysxCharacterControllerAPI(body_prim)
+    if not body_prim.HasAPI(PhysxSchema.PhysxCharacterControllerAPI):
+        api = PhysxSchema.PhysxCharacterControllerAPI.Apply(body_prim)
+    api.CreateStepOffsetAttr().Set(float(c["step_offset"]))
+    api.CreateSlopeLimitAttr().Set(slope_limit_cosine(c["slope_limit_deg"]))
+    api.CreateContactOffsetAttr().Set(float(c["contact_offset"]))
+    api.CreateClimbingModeAttr().Set(str(c["climbing_mode"]))
+    api.CreateNonWalkableModeAttr().Set(str(c["non_walkable_mode"]))
+    return c
+
+
+def install_controller_tuning(
+    stage: Usd.Stage, avatar_path: str = f"{ROOT}/Avatar", *,
+    controller: dict | None = None, frames: int = 120,
+):
+    """Re-apply the controller settings for a while after every Play.
+
+    KEEP A REFERENCE, like install_character_follow: dropping it unsubscribes.
+
+    Needed because the shipped ``OgnCharacterController`` writes ``stepOffset``
+    at Play and the value it writes is 0.01, not ours. Re-applying once on the
+    PLAY event is not enough on its own -- the CCT manager builds the PxController
+    from the USD attributes in its own stage-update pass and the ordering
+    between that and a timeline-event subscriber is not ours to decide -- so
+    this rewrites for ``frames`` frames after each PLAY and then stops. One
+    attribute compare per frame for two seconds, then nothing.
+
+    **What this does not establish:** that PhysX honours a change made after
+    the controller exists. The attribute reads back correctly either way, and
+    the only test that separates those two is walking into something, which
+    needs the GUI (``set_move`` does not work headlessly on this host -- see
+    sim/spikes/FINDINGS.md). Treat the step offset as verified only once a
+    human has walked the avatar over a paper note and into a bottle.
+    """
+    import omni.kit.app
+    import omni.timeline
+
+    body = stage.GetPrimAtPath(f"{avatar_path}/body_mesh")
+    if not body.IsValid():
+        print(f"  ! cannot tune the controller: {body.GetPath()} is not valid",
+              flush=True)
+        return None
+    if controller is None:
+        try:
+            controller = load_avatar_config().get("controller")
+        except Exception:                                         # noqa: BLE001
+            controller = None
+    wanted = apply_controller_tuning(body, controller)
+    state = {"left": 0}
+
+    def _on_timeline(e) -> None:
+        if e.type == int(omni.timeline.TimelineEventType.PLAY):
+            state["left"] = int(frames)
+
+    def _on_update(_e) -> None:
+        if state["left"] <= 0:
+            return
+        state["left"] -= 1
+        apply_controller_tuning(body, controller)
+
+    timeline_sub = omni.timeline.get_timeline_interface(
+    ).get_timeline_event_stream().create_subscription_to_pop(
+        _on_timeline, name="avatar_cct_tuning_timeline")
+    update_sub = omni.kit.app.get_app().get_update_event_stream(
+    ).create_subscription_to_pop(_on_update, name="avatar_cct_tuning")
+    holder = _CctTuning(timeline_sub, update_sub, wanted)
+    print(f"  controller tuning installed: step_offset={wanted['step_offset']} m, "
+          f"slope_limit={wanted['slope_limit_deg']} deg "
+          f"(cos {slope_limit_cosine(wanted['slope_limit_deg']):.4f}), "
+          f"climbing={wanted['climbing_mode']}; re-applied for {frames} frames "
+          f"after each Play because OgnCharacterController overwrites stepOffset",
+          flush=True)
+    return holder
+
+
+class _CctTuning:
+    """Holds both subscriptions. Dropping it stops the re-apply."""
+
+    def __init__(self, timeline_sub, update_sub, wanted: dict) -> None:
+        self.timeline_sub = timeline_sub
+        self.update_sub = update_sub
+        self.wanted = wanted
+
+    def close(self) -> None:
+        self.timeline_sub = None
+        self.update_sub = None
+
+
 def install_character_follow(
     stage: Usd.Stage, avatar_path: str = f"{ROOT}/Avatar", *,
-    animate: bool = True, walk: "WalkCycle | None" = None,
+    animate: bool = True, walk: WalkCycle | None = None,
 ):
     """Make the visible character track the collision capsule, every frame.
 

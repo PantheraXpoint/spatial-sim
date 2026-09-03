@@ -1,0 +1,72 @@
+{
+ "stage": "/workspace/sim/observatory_avatar.usd",
+ "reads_annotators": false,
+ "note": "no render product is created in this phase; every arm samples the same way (CLAUDE.md failure mode 11)",
+ "collider_mask": true,
+ "loadavg": "2.89",
+ "physics": {
+  "num_threads": 16,
+  "carb_task_threads": 16,
+  "min_frame_rate": 30,
+  "update_to_usd": true,
+  "fabric_enabled": null,
+  "scenes": [
+   {
+    "path": "/PhysicsScene",
+    "time_steps_per_second": 60,
+    "solver_type": "TGS",
+    "enable_ccd": false,
+    "enable_gpu_dynamics": false,
+    "broadphase_type": "MBP",
+    "enable_stabilization": false
+   }
+  ]
+ },
+ "n_props": 10,
+ "detector": "sweep",
+ "arms": {
+  "A_static_idle": {
+   "frame_ms": 16.68,
+   "fps": 59.96,
+   "n": 240
+  },
+  "A_static_walk": {
+   "frame_ms": 16.72,
+   "fps": 59.8,
+   "n": 240
+  },
+  "B_dyn_idle": {
+   "frame_ms": 16.69,
+   "fps": 59.92,
+   "n": 240
+  },
+  "C_dyn_walk": {
+   "frame_ms": 27.77,
+   "fps": 36.01,
+   "n": 240
+  },
+  "D_push_walk": {
+   "frame_ms": 33.21,
+   "fps": 30.11,
+   "n": 240
+  }
+ },
+ "deltas_ms": {
+  "dynamic_bodies_idle": 0.01,
+  "dynamic_bodies_walking": 11.05,
+  "hit_callback_walking": 5.44,
+  "walking_vs_standing_static": 0.04
+ },
+ "push_stats_total": {
+  "steps": 282,
+  "moving_steps": 238,
+  "hits": 13,
+  "impulses": 8,
+  "contact_events": 0,
+  "contact_pairs_with_cct": 0,
+  "impulse_ns_total": 9.864764515846897,
+  "capped": 0,
+  "woken": 1,
+  "errors": 0
+ }
+}

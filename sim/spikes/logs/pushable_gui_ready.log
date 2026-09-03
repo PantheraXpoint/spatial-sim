@@ -1,0 +1,79 @@
+[gui_viewports] opening /workspace/sim/observatory_avatar.usd
+[gui_viewports] stage root: /Root   (27406 prims)
+[sensor_factory] robot BOT_01 -> /Root/Robots/BOT_01
+[sensor_factory] robot BOT_02 -> /Root/Robots/BOT_02
+[sensor_factory] robot BOT_03 -> /Root/Robots/BOT_03
+[sensor_factory] station INFRA_02 declared but not sited on this stage (no stage_position) -- skipped
+[gui_viewports] station /Root/Infrastructure/INFRA_01 at [4.91, 6.61, 2.6]
+[sensor_factory] station marker at /Root/Infrastructure/INFRA_01/marker (emissive, above the station)
+[sensor_factory] INFRA_01_CAM -> /Root/Infrastructure/INFRA_01/cam_01 (camera, annotators [])
+[sensor_factory] INFRA_01_LIDAR -> /Root/Infrastructure/INFRA_01/lidar_01 (lidar Example_Rotary, draw attached)
+[sensor_factory] skip INFRA_01_RADAR: radar needs the three Motion BVH kit flags
+[sensor_factory] skip INFRA_02_CAM: parent /World/Infrastructure/INFRA_02 is not on the stage
+[sensor_factory] skip INFRA_02_LIDAR: parent /World/Infrastructure/INFRA_02 is not on the stage
+[sensor_factory] skip INFRA_02_RADAR: parent /World/Infrastructure/INFRA_02 is not on the stage
+[sensor_factory] BOT_01_CAM -> /Root/Robots/BOT_01/cam (camera, annotators [])
+[sensor_factory] BOT_02_CAM -> /Root/Robots/BOT_02/cam (camera, annotators [])
+[sensor_factory] BOT_03_CAM -> /Root/Robots/BOT_03/cam (camera, annotators [])
+[sensor_factory] AVATAR_CAM_FP -> /Root/Avatar/body_mesh/cam_first_person (camera, annotators [])
+[sensor_factory] AVATAR_CAM_TP -> /Root/Avatar/body_mesh/cam_third_person (camera, annotators [])
+[gui_viewports] sensor INFRA_01_CAM -> /Root/Infrastructure/INFRA_01/cam_01 (camera)
+[gui_viewports] sensor INFRA_01_LIDAR -> /Root/Infrastructure/INFRA_01/lidar_01 (lidar)
+[gui_viewports] sensor BOT_01_CAM -> /Root/Robots/BOT_01/cam (camera)
+[gui_viewports] sensor BOT_02_CAM -> /Root/Robots/BOT_02/cam (camera)
+[gui_viewports] sensor BOT_03_CAM -> /Root/Robots/BOT_03/cam (camera)
+[gui_viewports] sensor AVATAR_CAM_FP -> /Root/Avatar/body_mesh/cam_first_person (camera)
+[gui_viewports] sensor AVATAR_CAM_TP -> /Root/Avatar/body_mesh/cam_third_person (camera)
+[gui_viewports] radar not created (needs the three Motion BVH kit flags): ['INFRA_01_RADAR', 'INFRA_02_RADAR']
+  controller tuning installed: step_offset=0.04 m, slope_limit=40.0 deg (cos 0.7660), climbing=constrained; re-applied for 120 frames after each Play because OgnCharacterController overwrites stepOffset
+[sensor_factory]   collision disabled on 1486 prims entirely above 2.2 m
+[nav_obstacles] static collider /Root/NavObstacles/Root_Worker  capsule {'radius': 0.3, 'height': 1.339, 'total_height': 1.939, 'radius_source': 'declared'}  (target already had 0 enabled colliders, its own xform scale [0.01, 0.01, 0.01])
+[nav_obstacles] static collider /Root/NavObstacles/Root_Robots_BOT_01  box {'half_extent': [0.0585, 0.0758, 0.0956]}  (target already had 5 enabled colliders, its own xform scale [1.0, 1.0, 1.0])
+[nav_obstacles] static collider /Root/NavObstacles/Root_Robots_BOT_02  box {'half_extent': [0.2439, 0.1377, 0.2689]}  (target already had 0 enabled colliders, its own xform scale [1.0, 1.0, 1.0])
+[nav_obstacles] static collider /Root/NavObstacles/Root_Robots_BOT_03  capsule {'radius': 0.3, 'height': 1.206, 'total_height': 1.806, 'radius_source': 'declared'}  (target already had 3 enabled colliders, its own xform scale [1.0, 1.0, 1.0])
+[nav_obstacles] 4 nav obstacles given a static collider, 0 missing
+[pushable_props] dynamic  /Root/Warehouse/S_WetFloorSign_2  1.5 kg  none -> convexDecomposition  (1 collider)  predicted dv 1.371 m/s per contact frame vs 0.082 lost to friction -> MOVES
+[pushable_props] dynamic  /Root/Warehouse/S_TrafficCone_2  2 kg  none -> convexHull  (1 collider)  predicted dv 1.361 m/s per contact frame vs 0.082 lost to friction -> MOVES
+[pushable_props] dynamic  /Root/Warehouse/S_WetFloorSign2  1.5 kg  none -> convexDecomposition  (1 collider)  predicted dv 1.371 m/s per contact frame vs 0.082 lost to friction -> MOVES
+[pushable_props] dynamic  /Root/Warehouse/S_TrafficCone2  2 kg  none -> convexHull  (1 collider)  predicted dv 1.361 m/s per contact frame vs 0.082 lost to friction -> MOVES
+[pushable_props] dynamic  /Root/Warehouse/S_TrafficCone3  2 kg  none -> convexHull  (1 collider)  predicted dv 1.361 m/s per contact frame vs 0.082 lost to friction -> MOVES
+[pushable_props] dynamic  /Root/Warehouse/SM_CratePlasticNote_B_03_18  1.2 kg  none -> convexDecomposition  (1 collider)  predicted dv 1.376 m/s per contact frame vs 0.082 lost to friction -> MOVES
+[pushable_props] dynamic  /Root/Warehouse/SM_CardBoxD_04_6  1.5 kg  none -> convexHull  (1 collider)  predicted dv 1.371 m/s per contact frame vs 0.082 lost to friction -> MOVES
+[pushable_props] dynamic  /Root/Warehouse/SM_CardBoxA_3  8 kg  none -> convexHull  (1 collider)  predicted dv 0.521 m/s per contact frame vs 0.082 lost to friction -> MOVES
+[pushable_props] dynamic  /Root/Warehouse/SM_CardBoxB_3  4 kg  none -> convexHull  (1 collider)  predicted dv 1.042 m/s per contact frame vs 0.082 lost to friction -> MOVES
+[pushable_props] dynamic  /Root/Warehouse/SM_BarelPlastic_C_01_25  60 kg  none -> convexHull  (1 collider)  predicted dv 0.069 m/s per contact frame vs 0.082 lost to friction -> STAYS
+[pushable_props] 10 props dynamic, 0 declared but not converted; stall mass 51.0 kg (F_max 250 N / g / mu_d 0.5)
+[pushable_props] push callback on (sweep): 10 bodies, M=70 kg, F_max=250 N, capsule r=0.300 half-h=0.575, 5 probes
+[gui_viewports] panel shows INFRA_01_CAM (GUI_PANEL=... to change, or use the panel's own camera menu live)
+[gui_viewports] cameras created but not panelled: AVATAR_CAM_FP, AVATAR_CAM_TP, BOT_01_CAM, BOT_02_CAM, BOT_03_CAM (GUI_AVATAR_CAMS=1 / GUI_ROBOT_CAMS=1)
+[gui_viewports] viewport 'INFRA_01_CAM' -> /Root/Infrastructure/INFRA_01/cam_01
+[gui_viewports] ====================================================================
+[gui_viewports] READY -- 7 sensors, 1 viewport panels bound, follow=on, inspector=on, pushable=10 props (push on), nav=4 static obstacles, cct=tuned
+[gui_viewports] panel INFRA_01_CAM renders 640x360 px  [asked for 640x360]
+[gui_viewports] lidar config: INFRA_01_LIDAR created, draw attached -- GUI_LIDAR=1 GUI_LIDAR_DRAW=1
+[gui_viewports] Sensor Inspector panel: select a sensor prim to see its live numbers
+[gui_viewports] 1. drag the panels into place
+[gui_viewports] 2. Window -> Layout -> Save Layout As...
+[gui_viewports] 3. THEN press Play. Never re-dock while a lidar sim is running.
+[gui_viewports] ====================================================================
+[sensor_factory] robot BOT_01 pinned static: 6 bodies, 1 articulation roots
+[sensor_factory] robot BOT_02 pinned static: 17 bodies, 1 articulation roots
+[sensor_factory] robot BOT_02 lifted +0.449 m so its lowest point rests on the floor
+[sensor_factory] robot BOT_03 pinned static: 25 bodies, 1 articulation roots
+[sensor_factory] robot BOT_03 lifted +1.044 m so its lowest point rests on the floor
+[gui_viewports] robots pinned static -- they will not collapse at Play
+[nav_obstacles] static collider /Root/NavObstacles/Root_Worker  capsule {'radius': 0.3, 'height': 1.339, 'total_height': 1.939, 'radius_source': 'declared'}  (target already had 0 enabled colliders, its own xform scale [0.01, 0.01, 0.01])
+[nav_obstacles] static collider /Root/NavObstacles/Root_Robots_BOT_01  box {'half_extent': [0.0585, 0.0758, 0.0956]}  (target already had 5 enabled colliders, its own xform scale [1.0, 1.0, 1.0])
+[nav_obstacles] static collider /Root/NavObstacles/Root_Robots_BOT_02  box {'half_extent': [0.2439, 0.1377, 0.2689]}  (target already had 25 enabled colliders, its own xform scale [1.0, 1.0, 1.0])
+[nav_obstacles] static collider /Root/NavObstacles/Root_Robots_BOT_03  capsule {'radius': 0.3, 'height': 1.206, 'total_height': 1.806, 'radius_source': 'declared'}  (target already had 3 enabled colliders, its own xform scale [1.0, 1.0, 1.0])
+[nav_obstacles] 4 nav obstacles given a static collider, 0 missing
+[gui_viewports] nav colliders re-sized after the robots settled
+[gui_viewports] fps 28.33  (stopped)
+[gui_viewports] fps 48.77  (stopped)
+[gui_viewports] fps 48.77  (stopped)
+[gui_viewports] fps 57.69  (stopped)
+[gui_viewports] fps 56.05  (stopped)
+[gui_viewports] fps 49.56  (stopped)
+[gui_viewports] fps 45.34  (stopped)
+[gui_viewports] fps 56.96  (stopped)
+[gui_viewports] fps 59.98  (stopped)
